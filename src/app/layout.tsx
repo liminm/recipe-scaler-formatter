@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
 
 export const metadata: Metadata = {
-  title: 'Food Processor',
+  title: 'Dumpling Maker',
   description: 'Logistics and production engine for social cooking events.',
 };
 
@@ -21,8 +21,9 @@ export default function RootLayout({
         <div className="app-shell">
           <nav className="topbar">
             <div className="container topbar-content">
-              <a href="/" className="brand">
-                Food Processor
+              <a href="/" className="brand" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
+                <img src="/dumpling-logo.png" alt="Dumpling Maker" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+                <span>Dumpling Maker</span>
               </a>
               <div className="nav-links">
                 <a href="/events" className="nav-link">Events</a>
@@ -35,7 +36,7 @@ export default function RootLayout({
             {children}
           </main>
           <footer className="footer">
-            <p>Food Processor &copy; 2025</p>
+            <p>Dumpling Maker &copy; 2025</p>
           </footer>
         </div>
       </body>

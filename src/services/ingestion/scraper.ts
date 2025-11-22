@@ -11,7 +11,7 @@ export async function scrapeRecipe(url: string): Promise<ScrapedData> {
     try {
         const res = await fetch(url, {
             headers: {
-                'User-Agent': 'FoodProcessorBot/1.0 (Food Processor)'
+                'User-Agent': 'DumplingMakerBot/1.0 (Dumpling Maker)'
             }
         });
 
