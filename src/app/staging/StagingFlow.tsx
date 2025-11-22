@@ -214,13 +214,14 @@ export default function StagingFlow() {
             // Clean up any awkward punctuation/spacing
             cleaned = cleaned
               .replace(/\s+/g, ' ')           // Multiple spaces to single
+              .replace(/\s+,/g, ',')          // Space before comma " ," -> ","
               .replace(/,?\s+and\s+[.,;]/gi, '.') // "and ." or ", and ." -> "."
               .replace(/,?\s+and\s*$/gi, '')      // Trailing "and" -> ""
               .replace(/,\s*\./g, '.')        // Comma before period
               .replace(/,\s*,/g, ',')         // Double commas
               .replace(/\band\s+and\b/gi, 'and') // Double "and"
-              .replace(/,\s+and\s+([a-z])/gi, ', and $1') // Restore oxford comma if needed
-              .replace(/\s+([.,;])/g, '$1')   // Space before punctuation (MOVED TO END)
+              .replace(/,\s+and\b/gi, ' and') // ", and" -> " and" (simplify lists)
+              .replace(/\s+([.,;])/g, '$1')   // Space before punctuation
               .replace(/([.,;])\s*([.,;])/g, '$1') // Double punctuation
               .replace(/\.\s+\./g, '.')       // Double periods
               .trim();
