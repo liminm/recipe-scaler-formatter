@@ -16,8 +16,11 @@ export default function LoadingDumpling({ message, size = 'medium' }: LoadingDum
   // DVD Animation State
   const [dvdPos, setDvdPos] = useState({ x: 0, y: 0 });
   const [dvdHue, setDvdHue] = useState(0);
+  // --- 4. Scroll Surfer State ---
+  const [isScrolling, setIsScrolling] = useState(false);
+  const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const requestRef = useRef<number>();
+  const requestRef = useRef<number | null>(null);
   const velocityRef = useRef({ dx: 2, dy: 2 });
   const posRef = useRef({ x: 0, y: 0 });
 
