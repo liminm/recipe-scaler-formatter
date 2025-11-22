@@ -1,66 +1,54 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div>
+      <header className="mb-6">
+        <h1>Food Processor</h1>
+        <p className="text-muted" style={{ fontSize: '1.125rem', maxWidth: '600px' }}>
+          Logistics, scaling, and physics for social cooking events.
+        </p>
+      </header>
+
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.5rem' }}>
+        
+        {/* Events Card */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <div style={{ marginBottom: 'auto' }}>
+            <h2 className="mb-2">Events</h2>
+            <p className="text-muted mb-4">
+              Manage upcoming cooking sessions, headcounts, and menus.
+            </p>
+          </div>
+          <div className="mt-4" style={{ display: 'flex', gap: '1rem' }}>
+            <Link href="/events" className="btn btn-secondary w-full">
+              View All
+            </Link>
+            <Link href="/events/new" className="btn btn-primary w-full">
+              New Event
+            </Link>
+          </div>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Recipes Card */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <div style={{ marginBottom: 'auto' }}>
+            <h2 className="mb-2">Recipe Library</h2>
+            <p className="text-muted mb-4">
+              Global shared library of scaled, metric-converted recipes.
+            </p>
+          </div>
+          <div className="mt-4" style={{ display: 'flex', gap: '1rem' }}>
+             <Link href="/recipes" className="btn btn-secondary w-full">
+              Browse
+            </Link>
+            <Link href="/staging" className="btn btn-primary w-full">
+              Ingest New
+            </Link>
+          </div>
         </div>
-      </main>
+
+      </div>
     </div>
   );
 }
