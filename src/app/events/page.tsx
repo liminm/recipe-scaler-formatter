@@ -60,7 +60,8 @@ function EventHeader({
   dietaryTags,
   onEventNameChange,
   onHeadcountChange,
-  onTargetMassChange 
+  onTargetMassChange,
+  onRemoveTag
 }: {
   eventName: string;
   headcount: number;
@@ -69,7 +70,10 @@ function EventHeader({
   onEventNameChange: (name: string) => void;
   onHeadcountChange: (count: number) => void;
   onTargetMassChange: (mass: number) => void;
+  onRemoveTag: (tag: string) => void;
 }) {
+  const [showEquipment, setShowEquipment] = useState(false);
+
   return (
     <div className="card mb-6">
       <input
@@ -77,11 +81,11 @@ function EventHeader({
         value={eventName}
         onChange={(e) => onEventNameChange(e.target.value)}
         className="input-field mb-4"
-        style={{ fontSize: '1.5rem', fontWeight: 700, background: 'transparent', border: 'none', padding: '0.5rem 0' }}
+        style={{ fontSize: '1.75rem', fontWeight: 700, background: 'transparent', border: 'none', padding: '0.5rem 0' }}
         placeholder="Event Name"
       />
       
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
         <div>
           <label className="text-muted" style={{ fontSize: '0.875rem', display: 'block', marginBottom: '0.5rem' }}>
             Headcount
@@ -93,7 +97,7 @@ function EventHeader({
             className="input-field"
             min="1"
           />
-          <p className="text-dim" style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>
+          <p className="text-muted" style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>
             Serving {headcount} people
           </p>
         </div>
@@ -113,31 +117,70 @@ function EventHeader({
             />
             <span className="text-muted">g</span>
           </div>
-          <p className="text-dim" style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>
+          <p className="text-muted" style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>
             Total target: {((headcount * targetMass) / 1000).toFixed(1)} kg
           </p>
         </div>
       </div>
       
       {dietaryTags.length > 0 && (
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
           {dietaryTags.map((tag) => (
             <span
               key={tag}
               style={{
                 fontSize: '0.75rem',
-                background: 'var(--color-primary-subtle)',
-                color: 'var(--color-primary)',
+                background: 'rgba(79, 70, 229, 0.15)',
+                color: '#6366f1',
                 padding: '0.25rem 0.75rem',
                 borderRadius: '1rem',
-                fontWeight: 500
+                fontWeight: 500,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
               }}
             >
               {tag}
+              <button
+                onClick={() => onRemoveTag(tag)}
+                style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, fontSize: '1rem' }}
+              >
+                ×
+              </button>
             </span>
           ))}
         </div>
       )}
+
+      <div style={{ marginBottom: '1rem' }}>
+        <button
+          onClick={() => setShowEquipment(!showEquipment)}
+          className="btn btn-secondary"
+          style={{ fontSize: '0.875rem' }}
+        >
+          {showEquipment ? '− Hide' : '+ Show'} Equipment Profile
+        </button>
+      </div>
+
+      {showEquipment && (
+        <div className="card" style={{ padding: '1rem', marginBottom: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+            <div>
+              <label className="text-muted" style={{ fontSize: '0.75rem' }}>Oven Capacity</label>
+              <p className="text-mono">4 trays</p>
+            </div>
+            <div>
+              <label className="text-muted" style={{ fontSize: '0.75rem' }}>Fridge Space</label>
+              <p className="text-mono">200L</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: '1rem' }}>
+        <button className="btn btn-primary">Save Event</button>
+        <button className="btn btn-secondary">Duplicate Event</button>
+      </div>
     </div>
   );
 }
@@ -175,7 +218,6 @@ function RecipeSelector({
             style={{ 
               marginBottom: '0.75rem', 
               padding: '1rem',
-              cursor: 'pointer',
               transition: 'all 0.2s'
             }}
           >
@@ -184,7 +226,7 @@ function RecipeSelector({
             </h4>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <span className="text-dim" style={{ fontSize: '0.75rem' }}>
+                <span className="text-muted" style={{ fontSize: '0.75rem' }}>
                   {recipe.original_yield_servings} servings
                 </span>
                 {recipe.tags.map((tag) => (
@@ -224,88 +266,98 @@ function MenuBuilder({
   onUpdatePercentage: (recipeId: string, percentage: number) => void;
 }) {
   const totalPercentage = menuRecipes.reduce((sum, r) => sum + r.targetPercentage, 0);
+  const totalMass = menuRecipes.reduce((sum, r) => sum + r.scaledMass, 0);
   
   return (
     <div className="card" style={{ height: '600px', display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h3>Current Menu</h3>
-        <span className="text-mono" style={{ fontSize: '0.875rem', color: totalPercentage > 100 ? 'var(--color-danger)' : 'var(--color-text-muted)' }}>
+        <span className="text-mono" style={{ fontSize: '0.875rem', color: totalPercentage > 100 ? '#ef4444' : 'var(--color-text-muted)' }}>
           {totalPercentage}%
         </span>
       </div>
       
       {menuRecipes.length === 0 ? (
-        <div className="flex-center" style={{ flex: 1, textAlign: 'center' }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
           <p className="text-muted">No recipes in menu yet. Add recipes from the library on the left.</p>
         </div>
       ) : (
-        <div style={{ flex: 1, overflowY: 'auto' }}>
-          {menuRecipes.map((recipe) => (
-            <div
-              key={recipe.recipeId}
-              className="card"
-              style={{ marginBottom: '0.75rem', padding: '1rem' }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-                <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, flex: 1 }}>
-                  {recipe.title}
-                </h4>
-                <button
-                  onClick={() => onRemoveRecipe(recipe.recipeId)}
-                  className="btn"
-                  style={{ 
-                    fontSize: '0.75rem', 
-                    padding: '0.25rem 0.5rem',
-                    background: 'transparent',
-                    border: '1px solid var(--color-border)',
-                    color: 'var(--color-text-muted)'
-                  }}
-                >
-                  × Remove
-                </button>
-              </div>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                <div>
-                  <label className="text-muted" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.25rem' }}>
-                    Role
-                  </label>
-                  <select
-                    value={recipe.role}
-                    onChange={(e) => onUpdateRole(recipe.recipeId, e.target.value as MenuRecipe['role'])}
-                    className="input-field"
-                    style={{ fontSize: '0.875rem', padding: '0.5rem' }}
+        <>
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            {menuRecipes.map((recipe) => (
+              <div
+                key={recipe.recipeId}
+                className="card"
+                style={{ marginBottom: '0.75rem', padding: '1rem' }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
+                  <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, flex: 1 }}>
+                    {recipe.title}
+                  </h4>
+                  <button
+                    onClick={() => onRemoveRecipe(recipe.recipeId)}
+                    className="btn"
+                    style={{ 
+                      fontSize: '0.75rem', 
+                      padding: '0.25rem 0.5rem',
+                      background: 'transparent',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text-muted)'
+                    }}
                   >
-                    <option value="Main">Main</option>
-                    <option value="Side">Side</option>
-                    <option value="Filler">Filler</option>
-                    <option value="Dessert">Dessert</option>
-                  </select>
+                    × Remove
+                  </button>
                 </div>
                 
-                <div>
-                  <label className="text-muted" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.25rem' }}>
-                    Target %
-                  </label>
-                  <input
-                    type="number"
-                    value={recipe.targetPercentage}
-                    onChange={(e) => onUpdatePercentage(recipe.recipeId, Number(e.target.value))}
-                    className="input-field"
-                    style={{ fontSize: '0.875rem', padding: '0.5rem' }}
-                    min="0"
-                    max="100"
-                  />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <div>
+                    <label className="text-muted" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.25rem' }}>
+                      Role
+                    </label>
+                    <select
+                      value={recipe.role}
+                      onChange={(e) => onUpdateRole(recipe.recipeId, e.target.value as MenuRecipe['role'])}
+                      className="input-field"
+                      style={{ fontSize: '0.875rem', padding: '0.5rem' }}
+                    >
+                      <option value="Main">Main</option>
+                      <option value="Side">Side</option>
+                      <option value="Filler">Filler</option>
+                      <option value="Dessert">Dessert</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="text-muted" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.25rem' }}>
+                      Target %
+                    </label>
+                    <input
+                      type="number"
+                      value={recipe.targetPercentage}
+                      onChange={(e) => onUpdatePercentage(recipe.recipeId, Number(e.target.value))}
+                      className="input-field"
+                      style={{ fontSize: '0.875rem', padding: '0.5rem' }}
+                      min="0"
+                      max="100"
+                    />
+                  </div>
+                </div>
+                
+                <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
+                  <span className="text-muted">Scale: {recipe.scaleFactor.toFixed(2)}×</span>
+                  <span className="text-mono text-muted">{(recipe.scaledMass / 1000).toFixed(2)} kg</span>
                 </div>
               </div>
-              
-              <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                <span className="text-dim">Scale factor: {recipe.scaleFactor.toFixed(2)}×</span>
-                <span className="text-mono text-muted">{(recipe.scaledMass / 1000).toFixed(2)} kg</span>
-              </div>
+            ))}
+          </div>
+
+          <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1rem', marginTop: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+              <span className="text-muted">Total Mass:</span>
+              <span className="text-mono">{(totalMass / 1000).toFixed(2)} kg</span>
             </div>
-          ))}
-        </div>
+          </div>
+        </>
       )}
     </div>
   );
@@ -331,7 +383,7 @@ function ConstraintWarnings({ warnings }: { warnings: Warning[] }) {
               borderRadius: 'var(--radius-md)'
             }}
           >
-            <span style={{ fontSize: '1.25rem', color: 'var(--color-warning)' }}>⚠</span>
+            <span style={{ fontSize: '1.25rem', color: '#f59e0b' }}>⚠</span>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-text)', flex: 1 }}>
               {warning.message}
             </p>
@@ -359,7 +411,7 @@ function ScaledIngredientList({ ingredients }: { ingredients: Ingredient[] }) {
               Role
             </th>
             <th className="text-muted" style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.75rem', fontWeight: 600 }}>
-              Warning
+              Flags
             </th>
           </tr>
         </thead>
@@ -375,7 +427,7 @@ function ScaledIngredientList({ ingredients }: { ingredients: Ingredient[] }) {
               </td>
               <td style={{ padding: '0.75rem', textAlign: 'center' }}>
                 {ing.isHighPotency && (
-                  <span style={{ fontSize: '0.75rem', background: 'var(--color-warning)', color: '#000', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontWeight: 600 }}>
+                  <span style={{ fontSize: '0.75rem', background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontWeight: 600 }}>
                     High Potency
                   </span>
                 )}
@@ -393,6 +445,7 @@ export default function EventPage() {
   const [eventName, setEventName] = useState('Weekend Catering Event');
   const [headcount, setHeadcount] = useState(30);
   const [targetMass, setTargetMass] = useState(500);
+  const [dietaryTags, setDietaryTags] = useState(['Vegetarian', 'Gluten-free']);
   const [menuRecipes, setMenuRecipes] = useState<MenuRecipe[]>([
     {
       recipeId: '4',
@@ -431,6 +484,10 @@ export default function EventPage() {
       r.recipeId === recipeId ? { ...r, targetPercentage: percentage } : r
     ));
   };
+
+  const handleRemoveTag = (tag: string) => {
+    setDietaryTags(dietaryTags.filter(t => t !== tag));
+  };
   
   return (
     <div>
@@ -438,10 +495,11 @@ export default function EventPage() {
         eventName={eventName}
         headcount={headcount}
         targetMass={targetMass}
-        dietaryTags={['Vegetarian', 'Gluten-free']}
+        dietaryTags={dietaryTags}
         onEventNameChange={setEventName}
         onHeadcountChange={setHeadcount}
         onTargetMassChange={setTargetMass}
+        onRemoveTag={handleRemoveTag}
       />
       
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
