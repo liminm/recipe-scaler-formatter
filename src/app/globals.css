@@ -313,3 +313,46 @@ p {
   align-items: center;
   justify-content: center;
 }
+/* --- Playful Loading Animations --- */
+
+/* 1. Happy Hopper */
+@keyframes jump {
+  0%, 100% { transform: translateY(0) scale(1.1, 0.9); } /* Squash */
+  40% { transform: translateY(-40px) scale(0.9, 1.1); } /* Stretch at peak */
+  80% { transform: translateY(0) scale(1.05, 0.95); } /* Land */
+}
+
+/* 2. Gymnast (Salto) */
+@keyframes flip {
+  0% { transform: translateY(0) rotateZ(0deg) scale(1.1, 0.9); } /* Crouch */
+  40% { transform: translateY(-60px) rotateZ(180deg) scale(1); } /* Peak */
+  80% { transform: translateY(0) rotateZ(360deg) scale(1.05, 0.95); } /* Land */
+  100% { transform: translateY(0) rotateZ(360deg) scale(1); }
+}
+
+/* 4. Dizzy Spinner */
+@keyframes spin-wobble {
+  0% { transform: rotateZ(0deg); }
+  20% { transform: rotateZ(720deg); } /* Fast spin */
+  40% { transform: rotateZ(720deg) translateX(-5px); } /* Stop & wobble */
+  50% { transform: rotateZ(720deg) translateX(5px); }
+  60% { transform: rotateZ(720deg) translateX(-3px); }
+  70% { transform: rotateZ(720deg) translateX(3px); }
+  100% { transform: rotateZ(720deg); }
+}
+
+/* 5. Peek-a-Boo */
+@keyframes peek {
+  0%, 100% { transform: translateY(100%); opacity: 0; }
+  20%, 80% { transform: translateY(0); opacity: 1; }
+  30% { transform: translateY(0) rotateZ(-10deg); }
+  40% { transform: translateY(0) rotateZ(10deg); }
+  50% { transform: translateY(0) rotateZ(0deg); }
+}
+
+/* Dust particle for jump */
+@keyframes dust {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
