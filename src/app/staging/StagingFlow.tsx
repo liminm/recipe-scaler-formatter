@@ -1288,16 +1288,13 @@ Mash avocados...
                   return (
                     <div 
                       key={stepItem.id} 
-                      className="card" 
                       style={{ 
-                        padding: '0.75rem',
+                        padding: '1rem 0',
+                        borderBottom: '1px solid var(--color-border)',
                         transition: 'all 0.2s ease',
-                        border: isHighlighted 
-                          ? '2px solid var(--color-primary)' 
-                          : '2px solid var(--color-border)',
-                        background: isHighlighted 
+                        backgroundColor: isHighlighted 
                           ? 'rgba(232, 149, 111, 0.05)' 
-                          : 'var(--color-surface)'
+                          : 'transparent'
                       }}
                     >
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'start' }}>

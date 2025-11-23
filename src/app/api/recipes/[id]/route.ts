@@ -63,6 +63,7 @@ export async function PUT(
             .from('recipes')
             .update({
                 title: recipe.title,
+                summary: recipe.summary,
                 source_url: recipe.source_url,
                 original_yield_servings: recipe.original_yield_servings,
                 chefs_notes: recipe.chefs_notes,
