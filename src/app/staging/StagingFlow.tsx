@@ -762,70 +762,91 @@ Mash avocados...
       )}
 
       {step === 'input' && (
-        <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
-          {isLoading ? (
-            <LoadingDumpling 
-              message={inputMode === 'url' ? 'Fetching recipe from URL...' : 'Processing recipe text...'}
-              size="medium"
-            />
-          ) : (
-            <>
-              <h2 style={{ marginBottom: '1rem' }}>Ingest Recipe</h2>
-              
-              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-                <button 
-                  className={`btn ${inputMode === 'url' ? 'btn-primary' : 'btn-secondary'}`}
-                  onClick={() => setInputMode('url')}
-                >
-                  From URL
-                </button>
-                <button 
-                  className={`btn ${inputMode === 'text' ? 'btn-primary' : 'btn-secondary'}`}
-                  onClick={() => setInputMode('text')}
-                >
-                  From Text
-                </button>
-              </div>
-              
-              <div style={{ marginBottom: '1rem' }}>
-                {inputMode === 'url' ? (
-                  <input
-                    type="url"
-                    placeholder="https://example.com/recipe"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    className="input-field"
-                  />
-                ) : (
-                  <textarea
-                    placeholder="Paste recipe text here..."
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    rows={10}
-                    className="input-field"
-                  />
-                )}
-              </div>
-              
-              <button 
-                className="btn btn-primary w-full"
-                onClick={handleSubmit}
-                disabled={!inputValue.trim()}
-              >
-                Analyze
-              </button>
-              
-              {isChiliMode && (
-                <button 
-                  className="btn btn-secondary w-full mt-4"
-                  onClick={handleMockSplit}
-                  style={{ border: '1px dashed #666' }}
-                >
-                  🔧 Debug: Mock Split (3 Recipes)
-                </button>
-              )}
-            </>
-          )}
+        <div className="ingest-panel">
+          <div className="ingest-card">
+            {isLoading ? (
+              <LoadingDumpling
+                message={inputMode === 'url' ? 'Fetching recipe from URL...' : 'Processing recipe text...'}
+                size="medium"
+              />
+            ) : (
+              <>
+                <div className="ingest-card-head">
+                  <div>
+                    <p className="eyebrow">Start ingestion</p>
+                    <h2>Ingest Recipe</h2>
+                  </div>
+                  <div className="pill">Step 1 of 3</div>
+                </div>
+
+                <div className="ingest-tabs">
+                  <button
+                    className={`chip ${inputMode === 'url' ? 'chip-active' : ''}`}
+                    onClick={() => setInputMode('url')}
+                  >
+                    From URL
+                  </button>
+                  <button
+                    className={`chip ${inputMode === 'text' ? 'chip-active' : ''}`}
+                    onClick={() => setInputMode('text')}
+                  >
+                    From Text
+                  </button>
+                </div>
+
+                <div>
+                  {inputMode === 'url' ? (
+                    <input
+                      type="url"
+                      placeholder="https://example.com/recipe"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      className="input-field"
+                    />
+                  ) : (
+                    <textarea
+                      placeholder="Paste recipe text here..."
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      rows={10}
+                      className="input-field"
+                      style={{ fontFamily: 'var(--font-mono)', minHeight: '220px' }}
+                    />
+                  )}
+                </div>
+
+                <div className="ingest-actions">
+                  <button
+                    className="btn btn-primary w-full"
+                    onClick={handleSubmit}
+                    disabled={!inputValue.trim()}
+                  >
+                    Analyze
+                  </button>
+                  {isChiliMode && (
+                    <button className="btn btn-secondary w-full" onClick={handleMockSplit} style={{ borderStyle: 'dashed' }}>
+                      🔧 Debug: Mock Split (3 Recipes)
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="ingest-aside">
+            <div className="ingest-aside-card">
+              <p className="eyebrow">Tips</p>
+              <ul>
+                <li>Full ingredient lines work best; include quantities and units.</li>
+                <li>If there are multiple recipes in one paste, we’ll offer a split.</li>
+                <li>Links behind a login may fail—paste the text instead.</li>
+              </ul>
+            </div>
+            <div className="ingest-aside-card">
+              <p className="eyebrow">Output</p>
+              <p className="text-muted">We’ll parse steps, ingredients, yields, and metadata, then let you edit before saving.</p>
+            </div>
+          </div>
         </div>
       )}
       
