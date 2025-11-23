@@ -16,11 +16,23 @@ export function ChiliProvider({ children }: { children: React.ReactNode }) {
 
   // Persist chili mode in localStorage
   useEffect(() => {
+    // Clear old debug_mode key if it exists
+    localStorage.removeItem('debug_mode');
+    
     const stored = localStorage.getItem('chili_mode');
     if (stored === 'true') {
       setIsChiliMode(true);
     }
   }, []);
+
+  // Apply chili-mode class to body
+  useEffect(() => {
+    if (isChiliMode) {
+      document.body.classList.add('chili-mode');
+    } else {
+      document.body.classList.remove('chili-mode');
+    }
+  }, [isChiliMode]);
 
   const toggleChiliMode = () => {
     const newState = !isChiliMode;

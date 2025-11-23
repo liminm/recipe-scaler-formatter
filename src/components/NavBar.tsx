@@ -9,7 +9,7 @@ export default function NavBar() {
   const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleLogoClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigation on ALL clicks
+    e.preventDefault(); // Prevent ALL navigation by default
     
     // Clear any existing reset timer
     if (resetTimerRef.current) {
@@ -25,10 +25,14 @@ export default function NavBar() {
       setClickCount(0);
       resetTimerRef.current = null;
     } else {
-      // Reset count after 2 seconds of inactivity
+      // Set a timer to check if this was a single click
       resetTimerRef.current = setTimeout(() => {
+        // If count is still 1 after delay, it was a single click - navigate
+        if (clickCount + 1 === 1) {
+          window.location.href = '/';
+        }
         setClickCount(0);
-      }, 2000);
+      }, 400); // 400ms delay to detect multi-clicks
     }
   };
 
