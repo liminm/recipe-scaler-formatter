@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { useDebug } from '@/context/DebugContext';
+import { useChili } from '@/context/ChiliContext';
 
 export default function NavBar() {
-  const { toggleDebugMode } = useDebug();
+  const { toggleChiliMode, isChiliMode } = useChili();
   const [clickCount, setClickCount] = useState(0);
   const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation on ALL clicks
+    
     // Clear any existing reset timer
     if (resetTimerRef.current) {
       clearTimeout(resetTimerRef.current);
@@ -19,8 +21,7 @@ export default function NavBar() {
     
     // Check if we've reached 5 clicks
     if (newCount >= 5) {
-      e.preventDefault();
-      toggleDebugMode();
+      toggleChiliMode();
       setClickCount(0);
       resetTimerRef.current = null;
     } else {
@@ -32,11 +33,19 @@ export default function NavBar() {
   };
 
   return (
-    <nav className="topbar">
+    <nav className="topbar" style={{
+      background: isChiliMode 
+        ? 'linear-gradient(135deg, #c92a2a 0%, #e03131 100%)'
+        : undefined
+    }}>
       <div className="container topbar-content">
         <a href="/" className="brand" onClick={handleLogoClick} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', cursor: 'pointer' }}>
-          <img src="/dumpling-logo.png" alt="Dumpling Maker" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
-          <span>Dumpling Maker</span>
+          <img 
+            src={isChiliMode ? "/chili.png" : "/dumpling-logo.png"} 
+            alt={isChiliMode ? "Chili Dumpling Maker" : "Dumpling Maker"}
+            style={{ width: '32px', height: '32px', borderRadius: '50%' }} 
+          />
+          <span>{isChiliMode ? "🌶️ Chili Dumpling Maker" : "Dumpling Maker"}</span>
         </a>
         <div className="nav-links">
           <a href="/events" className="nav-link">Events</a>

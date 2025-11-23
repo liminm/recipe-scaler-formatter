@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useDebug } from '@/context/DebugContext';
+import { useChili } from '@/context/ChiliContext';
 import LoadingDumpling from '@/components/LoadingDumpling';
 
 interface Recipe {
@@ -40,7 +40,7 @@ export default function RecipeDetailPage() {
   const params = useParams();
   const recipeId = params.id as string;
   const router = useRouter();
-  const { isDebugMode } = useDebug();
+  const { isChiliMode } = useChili();
   
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
@@ -158,7 +158,7 @@ export default function RecipeDetailPage() {
           </div>
         )}
 
-        {isDebugMode && (
+        {isChiliMode && (
           <div style={{ 
             marginTop: '0.5rem', 
             padding: '0.5rem', 

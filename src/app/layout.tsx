@@ -4,7 +4,7 @@ import './globals.css';
 
 import IdleDumplingManager from '@/components/IdleDumplingManager';
 import NavBar from '@/components/NavBar';
-import { DebugProvider } from '@/context/DebugContext';
+import { ChiliProvider } from '@/context/ChiliContext';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${jetbrains.variable}`}>
-        <DebugProvider>
+        <ChiliProvider>
           <IdleDumplingManager />
           <div className="app-shell">
             <NavBar />
@@ -33,7 +33,7 @@ export default function RootLayout({
               <p>Dumpling Maker &copy; 2025</p>
             </footer>
           </div>
-        </DebugProvider>
+        </ChiliProvider>
       </body>
     </html>
   );

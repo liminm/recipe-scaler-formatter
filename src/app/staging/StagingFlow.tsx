@@ -5,7 +5,7 @@ import { RecipeCandidate } from '@/services/ingestion/splitter';
 import { StagingRecipe, StagingIngredient, StagingStep } from '@/types/staging';
 import LoadingDumpling from '@/components/LoadingDumpling';
 import { estimateYield } from '@/services/ingestion/yieldCalculator';
-import { useDebug } from '@/context/DebugContext';
+import { useChili } from '@/context/ChiliContext';
 
 interface BatchItem {
   candidate: RecipeCandidate;
@@ -15,7 +15,7 @@ interface BatchItem {
 }
 
 export default function StagingFlow() {
-  const { isDebugMode } = useDebug();
+  const { isChiliMode } = useChili();
   const [inputMode, setInputMode] = useState<'url' | 'text'>('url');
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -815,7 +815,7 @@ Mash avocados...
                 Analyze
               </button>
               
-              {isDebugMode && (
+              {isChiliMode && (
                 <button 
                   className="btn btn-secondary w-full mt-4"
                   onClick={handleMockSplit}
@@ -1110,7 +1110,7 @@ Mash avocados...
                   </div>
                 )}
 
-                {isDebugMode && (
+                {isChiliMode && (
                   <div style={{ 
                     padding: '0.5rem', 
                     background: '#333', 

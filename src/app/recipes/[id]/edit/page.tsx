@@ -4,13 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import LoadingDumpling from '@/components/LoadingDumpling';
 import { estimateYield } from '@/services/ingestion/yieldCalculator';
-import { useDebug } from '@/context/DebugContext';
+import { useChili } from '@/context/ChiliContext';
 
 export default function EditRecipePage() {
   const router = useRouter();
   const params = useParams();
   const recipeId = params.id as string;
-  const { isDebugMode } = useDebug();
+  const { isChiliMode } = useChili();
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -612,7 +612,7 @@ export default function EditRecipePage() {
                 Manual override: edit the value above to set a custom weight
               </p>
               
-              {isDebugMode && (
+              {isChiliMode && (
                 <div style={{ 
                   marginTop: '0.5rem', 
                   padding: '0.5rem', 

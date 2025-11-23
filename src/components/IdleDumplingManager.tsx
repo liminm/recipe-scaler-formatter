@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useChili } from '@/context/ChiliContext';
 
 /**
  * IdleDumplingManager
- * Manages global idle animations for the dumpling mascot.
+ * Manages global idle animations for the mascot.
+ * Shows dumpling by default, or chili in Chili Mode.
  * 
  * Features:
  * 1. Screen Walker: Hops across bottom of screen.
@@ -13,6 +15,10 @@ import { useState, useEffect, useRef } from 'react';
  * 4. Scroll Surfer: Rides the scrollbar.
  */
 export default function IdleDumplingManager() {
+  const { isChiliMode } = useChili();
+  const mascotImage = isChiliMode ? '/chili.png' : '/dumpling-logo.png';
+  const mascotMessage = isChiliMode ? '🌶️ Spicy!' : 'Hi there! 🥟';
+
   // --- 1. Screen Walker State ---
   const [walkerState, setWalkerState] = useState<'idle' | 'walking'>('idle');
   const [walkerX, setWalkerX] = useState(-100); // Start off-screen left
@@ -123,12 +129,12 @@ export default function IdleDumplingManager() {
           height: '60px',
           animation: 'jump 0.8s ease-in-out infinite',
           transformOrigin: 'bottom center',
-          pointerEvents: 'auto', // Allow clicking to scare it?
+          pointerEvents: 'auto',
           cursor: 'pointer'
         }}
-        onClick={() => setWalkerState('idle')} // Click to hide
+        onClick={() => setWalkerState('idle')}
         >
-          <img src="/dumpling-logo.png" alt="Walker" style={{ width: '100%', height: '100%' }} />
+          <img src={mascotImage} alt="Walker" style={{ width: '100%', height: '100%' }} />
         </div>
       )}
 
@@ -148,7 +154,7 @@ export default function IdleDumplingManager() {
       onMouseLeave={() => setCompanionHover(false)}
       >
         <img 
-          src="/dumpling-logo.png" 
+          src={mascotImage} 
           alt="Companion" 
           style={{ 
             width: '100%', 
@@ -161,7 +167,7 @@ export default function IdleDumplingManager() {
           position: 'absolute',
           top: '-40px',
           right: '0',
-          background: 'white',
+          background: isChiliMode ? 'linear-gradient(135deg, #ffcccc, #ffdddd)' : 'white',
           padding: '5px 10px',
           borderRadius: '10px',
           boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
@@ -169,28 +175,24 @@ export default function IdleDumplingManager() {
           transition: 'opacity 0.2s',
           whiteSpace: 'nowrap',
           fontSize: '12px',
-          pointerEvents: 'none'
+          pointerEvents: 'none',
+          border: isChiliMode ? '1px solid #ff6b6b' : 'none'
         }}>
-          Hi there! 🥟
+          {mascotMessage}
         </div>
       </div>
 
       {/* 3. Nav Peeker */}
       <div style={{
         position: 'absolute',
-        top: peekerState === 'peeking' ? '50px' : '-60px', // Peek below nav bar (approx 64px height)
+        top: peekerState === 'peeking' ? '50px' : '-60px',
         left: `${peekerX}%`,
         width: '40px',
         height: '40px',
         transition: 'top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-        transform: 'rotate(180deg)', // Upside down peeking from top
-        zIndex: -1 // Behind nav bar? No, layer is z-9999. 
-        // Actually, if zIndex is 9999, it's on top of everything.
-        // To peek "from behind" the nav bar, we need to be clever.
-        // Or just peek "over" the nav bar.
-        // Let's peek "over" the top edge of the screen, so it overlaps the nav bar.
+        transform: 'rotate(180deg)'
       }}>
-         <img src="/dumpling-logo.png" alt="Peeker" style={{ width: '100%', height: '100%' }} />
+         <img src={mascotImage} alt="Peeker" style={{ width: '100%', height: '100%' }} />
       </div>
 
       {/* 4. Scroll Surfer */}
@@ -204,7 +206,7 @@ export default function IdleDumplingManager() {
         transition: 'transform 0.3s ease',
         opacity: isScrolling ? 1 : 0
       }}>
-        <img src="/dumpling-logo.png" alt="Surfer" style={{ width: '100%', height: '100%' }} />
+        <img src={mascotImage} alt="Surfer" style={{ width: '100%', height: '100%' }} />
         {/* Speed lines */}
         {isScrolling && (
           <div style={{
@@ -213,7 +215,7 @@ export default function IdleDumplingManager() {
             left: '10px',
             width: '2px',
             height: '20px',
-            background: 'rgba(0,0,0,0.2)',
+            background: isChiliMode ? 'rgba(255, 107, 107, 0.3)' : 'rgba(0,0,0,0.2)',
             transform: 'rotate(15deg)'
           }} />
         )}
