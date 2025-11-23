@@ -7,11 +7,19 @@ import LoadingDumpling from '@/components/LoadingDumpling';
 import { estimateYield } from '@/services/ingestion/yieldCalculator';
 import { useDebug } from '@/context/DebugContext';
 
+interface BatchItem {
+  candidate: RecipeCandidate;
+  status: 'pending' | 'loading' | 'ready' | 'saving' | 'saved' | 'error';
+  recipe: StagingRecipe | null;
+  error?: string;
+}
+
 export default function StagingFlow() {
   const { isDebugMode } = useDebug();
   const [inputMode, setInputMode] = useState<'url' | 'text'>('url');
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
   const [candidates, setCandidates] = useState<RecipeCandidate[]>([]);
   const [step, setStep] = useState<'input' | 'selection' | 'editor'>('input');
   const [stagingRecipe, setStagingRecipe] = useState<StagingRecipe | null>(null);
@@ -409,28 +417,214 @@ export default function StagingFlow() {
     }
   };
   
-  const handleSelectCandidate = async (candidate: RecipeCandidate) => {
-    setIsLoading(true);
-    try {
-      // Call Extractor
-      const res = await fetch('/api/ingest/extract', {
-        method: 'POST',
-        body: JSON.stringify({ 
-          text: inputValue, // Ideally we'd pass the specific snippet or the whole text + index
-          titleHint: candidate.title 
-        }),
-      });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      
-      setStagingRecipe(data.recipe);
+  // Multi-import state
+  const [selectedCandidateIndices, setSelectedCandidateIndices] = useState<Set<number>>(new Set());
+  const [batchItems, setBatchItems] = useState<BatchItem[]>([]);
+  const [activeBatchIndex, setActiveBatchIndex] = useState<number>(-1);
+
+  // Helper to fetch a recipe (used for both immediate and prefetch)
+  const fetchRecipe = async (candidate: RecipeCandidate): Promise<StagingRecipe> => {
+    const res = await fetch('/api/ingest/extract', {
+      method: 'POST',
+      body: JSON.stringify({ 
+        text: inputValue, 
+        titleHint: candidate.title 
+      }),
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    return data.recipe;
+  };
+
+  // Trigger background prefetch for the next pending item
+  const triggerPrefetch = (items: BatchItem[], currentIndex: number) => {
+    const nextIndex = currentIndex + 1;
+    if (nextIndex >= items.length) return;
+    
+    const nextItem = items[nextIndex];
+    if (nextItem.status !== 'pending') return;
+
+    console.log(`Starting background prefetch for: ${nextItem.candidate.title}`);
+    
+    // Optimistically mark as loading to prevent double fetch
+    // Note: In a real app we might want a separate 'prefetching' state or just be careful
+    // For now, we'll just fire the request and update when done.
+    // We won't update state to 'loading' here to avoid UI flicker if the user switches to it.
+    // Actually, let's just let the user switch and trigger load if needed.
+    // But to be efficient, we can fire the promise and store it?
+    // For simplicity in this refactor, let's just do a fire-and-forget update:
+    
+    fetchRecipe(nextItem.candidate)
+      .then(recipe => {
+        console.log(`Prefetch complete for: ${nextItem.candidate.title}`);
+        setBatchItems(prev => prev.map((item, idx) => 
+          idx === nextIndex ? { ...item, status: 'ready', recipe } : item
+        ));
+      })
+      .catch(err => console.error('Prefetch failed:', err));
+  };
+
+  const loadBatchItem = async (index: number) => {
+    if (index < 0 || index >= batchItems.length) return;
+    
+    // Save current work if we are switching FROM a valid recipe
+    if (activeBatchIndex !== -1 && activeBatchIndex !== index && stagingRecipe) {
+       setBatchItems(prev => prev.map((item, idx) => 
+         idx === activeBatchIndex ? { ...item, recipe: stagingRecipe } : item
+       ));
+    }
+
+    setActiveBatchIndex(index);
+    const item = batchItems[index];
+
+    if (item.status === 'ready' && item.recipe) {
+      setStagingRecipe(item.recipe);
       setStep('editor');
-    } catch (error) {
+    } else if (item.status === 'pending' || item.status === 'error') {
+      setIsLoading(true);
+      setLoadingMessage(`Extracting ${item.candidate.title}...`);
+      
+      // Update status to loading
+      setBatchItems(prev => prev.map((it, idx) => 
+        idx === index ? { ...it, status: 'loading' } : it
+      ));
+
+      try {
+        const recipe = await fetchRecipe(item.candidate);
+        setBatchItems(prev => prev.map((it, idx) => 
+          idx === index ? { ...it, status: 'ready', recipe } : it
+        ));
+        setStagingRecipe(recipe);
+        setStep('editor');
+        
+        // Trigger prefetch for next
+        triggerPrefetch(batchItems, index);
+        
+      } catch (error: any) {
+        console.error(error);
+        setBatchItems(prev => prev.map((it, idx) => 
+          idx === index ? { ...it, status: 'error', error: error.message } : it
+        ));
+        alert(`Failed to load recipe: ${error.message}`);
+      } finally {
+        setIsLoading(false);
+      }
+    } else if (item.status === 'saved' && item.recipe) {
+       setStagingRecipe(item.recipe);
+       setStep('editor');
+    }
+  };
+
+  const handleBatchImport = async () => {
+    const selected = candidates.filter(c => selectedCandidateIndices.has(c.index));
+    if (selected.length === 0) return;
+
+    const newBatchItems: BatchItem[] = selected.map(c => ({
+      candidate: c,
+      status: 'pending',
+      recipe: null
+    }));
+
+    setBatchItems(newBatchItems);
+    
+    // Load the first one
+    // We need to set the state first, then trigger load. 
+    // Since setState is async, we can't call loadBatchItem immediately with the new state.
+    // But we can manually do the first load logic here or use an effect.
+    // Let's do it manually to ensure smooth transition.
+    
+    setIsLoading(true);
+    setLoadingMessage(`Extracting ${selected[0].title}...`);
+    
+    try {
+      // Optimistically set the batch items
+      // We'll update the first one's status to loading in the state update below if we wanted,
+      // but let's just fetch first.
+      
+      const firstRecipe = await fetchRecipe(selected[0]);
+      
+      newBatchItems[0].status = 'ready';
+      newBatchItems[0].recipe = firstRecipe;
+      
+      setBatchItems(newBatchItems);
+      setActiveBatchIndex(0);
+      setStagingRecipe(firstRecipe);
+      setStep('editor');
+      
+      // Trigger prefetch for next
+      if (newBatchItems.length > 1) {
+         triggerPrefetch(newBatchItems, 0);
+      }
+      
+    } catch (error: any) {
+       console.error(error);
+       alert('Failed to start batch import');
+       setBatchItems(newBatchItems); // Still set them so user can try again?
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMockSplit = () => {
+    const mockText = `
+Recipe 1: Tacos
+Take some beef...
+
+Recipe 2: Salsa
+Tomatoes and chilies...
+
+Recipe 3: Guacamole
+Mash avocados...
+    `;
+    setInputValue(mockText);
+    
+    const mockCandidates: RecipeCandidate[] = [
+      { index: 0, title: "Mock Recipe 1: Tacos", summary: "Delicious beef tacos", originalTextSnippet: "Take some beef..." },
+      { index: 1, title: "Mock Recipe 2: Salsa", summary: "Spicy red salsa", originalTextSnippet: "Tomatoes and chilies..." },
+      { index: 2, title: "Mock Recipe 3: Guacamole", summary: "Creamy avocado dip", originalTextSnippet: "Mash avocados..." },
+    ];
+    setCandidates(mockCandidates);
+    setStep('selection');
+  };
+
+  const handleSelectCandidate = async (candidate: RecipeCandidate) => {
+    // Treat single selection as a batch of 1
+    const newBatchItems: BatchItem[] = [{
+      candidate,
+      status: 'pending',
+      recipe: null
+    }];
+    setBatchItems(newBatchItems);
+    
+    // Load it
+    setIsLoading(true);
+    setLoadingMessage(`Extracting ${candidate.title}...`);
+    
+    try {
+      const recipe = await fetchRecipe(candidate);
+      newBatchItems[0].status = 'ready';
+      newBatchItems[0].recipe = recipe;
+      
+      setBatchItems(newBatchItems);
+      setActiveBatchIndex(0);
+      setStagingRecipe(recipe);
+      setStep('editor');
+    } catch (error: any) {
       console.error(error);
       alert('Failed to extract recipe');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const toggleCandidateSelection = (index: number) => {
+    const newSet = new Set(selectedCandidateIndices);
+    if (newSet.has(index)) {
+      newSet.delete(index);
+    } else {
+      newSet.add(index);
+    }
+    setSelectedCandidateIndices(newSet);
   };
 
   const handlePolishSteps = async () => {
@@ -476,7 +670,15 @@ export default function StagingFlow() {
 
   const handleApprove = async () => {
     if (!stagingRecipe) return;
-    setIsLoading(true);
+    
+    // Update status to saving
+    setBatchItems(prev => prev.map((item, idx) => 
+      idx === activeBatchIndex ? { ...item, status: 'saving' } : item
+    ));
+    
+    // We don't set global isLoading here because we want to allow navigation/interaction
+    // But we might want to disable the save button for this specific recipe.
+    
     try {
       const res = await fetch('/api/recipes/create', {
         method: 'POST',
@@ -485,16 +687,28 @@ export default function StagingFlow() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       
-      alert('Recipe saved successfully!');
-      // Reset or redirect
-      setStep('input');
-      setInputValue('');
-      setStagingRecipe(null);
+      // Mark as saved
+      setBatchItems(prev => prev.map((item, idx) => 
+        idx === activeBatchIndex ? { ...item, status: 'saved' } : item
+      ));
+      
+      // Auto-advance to next pending/ready item
+      const nextIndex = activeBatchIndex + 1;
+      if (nextIndex < batchItems.length) {
+        // Switch to next
+        loadBatchItem(nextIndex);
+      } else {
+        // All done?
+        alert('All recipes in batch processed!');
+        // Maybe redirect or show summary?
+      }
+      
     } catch (error: any) {
       console.error(error);
       alert(`Failed to save recipe: ${error.message}`);
-    } finally {
-      setIsLoading(false);
+      setBatchItems(prev => prev.map((item, idx) => 
+        idx === activeBatchIndex ? { ...item, status: 'error', error: error.message } : item
+      ));
     }
   };
 
@@ -596,6 +810,16 @@ export default function StagingFlow() {
               >
                 Analyze
               </button>
+              
+              {isDebugMode && (
+                <button 
+                  className="btn btn-secondary w-full mt-4"
+                  onClick={handleMockSplit}
+                  style={{ border: '1px dashed #666' }}
+                >
+                  🔧 Debug: Mock Split (3 Recipes)
+                </button>
+              )}
             </>
           )}
         </div>
@@ -605,7 +829,7 @@ export default function StagingFlow() {
         <div>
           {isLoading ? (
             <LoadingDumpling 
-              message="Extracting recipe details with AI... This may take 20-30 seconds."
+              message={loadingMessage || "Extracting recipe details with AI... This may take 20-30 seconds."}
               size="large"
             />
           ) : (
@@ -616,30 +840,59 @@ export default function StagingFlow() {
               </p>
               
               <div className="grid">
-                {candidates.map((c) => (
-                  <div key={c.index} className="card" style={{ display: 'flex', flexDirection: 'column' }}>
-                    <h3 className="mb-4">{c.title}</h3>
-                    <p className="text-muted mb-4" style={{ flex: 1 }}>{c.summary}</p>
-                    <div className="text-mono text-muted mb-4" style={{ fontSize: '0.875rem', fontStyle: 'italic' }}>
-                      "{c.originalTextSnippet}..."
-                    </div>
-                    <button 
-                      className="btn btn-primary w-full"
-                      onClick={() => handleSelectCandidate(c)}
+                {candidates.map((c) => {
+                  const isSelected = selectedCandidateIndices.has(c.index);
+                  return (
+                    <div 
+                      key={c.index} 
+                      className="card" 
+                      style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column',
+                        border: isSelected ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => toggleCandidateSelection(c.index)}
                     >
-                      Import This
-                    </button>
-                  </div>
-                ))}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
+                        <h3 className="mb-0">{c.title}</h3>
+                        <input 
+                          type="checkbox" 
+                          checked={isSelected}
+                          onChange={() => {}} // Handled by div click
+                          style={{ transform: 'scale(1.5)', cursor: 'pointer' }}
+                        />
+                      </div>
+                      <p className="text-muted mb-4" style={{ flex: 1 }}>{c.summary}</p>
+                      <div className="text-mono text-muted mb-4" style={{ fontSize: '0.875rem', fontStyle: 'italic' }}>
+                        "{c.originalTextSnippet}..."
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
               
-              <button 
-                className="btn" 
-                style={{ marginTop: '2rem' }}
-                onClick={() => setStep('input')}
-              >
-                Back
-              </button>
+              <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <button 
+                  className="btn" 
+                  onClick={() => setStep('input')}
+                >
+                  Back
+                </button>
+                
+                <div style={{ flex: 1 }}></div>
+                
+                <button
+                  className="btn btn-primary"
+                  disabled={selectedCandidateIndices.size === 0}
+                  onClick={handleBatchImport}
+                  style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}
+                >
+                  Import Selected ({selectedCandidateIndices.size})
+                </button>
+              </div>
+              
+
             </>
           )}
         </div>
@@ -647,7 +900,43 @@ export default function StagingFlow() {
       
 
       {step === 'editor' && stagingRecipe && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', height: '80vh' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: batchItems.length > 1 ? '250px 1fr 1fr' : '1fr 1fr', gap: '2rem', height: '80vh' }}>
+          
+          {/* Batch Navigation Sidebar */}
+          {batchItems.length > 1 && (
+            <div className="card" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <h3 className="mb-4">Batch ({activeBatchIndex + 1}/{batchItems.length})</h3>
+              {batchItems.map((item, idx) => (
+                <div 
+                  key={idx}
+                  onClick={() => loadBatchItem(idx)}
+                  style={{
+                    padding: '0.75rem',
+                    borderRadius: '0.5rem',
+                    cursor: 'pointer',
+                    background: idx === activeBatchIndex ? 'rgba(232, 149, 111, 0.1)' : 'var(--color-surface)',
+                    border: idx === activeBatchIndex ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                    opacity: item.status === 'pending' ? 0.7 : 1
+                  }}
+                >
+                  <div style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.25rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {item.candidate.title}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>
+                      {item.status === 'ready' && '✅ Ready'}
+                      {item.status === 'pending' && '⏳ Pending'}
+                      {item.status === 'loading' && '🔄 Loading...'}
+                      {item.status === 'saving' && '💾 Saving...'}
+                      {item.status === 'saved' && '🎉 Saved'}
+                      {item.status === 'error' && '❌ Error'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Left: Raw Text */}
           <div className="card" style={{ overflowY: 'auto' }}>
             <h3 className="text-muted mb-4">Source Text</h3>
@@ -744,9 +1033,9 @@ export default function StagingFlow() {
               <button 
                 className="btn btn-primary"
                 onClick={handleApprove}
-                disabled={isLoading}
+                disabled={batchItems[activeBatchIndex]?.status === 'saving'}
               >
-                {isLoading ? 'Saving...' : 'Approve & Save'}
+                {batchItems[activeBatchIndex]?.status === 'saving' ? 'Saving...' : 'Approve & Save'}
               </button>
             </div>
             
