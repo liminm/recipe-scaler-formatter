@@ -48,58 +48,59 @@
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
+  --header-height: 4.25rem;
 }
 
 /* --- 🌶️ CHILI MODE THEME --- */
 body.chili-mode {
-  /* Backgrounds: Spicy reds and warm tones */
-  --color-bg: #fff5f5;
-  /* Light pink-red background */
+  /* Backgrounds: Subtle warm neutrals with hint of red */
+  --color-bg: #fafafa;
+  /* Very light gray instead of pink */
   --color-surface: #ffffff;
-  /* Keep cards white */
-  --color-surface-hover: #ffe5e5;
-  /* Light red hover */
-  --color-surface-active: #ffd5d5;
+  /* Keep cards white for contrast */
+  --color-surface-hover: #fff1f0;
+  /* Very subtle red tint on hover */
+  --color-surface-active: #ffe7e6;
 
-  /* Accents: Chili-inspired reds and greens */
-  --color-primary: #e03131;
-  /* Bright chili red */
-  --color-primary-hover: #c92a2a;
-  /* Deep red hover */
-  --color-primary-subtle: rgba(224, 49, 49, 0.1);
+  /* Accents: Refined chili-inspired palette */
+  --color-primary: #d6422a;
+  /* Deep chili red - more sophisticated */
+  --color-primary-hover: #b8381f;
+  /* Darker red hover */
+  --color-primary-subtle: rgba(214, 66, 42, 0.08);
 
-  --color-secondary: #74b816;
-  /* Chili stem green */
-  --color-success: #51cf66;
-  /* Bright green */
-  --color-warning: #ff6b6b;
-  /* Coral red */
-  --color-danger: #f03e3e;
-  /* Bright danger red */
+  --color-secondary: #7c8b3e;
+  /* Muted olive green - chili stem */
+  --color-success: #52b36a;
+  /* Natural green */
+  --color-warning: #e8643e;
+  /* Warm orange-red */
+  --color-danger: #d6422a;
+  /* Match primary */
 
-  /* Chili green stem color */
-  --color-brown: #2b8a3e;
-  /* Deep green */
+  /* Accent color for stem */
+  --color-brown: #5a6e3b;
+  /* Deep olive */
 
-  /* Text: Darker for contrast on red backgrounds */
-  --color-text: #1a1a1a;
-  /* Near black */
-  --color-text-muted: #495057;
-  /* Dark gray */
-  --color-text-dim: #868e96;
-  /* Medium gray */
+  /* Text: Keep warm browns for consistency */
+  --color-text: #2d1810;
+  /* Very dark brown */
+  --color-text-muted: #6b4e3d;
+  /* Medium warm brown */
+  --color-text-dim: #9c7a60;
+  /* Light warm brown */
 
-  /* Borders & Depth - warmer tones */
-  --color-border: #ffc9c9;
-  /* Light red border */
-  --color-border-hover: #ffa8a8;
+  /* Borders & Depth - neutral with warm undertones */
+  --color-border: #e8ddd6;
+  /* Warm light gray */
+  --color-border-hover: #d4c4b8;
 
-  --shadow-sm: 0 1px 2px 0 rgba(224, 49, 49, 0.12);
-  --shadow-md: 0 4px 6px -1px rgba(224, 49, 49, 0.15), 0 2px 4px -1px rgba(224, 49, 49, 0.08);
-  --shadow-lg: 0 10px 15px -3px rgba(224, 49, 49, 0.2), 0 4px 6px -2px rgba(224, 49, 49, 0.1);
+  --shadow-sm: 0 1px 2px 0 rgba(214, 66, 42, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(214, 66, 42, 0.08), 0 2px 4px -1px rgba(214, 66, 42, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(214, 66, 42, 0.1), 0 4px 6px -2px rgba(214, 66, 42, 0.05);
 
   /* Spacing */
-  --header-height: 4rem;
+  --header-height: 4.25rem;
 }
 
 * {
@@ -166,12 +167,26 @@ p {
 
 .topbar {
   height: var(--header-height);
-  background-color: #ffffff;
-  border-bottom: 2px solid var(--color-border);
+  min-height: var(--header-height);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 247, 242, 0.9) 100%);
+  border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
   z-index: 50;
-  box-shadow: 0 1px 3px rgba(61, 40, 23, 0.05);
+  box-shadow: 0 8px 24px rgba(61, 40, 23, 0.06);
+  backdrop-filter: blur(12px);
+}
+
+.topbar.chili-nav {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 240, 236, 0.92) 100%);
+  border-bottom: 1px solid rgba(214, 66, 42, 0.25);
+  box-shadow: 0 10px 28px rgba(214, 66, 42, 0.08);
+}
+
+body.chili-mode .topbar {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 240, 236, 0.92) 100%);
+  border-bottom: 1px solid rgba(214, 66, 42, 0.25);
+  box-shadow: 0 10px 28px rgba(214, 66, 42, 0.08);
 }
 
 .topbar-content {
@@ -179,32 +194,115 @@ p {
   align-items: center;
   justify-content: space-between;
   height: 100%;
+  gap: 1rem;
 }
 
 .brand {
   font-weight: 700;
-  font-size: 1.125rem;
-  color: var(--color-brown);
+  font-size: 1.05rem;
+  color: var(--color-text);
   letter-spacing: -0.01em;
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: var(--radius-lg);
+  transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.brand:hover {
+  background-color: var(--color-surface-hover);
+  transform: translateY(-1px);
+}
+
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: radial-gradient(circle at 30% 30%, rgba(232, 149, 111, 0.18), rgba(255, 255, 255, 0.92));
+  border: 1px solid var(--color-border);
+  box-shadow: 0 6px 16px rgba(61, 40, 23, 0.08);
+  display: grid;
+  place-items: center;
+}
+
+.brand-mark img {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
+.brand-text {
+  color: var(--color-text);
+}
+
+.topbar.chili-nav .brand-text,
+body.chili-mode .brand-text {
+  color: #35170c;
+}
+
+.topbar.chili-nav .brand:hover,
+body.chili-mode .brand:hover {
+  background-color: rgba(214, 66, 42, 0.07);
+}
+
+.topbar.chili-nav .brand-mark,
+body.chili-mode .brand-mark {
+  background: radial-gradient(circle at 30% 30%, rgba(214, 66, 42, 0.18), rgba(255, 255, 255, 0.92));
+  border-color: rgba(214, 66, 42, 0.25);
+  box-shadow: 0 10px 20px rgba(214, 66, 42, 0.1);
 }
 
 .nav-links {
   display: flex;
-  gap: 2rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.45rem;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(61, 40, 23, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+.topbar.chili-nav .nav-links,
+body.chili-mode .nav-links {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(214, 66, 42, 0.2);
+  box-shadow: 0 10px 24px rgba(214, 66, 42, 0.08);
 }
 
 .nav-link {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--color-text-muted);
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   text-decoration: none;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
 }
 
-.nav-link:hover,
+.nav-link:hover {
+  color: var(--color-brown);
+  background-color: var(--color-surface-hover);
+  transform: translateY(-1px);
+}
+
 .nav-link.active {
   color: var(--color-primary);
+  background-color: var(--color-primary-subtle);
+  border-color: rgba(232, 149, 111, 0.35);
+  box-shadow: 0 6px 14px rgba(232, 149, 111, 0.18);
+}
+
+.topbar.chili-nav .nav-link.active,
+body.chili-mode .nav-link.active {
+  color: #b02c18;
+  background-color: rgba(214, 66, 42, 0.12);
+  border-color: rgba(214, 66, 42, 0.3);
+  box-shadow: 0 8px 18px rgba(214, 66, 42, 0.15);
 }
 
 .main-content {
@@ -365,6 +463,39 @@ p {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@media (max-width: 860px) {
+  .topbar-content {
+    gap: 0.5rem;
+  }
+
+  .nav-links {
+    gap: 0.35rem;
+    padding: 0.25rem 0.35rem;
+  }
+
+  .nav-link {
+    padding: 0.45rem 0.8rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar-content {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0.75rem 0;
+    height: auto;
+  }
+
+  .nav-links {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    border-radius: 1rem;
+  }
 }
 
 /* --- Playful Loading Animations --- */

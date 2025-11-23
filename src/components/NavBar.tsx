@@ -1,33 +1,37 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useChili } from '@/context/ChiliContext';
 
+const links = [
+  { href: '/events', label: 'Events' },
+  { href: '/recipes', label: 'Recipes' },
+  { href: '/staging', label: '+ Ingest' },
+];
+
 export default function NavBar() {
+  const pathname = usePathname();
   const { toggleChiliMode, isChiliMode } = useChili();
   const [clickCount, setClickCount] = useState(0);
   const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent ALL navigation by default
-    
-    // Clear any existing reset timer
+
     if (resetTimerRef.current) {
       clearTimeout(resetTimerRef.current);
     }
 
     const newCount = clickCount + 1;
     setClickCount(newCount);
-    
-    // Check if we've reached 5 clicks
+
     if (newCount >= 5) {
       toggleChiliMode();
       setClickCount(0);
       resetTimerRef.current = null;
     } else {
-      // Set a timer to check if this was a single click
       resetTimerRef.current = setTimeout(() => {
-        // If count is still 1 after delay, it was a single click - navigate
         if (clickCount + 1 === 1) {
           window.location.href = '/';
         }
@@ -36,25 +40,36 @@ export default function NavBar() {
     }
   };
 
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
+
   return (
-    <nav className="topbar" style={{
-      background: isChiliMode 
-        ? 'linear-gradient(135deg, #c92a2a 0%, #e03131 100%)'
-        : undefined
-    }}>
+    <nav className={`topbar ${isChiliMode ? 'chili-nav' : ''}`}>
       <div className="container topbar-content">
-        <a href="/" className="brand" onClick={handleLogoClick} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', cursor: 'pointer' }}>
-          <img 
-            src={isChiliMode ? "/chili.png" : "/dumpling-logo.png"} 
-            alt={isChiliMode ? "Chili Dumpling Maker" : "Dumpling Maker"}
-            style={{ width: '32px', height: '32px', borderRadius: '50%' }} 
-          />
-          <span>{isChiliMode ? "🌶️ Chili Dumpling Maker" : "Dumpling Maker"}</span>
+        <a href="/" className="brand" onClick={handleLogoClick}>
+          <span className="brand-mark">
+            <img
+              src={isChiliMode ? '/chili.png' : '/dumpling-logo.png'}
+              alt={isChiliMode ? 'Chili Dumpling Maker' : 'Dumpling Maker'}
+            />
+          </span>
+          <span className="brand-text">
+            {isChiliMode ? 'Chili Dumpling Maker' : 'Dumpling Maker'}
+          </span>
         </a>
         <div className="nav-links">
-          <a href="/events" className="nav-link">Events</a>
-          <a href="/recipes" className="nav-link">Recipes</a>
-          <a href="/staging" className="nav-link active">+ Ingest</a>
+          {links.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className={`nav-link ${isActive(link.href) ? 'active' : ''}`}
+              aria-current={isActive(link.href) ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          ))}
         </div>
       </div>
     </nav>
