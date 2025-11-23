@@ -965,6 +965,120 @@ body.chili-mode .nav-link.active {
   line-height: 1.5;
 }
 
+.ingest-editor-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr 1.2fr;
+  gap: 1rem;
+  height: 80vh;
+}
+
+.ingest-batch-list {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ingest-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.ingest-batch-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow-y: auto;
+}
+
+.ingest-batch-item {
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.ingest-batch-item:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: 0 8px 18px rgba(61, 40, 23, 0.08);
+}
+
+.ingest-batch-item.active {
+  border: 2px solid var(--color-primary);
+  background: rgba(232, 149, 111, 0.08);
+}
+
+.ingest-batch-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ingest-batch-status {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-top: 0.15rem;
+}
+
+.source-card {
+  overflow-y: auto;
+}
+
+.source-text {
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+}
+
+.recipe-card {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.recipe-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.recipe-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin-bottom: 0.35rem;
+}
+
+.recipe-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.yield-card {
+  background: var(--color-surface);
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--color-border);
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 860px) {
   .topbar-content {
     gap: 0.5rem;

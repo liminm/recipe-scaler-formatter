@@ -30,25 +30,6 @@ const highlights = [
   },
 ];
 
-const featureCards = [
-  {
-    title: 'Constraint Handling',
-    desc: 'Automatic warnings for oven crowding, temperature shock, and equipment limits.',
-  },
-  {
-    title: 'Dietary Compliance',
-    desc: 'Track allergens and dietary requirements across all recipes in your menu.',
-  },
-  {
-    title: 'Production Ready',
-    desc: 'Generate cook-facing instructions with scaled quantities and timing notes.',
-  },
-  {
-    title: 'Menu Intelligence',
-    desc: 'Spot overlaps across recipes and optimize prep flows to minimize back-of-house friction.',
-  },
-];
-
 export default function Home() {
   return (
     <div className="dashboard">
@@ -123,53 +104,6 @@ export default function Home() {
         ))}
       </section>
 
-      <section className="card dash-stats">
-        <div className="dash-stats-head">
-          <div>
-            <p className="eyebrow">Quick pulse</p>
-            <h3>Operations Snapshot</h3>
-          </div>
-          <div className="pill">Live</div>
-        </div>
-        <div className="dash-stats-grid">
-          <div className="stat-block">
-            <p className="text-muted">Total Recipes</p>
-            <div className="stat-value">—</div>
-          </div>
-          <div className="stat-block">
-            <p className="text-muted">Active Events</p>
-            <div className="stat-value">—</div>
-          </div>
-          <div className="stat-block">
-            <p className="text-muted">Total Servings Planned</p>
-            <div className="stat-value">—</div>
-          </div>
-          <div className="stat-block">
-            <p className="text-muted">Prep Hours Scheduled</p>
-            <div className="stat-value">—</div>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <div className="dash-section-head">
-          <div>
-            <p className="eyebrow">Capabilities</p>
-            <h3>Core Features</h3>
-          </div>
-          <Link href="/staging" className="btn btn-secondary">
-            Ingest Another Recipe
-          </Link>
-        </div>
-        <div className="feature-grid">
-          {featureCards.map((feature) => (
-            <div key={feature.title} className="card feature-card">
-              <h4>{feature.title}</h4>
-              <p className="text-muted">{feature.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
     </div>
   );
 }

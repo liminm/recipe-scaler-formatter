@@ -925,73 +925,77 @@ Mash avocados...
       
 
       {step === 'editor' && stagingRecipe && (
-        <div style={{ display: 'grid', gridTemplateColumns: batchItems.length > 1 ? (isSourceTextVisible ? '250px 1fr 1fr' : '250px 1fr') : (isSourceTextVisible ? '1fr 1fr' : '1fr'), gap: '2rem', height: '80vh' }}>
+        <div
+          className="ingest-editor-grid"
+          style={{
+            gridTemplateColumns: batchItems.length > 1
+              ? (isSourceTextVisible ? '260px 1fr 1.2fr' : '260px 1fr')
+              : (isSourceTextVisible ? '1fr 1.2fr' : '1.2fr')
+          }}
+        >
           
           {/* Batch Navigation Sidebar */}
           {batchItems.length > 1 && (
-            <div className="card" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <h3 className="mb-4">Batch ({activeBatchIndex + 1}/{batchItems.length})</h3>
-              {batchItems.map((item, idx) => (
-                <div 
-                  key={idx}
-                  onClick={() => loadBatchItem(idx)}
-                  style={{
-                    padding: '0.75rem',
-                    borderRadius: '0.5rem',
-                    cursor: 'pointer',
-                    background: idx === activeBatchIndex ? 'rgba(232, 149, 111, 0.1)' : 'var(--color-surface)',
-                    border: idx === activeBatchIndex ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                    opacity: item.status === 'pending' ? 0.7 : 1
-                  }}
-                >
-                  <div style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.25rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {item.candidate.title}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between' }}>
-                    <span>
+            <div className="card ingest-batch-list">
+              <div className="ingest-section-head">
+                <div>
+                  <p className="eyebrow">Batch ({activeBatchIndex + 1}/{batchItems.length})</p>
+                  <h3 style={{ marginBottom: 0 }}>Recipes</h3>
+                </div>
+              </div>
+              <div className="ingest-batch-items">
+                {batchItems.map((item, idx) => (
+                  <button 
+                    key={idx}
+                    onClick={() => loadBatchItem(idx)}
+                    className={`ingest-batch-item ${idx === activeBatchIndex ? 'active' : ''} ${item.status}`}
+                  >
+                    <div className="ingest-batch-title">
+                      {item.candidate.title}
+                    </div>
+                    <div className="ingest-batch-status">
                       {item.status === 'ready' && '✅ Ready'}
                       {item.status === 'pending' && '⏳ Pending'}
                       {item.status === 'loading' && '🔄 Loading...'}
                       {item.status === 'saving' && '💾 Saving...'}
                       {item.status === 'saved' && '🎉 Saved'}
                       {item.status === 'error' && '❌ Error'}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
           {/* Left: Raw Text */}
           {isSourceTextVisible && (
-            <div className="card" style={{ overflowY: 'auto' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div className="card source-card">
+              <div className="ingest-section-head">
                 <h3 className="text-muted" style={{ marginBottom: 0 }}>Source Text</h3>
                 <button 
                   onClick={() => setIsSourceTextVisible(false)}
                   className="btn btn-secondary btn-sm"
-                  style={{ padding: '0.25rem 0.5rem' }}
                   title="Hide Source Text"
                 >
-                  ←
+                  Hide
                 </button>
               </div>
-            <pre className="text-mono text-muted" style={{ whiteSpace: 'pre-wrap', fontSize: '0.875rem' }}>
-              {stagingRecipe.raw_text || inputValue}
-            </pre>
+              <pre className="text-mono text-muted source-text">
+                {stagingRecipe.raw_text || inputValue}
+              </pre>
             </div>
           )}
           
           {/* Right: Editable Recipe Form */}
-          <div className="card" style={{ overflowY: 'auto' }}>
+          <div className="card recipe-card">
             {!isSourceTextVisible && (
               <button 
                 onClick={() => setIsSourceTextVisible(true)}
                 className="btn btn-secondary btn-sm"
-                style={{ marginBottom: '1rem', padding: '0.25rem 0.5rem' }}
+                style={{ marginBottom: '1rem' }}
                 title="Show Source Text"
               >
-                → Show Source
+                Show Source
               </button>
             )}
             {/* Orphaned Ingredients Warning */}
@@ -1069,46 +1073,40 @@ Mash avocados...
               </div>
             )}
 
-            <div style={{ marginBottom: '1rem' }}>
-              <input
-                type="text"
-                value={stagingRecipe.title}
-                onChange={(e) => setStagingRecipe({ ...stagingRecipe, title: e.target.value })}
-                className="input-field"
-                style={{ fontSize: '1.5rem', fontWeight: 'bold', border: 'none', background: 'transparent', padding: 0, marginBottom: '0.5rem' }}
-                placeholder="Recipe Title"
-              />
-              <textarea
-                value={stagingRecipe.summary || ''}
-                onChange={(e) => setStagingRecipe({ ...stagingRecipe, summary: e.target.value })}
-                className="input-field"
-                placeholder="Brief summary (optional)"
-                rows={2}
-                style={{ width: '100%', resize: 'vertical', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}
-              />
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-              <button 
-                className="btn btn-primary"
-                onClick={handleApprove}
-                disabled={batchItems[activeBatchIndex]?.status === 'saving'}
-              >
-                {batchItems[activeBatchIndex]?.status === 'saving' ? 'Saving...' : 'Approve & Save'}
-              </button>
+            <div className="recipe-header">
+              <div>
+                <p className="eyebrow">Review & edit</p>
+                <input
+                  type="text"
+                  value={stagingRecipe.title}
+                  onChange={(e) => setStagingRecipe({ ...stagingRecipe, title: e.target.value })}
+                  className="input-field recipe-title"
+                  placeholder="Recipe Title"
+                />
+                <textarea
+                  value={stagingRecipe.summary || ''}
+                  onChange={(e) => setStagingRecipe({ ...stagingRecipe, summary: e.target.value })}
+                  className="input-field"
+                  placeholder="Brief summary (optional)"
+                  rows={2}
+                  style={{ width: '100%', resize: 'vertical', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}
+                />
+              </div>
+              <div className="recipe-header-actions">
+                <div className="pill">{batchItems[activeBatchIndex]?.status === 'saving' ? 'Saving…' : 'Ready to approve'}</div>
+                <button 
+                  className="btn btn-primary"
+                  onClick={handleApprove}
+                  disabled={batchItems[activeBatchIndex]?.status === 'saving'}
+                >
+                  {batchItems[activeBatchIndex]?.status === 'saving' ? 'Saving...' : 'Approve & Save'}
+                </button>
+              </div>
             </div>
             
             {/* Yield Estimate Display */}
             {stagingRecipe.estimated_final_weight_g && (
-              <div style={{ 
-                background: 'var(--color-surface)', 
-                padding: '0.75rem 1rem', 
-                borderRadius: '0.5rem', 
-                marginBottom: '1.5rem',
-                border: '1px solid var(--color-border)',
-                display: 'flex',
-                gap: '2rem',
-                alignItems: 'center'
-              }}>
+              <div className="yield-card">
                 <div>
                   <span className="text-muted" style={{ fontSize: '0.875rem', display: 'block', marginBottom: '0.25rem' }}>
                     Estimated Final Weight
