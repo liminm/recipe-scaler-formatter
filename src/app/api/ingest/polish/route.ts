@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       Output JSON:
     `;
 
-        const result = await geminiFlash.generateContent({
+        const { result, modelUsed } = await geminiFlash.generateContent({
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
             generationConfig: {
                 responseMimeType: "application/json",

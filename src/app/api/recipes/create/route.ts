@@ -21,6 +21,10 @@ export async function POST(request: Request) {
                 source_url: stagingRecipe.source_url,
                 original_yield_servings: stagingRecipe.original_yield_servings,
                 chefs_notes: stagingRecipe.chefs_notes,
+                estimated_final_weight_g: stagingRecipe.estimated_final_weight_g,
+                yield_confidence: stagingRecipe.yield_confidence,
+                extraction_model: stagingRecipe.extraction_model,
+                yield_estimation_model: stagingRecipe.yield_estimation_model,
                 is_base_module: true,
                 version_id: uuidv4()
             });

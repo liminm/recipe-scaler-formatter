@@ -36,7 +36,7 @@ export async function analyzeStepPhysics(
   `;
 
     try {
-        const result = await model.generateContent(prompt);
+        const { result } = await model.generateContent(prompt);
         const text = result.response.text();
         const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
         return JSON.parse(jsonStr);

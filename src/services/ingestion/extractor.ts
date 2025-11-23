@@ -1,6 +1,7 @@
 import { geminiPro } from '../../lib/gemini';
 import { StagingRecipe } from '../../types/staging';
 import { v4 as uuidv4 } from 'uuid';
+import { estimateYield } from './yieldCalculator';
 
 export async function extractRecipe(rawText: string, titleHint?: string): Promise<StagingRecipe> {
   const model = geminiPro;
@@ -58,38 +59,46 @@ export async function extractRecipe(rawText: string, titleHint?: string): Promis
   `;
 
   try {
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const { result, modelUsed } = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text();
+
+    // Clean up markdown code blocks if present
     const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
     const data = JSON.parse(jsonStr);
 
-    // Hydrate with UUIDs and defaults
+    // Process ingredients and steps
+    const ingredients = (data.ingredients || []).map((ing: any) => ({
+      ...ing,
+      id: uuidv4(),
+      role: ing.role || 'CONSUMABLE',
+      dependency_role: ing.dependency_role || 'PASSENGER',
+      state: ing.state || 'fresh',
+      needs_review: !ing.base_quantity_g // Flag for review if weight missing
+    }));
+
+    const steps = (data.steps || []).map((step: any, idx: number) => ({
+      ...step,
+      id: uuidv4(),
+      order: idx,
+      constraint_tags: step.constraint_tags || []
+    }));
+
+    // Calculate yield estimate
+    const yieldEstimate = await estimateYield(ingredients, steps);
+
     return {
       id: uuidv4(),
       title: data.title || 'Untitled Recipe',
       original_yield_servings: data.original_yield_servings,
-      ingredients: (data.ingredients || []).map((i: any) => ({
-        id: uuidv4(),
-        name_raw: i.name_raw,
-        name_normalized: i.name_normalized || i.name_raw,
-        quantity_raw: i.quantity_raw,
-        unit_raw: i.unit_raw,
-        base_quantity_g: i.base_quantity_g,
-        yield_factor: 1,
-        is_discrete: false, // Default, user must verify
-        role: i.role || 'CONSUMABLE',
-        dependency_role: 'PASSENGER',
-        state: i.state,
-        density_confidence: i.density_confidence || 'low',
-        needs_review: true // Always flag for review
-      })),
-      steps: (data.steps || []).map((s: any, idx: number) => ({
-        id: uuidv4(),
-        order: s.order ?? idx + 1,
-        instruction_raw: s.instruction_raw,
-        constraint_tags: s.constraint_tags || []
-      })),
+      ingredients,
+      steps,
       chefs_notes: data.chefs_notes || [],
+      estimated_final_weight_g: yieldEstimate.estimatedFinalWeight_g,
+      yield_confidence: yieldEstimate.confidence,
+      extraction_model: modelUsed,
+      yield_estimation_model: yieldEstimate.modelUsed,
       raw_text: rawText
     };
 

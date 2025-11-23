@@ -36,7 +36,7 @@ export async function checkDietaryCompliance(
   `;
 
     try {
-        const result = await geminiFlash.generateContent(prompt);
+        const { result } = await geminiFlash.generateContent(prompt);
         const text = result.response.text();
         const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
         return JSON.parse(jsonStr);

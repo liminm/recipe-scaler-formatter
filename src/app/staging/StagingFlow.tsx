@@ -4,8 +4,11 @@ import { useState, useEffect } from 'react';
 import { RecipeCandidate } from '@/services/ingestion/splitter';
 import { StagingRecipe, StagingIngredient, StagingStep } from '@/types/staging';
 import LoadingDumpling from '@/components/LoadingDumpling';
+import { estimateYield } from '@/services/ingestion/yieldCalculator';
+import { useDebug } from '@/context/DebugContext';
 
 export default function StagingFlow() {
+  const { isDebugMode } = useDebug();
   const [inputMode, setInputMode] = useState<'url' | 'text'>('url');
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -348,6 +351,30 @@ export default function StagingFlow() {
     });
     setIngredientSuggestions([]);
   };
+
+  // Auto-recalculate yield when ingredients or steps change (debounced)
+  useEffect(() => {
+    if (!stagingRecipe || stagingRecipe.ingredients.length === 0) return;
+    
+    // Debounce: wait 2 seconds after last change before recalculating
+    const timeoutId = setTimeout(async () => {
+      try {
+        const yieldEstimate = await estimateYield(stagingRecipe.ingredients, stagingRecipe.steps);
+        setStagingRecipe((prev: StagingRecipe | null) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            estimated_final_weight_g: yieldEstimate.estimatedFinalWeight_g,
+            yield_confidence: yieldEstimate.confidence
+          };
+        });
+      } catch (error) {
+        console.error('Auto-recalculate yield failed:', error);
+      }
+    }, 2000);
+
+    return () => clearTimeout(timeoutId);
+  }, [stagingRecipe?.ingredients, stagingRecipe?.steps]); // Recalculate when ingredients or steps change
   
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -722,6 +749,57 @@ export default function StagingFlow() {
                 {isLoading ? 'Saving...' : 'Approve & Save'}
               </button>
             </div>
+            
+            {/* Yield Estimate Display */}
+            {stagingRecipe.estimated_final_weight_g && (
+              <div style={{ 
+                background: 'var(--color-surface)', 
+                padding: '0.75rem 1rem', 
+                borderRadius: '0.5rem', 
+                marginBottom: '1.5rem',
+                border: '1px solid var(--color-border)',
+                display: 'flex',
+                gap: '2rem',
+                alignItems: 'center'
+              }}>
+                <div>
+                  <span className="text-muted" style={{ fontSize: '0.875rem', display: 'block', marginBottom: '0.25rem' }}>
+                    Estimated Final Weight
+                  </span>
+                  <div className="yield-badge">
+                    Estimated Yield: ~{stagingRecipe.estimated_final_weight_g}g 
+                    {stagingRecipe.yield_confidence === 'high' ? ' 🟢' : 
+                     stagingRecipe.yield_confidence === 'medium' ? ' 🟡' : ' 🔴'}
+                  </div>
+                </div>
+
+                {stagingRecipe.original_yield_servings && (
+                  <div>
+                    <span className="text-muted" style={{ fontSize: '0.875rem', display: 'block', marginBottom: '0.25rem' }}>
+                      Original Yield
+                    </span>
+                    <span style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
+                      {stagingRecipe.original_yield_servings} servings
+                    </span>
+                  </div>
+                )}
+
+                {isDebugMode && (
+                  <div style={{ 
+                    padding: '0.5rem', 
+                    background: '#333', 
+                    color: '#0f0', 
+                    borderRadius: '4px',
+                    fontSize: '0.75rem',
+                    fontFamily: 'monospace',
+                    marginLeft: 'auto'
+                  }}>
+                    <div>🔧 <strong>Extraction:</strong> {stagingRecipe.extraction_model || 'Unknown'}</div>
+                    <div>🔧 <strong>Yield Est:</strong> {stagingRecipe.yield_estimation_model || 'Unknown'}</div>
+                  </div>
+                )}
+              </div>
+            )}
             
             <div style={{ marginBottom: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>

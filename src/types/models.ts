@@ -73,6 +73,12 @@ export const RecipeSchema = z.object({
     steps: z.array(StepSchema),
     chefs_notes: z.array(z.string()),
 
+    // Yield & AI Metadata
+    estimated_final_weight_g: DecimalSchema.optional(),
+    yield_confidence: z.enum(['high', 'medium', 'low']).optional(),
+    extraction_model: z.string().optional(),
+    yield_estimation_model: z.string().optional(),
+
     // Modular Structure
     is_base_module: z.boolean().default(true),
     variant_of_id: z.string().uuid().optional(),

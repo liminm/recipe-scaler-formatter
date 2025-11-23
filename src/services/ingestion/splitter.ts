@@ -1,4 +1,4 @@
-import { geminiFlash } from '../../lib/gemini';
+import { geminiPro } from '../../lib/gemini';
 
 export interface RecipeCandidate {
     index: number;
@@ -8,7 +8,7 @@ export interface RecipeCandidate {
 }
 
 export async function splitRecipes(rawText: string): Promise<RecipeCandidate[]> {
-    const model = geminiFlash;
+    const model = geminiPro;
 
     // Truncate extremely long text to avoid token limits, though Flash has a large window.
     // 50k chars is usually safe for a few recipes.
@@ -37,7 +37,7 @@ export async function splitRecipes(rawText: string): Promise<RecipeCandidate[]> 
   `;
 
     try {
-        const result = await model.generateContent(prompt);
+        const { result, modelUsed } = await model.generateContent(prompt);
         const response = result.response;
         const text = response.text();
 

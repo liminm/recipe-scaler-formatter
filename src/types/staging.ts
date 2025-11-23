@@ -53,6 +53,12 @@ export const StagingRecipeSchema = z.object({
     steps: z.array(StagingStepSchema).default([]),
     chefs_notes: z.array(z.string()).default([]),
 
+    // Yield estimation
+    estimated_final_weight_g: z.number().optional(),
+    yield_confidence: z.enum(['high', 'medium', 'low']).optional(),
+    extraction_model: z.string().optional(),
+    yield_estimation_model: z.string().optional(),
+
     raw_text: z.string().optional(), // For the split view
 });
 

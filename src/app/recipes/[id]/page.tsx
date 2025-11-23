@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { useDebug } from '@/context/DebugContext';
+import LoadingDumpling from '@/components/LoadingDumpling';
 
 interface Recipe {
   id: string;
@@ -12,6 +14,10 @@ interface Recipe {
   original_yield_servings: number | null;
   chefs_notes: string[];
   created_at: string;
+  estimated_final_weight_g: number | null;
+  yield_confidence: 'high' | 'medium' | 'low' | null;
+  extraction_model: string | null;
+  yield_estimation_model: string | null;
 }
 
 interface Ingredient {
@@ -32,6 +38,8 @@ interface Step {
 export default function RecipeDetailPage() {
   const params = useParams();
   const recipeId = params.id as string;
+  const router = useRouter();
+  const { isDebugMode } = useDebug();
   
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
@@ -104,10 +112,61 @@ export default function RecipeDetailPage() {
     <div>
       {/* Header */}
       <div className="mb-6">
-        <Link href="/recipes" className="text-muted" style={{ fontSize: '0.875rem', display: 'inline-block', marginBottom: '1rem' }}>
-          ← Back to Recipes
-        </Link>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <Link href="/recipes" className="text-muted" style={{ fontSize: '0.875rem' }}>
+            ← Back to Recipes
+          </Link>
+          <Link href={`/recipes/${recipeId}/edit`}>
+            <button className="btn btn-primary">✏️ Edit Recipe</button>
+          </Link>
+        </div>
         <h1 className="mb-2">{recipe.title}</h1>
+        
+        {/* Yield Estimate Display */}
+        {recipe.estimated_final_weight_g && (
+          <div style={{ 
+            background: 'var(--color-surface)', 
+            padding: '0.75rem 1rem', 
+            borderRadius: '0.5rem', 
+            marginBottom: '1rem',
+            border: '1px solid var(--color-border)',
+            display: 'inline-flex',
+            gap: '2rem',
+            alignItems: 'center'
+          }}>
+            <div>
+              <span className="text-muted" style={{ fontSize: '0.875rem', display: 'block', marginBottom: '0.25rem' }}>
+                Estimated Final Weight
+              </span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
+                ~{recipe.estimated_final_weight_g}g
+              </span>
+              {recipe.yield_confidence && (
+                <span style={{ marginLeft: '0.5rem', fontSize: '1rem' }}>
+                  {recipe.yield_confidence === 'high' && '🟢'}
+                  {recipe.yield_confidence === 'medium' && '🟡'}
+                  {recipe.yield_confidence === 'low' && '🔴'}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {isDebugMode && (
+          <div style={{ 
+            marginTop: '0.5rem', 
+            padding: '0.5rem', 
+            background: '#333', 
+            color: '#0f0', 
+            borderRadius: '4px',
+            fontSize: '0.8rem',
+            fontFamily: 'monospace'
+          }}>
+            <div>🔧 <strong>Extraction Model:</strong> {recipe.extraction_model || 'Unknown'}</div>
+            <div>🔧 <strong>Yield Model:</strong> {recipe.yield_estimation_model || 'Unknown'}</div>
+          </div>
+        )}
+        
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           {recipe.source_url && (
             <a
