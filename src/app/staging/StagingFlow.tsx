@@ -44,6 +44,9 @@ export default function StagingFlow() {
     alternativeText?: string;
   } | null>(null);
 
+  // Source text visibility toggle
+  const [isSourceTextVisible, setIsSourceTextVisible] = useState(true);
+
   // Helper: Extract searchable terms from ingredient name
   const getSearchTerms = (name: string): string[] => {
     return name
@@ -900,7 +903,7 @@ Mash avocados...
       
 
       {step === 'editor' && stagingRecipe && (
-        <div style={{ display: 'grid', gridTemplateColumns: batchItems.length > 1 ? '250px 1fr 1fr' : '1fr 1fr', gap: '2rem', height: '80vh' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: batchItems.length > 1 ? (isSourceTextVisible ? '250px 1fr 1fr' : '250px 1fr') : (isSourceTextVisible ? '1fr 1fr' : '1fr'), gap: '2rem', height: '80vh' }}>
           
           {/* Batch Navigation Sidebar */}
           {batchItems.length > 1 && (
@@ -938,15 +941,37 @@ Mash avocados...
           )}
 
           {/* Left: Raw Text */}
-          <div className="card" style={{ overflowY: 'auto' }}>
-            <h3 className="text-muted mb-4">Source Text</h3>
+          {isSourceTextVisible && (
+            <div className="card" style={{ overflowY: 'auto' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 className="text-muted" style={{ marginBottom: 0 }}>Source Text</h3>
+                <button 
+                  onClick={() => setIsSourceTextVisible(false)}
+                  className="btn btn-secondary btn-sm"
+                  style={{ padding: '0.25rem 0.5rem' }}
+                  title="Hide Source Text"
+                >
+                  ←
+                </button>
+              </div>
             <pre className="text-mono text-muted" style={{ whiteSpace: 'pre-wrap', fontSize: '0.875rem' }}>
               {stagingRecipe.raw_text || inputValue}
             </pre>
-          </div>
+            </div>
+          )}
           
-          {/* Right: Editor Form */}
+          {/* Right: Editable Recipe Form */}
           <div className="card" style={{ overflowY: 'auto' }}>
+            {!isSourceTextVisible && (
+              <button 
+                onClick={() => setIsSourceTextVisible(true)}
+                className="btn btn-secondary btn-sm"
+                style={{ marginBottom: '1rem', padding: '0.25rem 0.5rem' }}
+                title="Show Source Text"
+              >
+                → Show Source
+              </button>
+            )}
             {/* Orphaned Ingredients Warning */}
             {getOrphanedIngredients().length > 0 && (
               <div style={{ 
@@ -1123,14 +1148,13 @@ Mash avocados...
                 {stagingRecipe.ingredients.map((ing, idx) => (
                   <div 
                     key={ing.id} 
-                    className="card" 
                     style={{ 
-                      padding: '0.75rem',
-                      cursor: 'pointer',
+                      padding: '1rem 0',
+                      borderBottom: '1px solid var(--color-border)',
                       transition: 'all 0.2s ease',
-                      border: hoveredIngredient?.name === ing.name_normalized 
-                        ? '2px solid var(--color-primary)' 
-                        : '2px solid var(--color-border)'
+                      backgroundColor: hoveredIngredient?.name === ing.name_normalized 
+                        ? 'rgba(232, 149, 111, 0.05)' 
+                        : 'transparent'
                     }}
                     onMouseEnter={() => setHoveredIngredient({ 
                       name: ing.name_normalized || '', 
@@ -1138,70 +1162,66 @@ Mash avocados...
                     })}
                     onMouseLeave={() => setHoveredIngredient(null)}
                   >
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: '0.5rem' }}>
-                        <input
-                          type="text"
-                          placeholder="Name"
-                          value={ing.name_normalized || ''}
-                          onChange={(e) => {
-                            const newIngredients = [...stagingRecipe.ingredients];
-                            newIngredients[idx] = { ...ing, name_normalized: e.target.value };
-                            setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
-                          }}
-                          className="input-field"
-                          onFocus={() => setFocusedIngredientName(ing.name_normalized || '')}
-                          onBlur={(e) => handleRenameIngredient(idx, e.target.value)}
-                        />
-                        <input
-                          type="number"
-                          placeholder="Qty (g)"
-                          value={ing.base_quantity_g}
-                          onChange={(e) => {
-                            const newIngredients = [...stagingRecipe.ingredients];
-                            newIngredients[idx] = { ...ing, base_quantity_g: parseFloat(e.target.value) || 0 };
-                            setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
-                          }}
-                          className="input-field"
-                          style={{ color: 'var(--color-text)' }}
-                        />
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.5rem' }}>
-                        <select
-                          value={ing.state || 'fresh'}
-                          onChange={(e) => {
-                            const newIngredients = [...stagingRecipe.ingredients];
-                            newIngredients[idx] = { ...ing, state: e.target.value as any };
-                            setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
-                          }}
-                          className="input-field"
-                        >
-                          <option value="fresh">Fresh</option>
-                          <option value="dry">Dry</option>
-                          <option value="frozen">Frozen</option>
-                          <option value="canned">Canned</option>
-                        </select>
-                        <select
-                          value={ing.role || 'CONSUMABLE'}
-                          onChange={(e) => {
-                            const newIngredients = [...stagingRecipe.ingredients];
-                            newIngredients[idx] = { ...ing, role: e.target.value as any };
-                            setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
-                          }}
-                          className="input-field"
-                        >
-                          <option value="CONSUMABLE">Consumable</option>
-                          <option value="PROCESS_ONLY">Process Only</option>
-                          <option value="REDUCTION">Reduction</option>
-                        </select>
-                        <button 
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleRemoveIngredient(idx)}
-                          style={{ padding: '0.25rem 0.75rem' }}
-                        >
-                          ×
-                        </button>
-                      </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 100px 120px 140px auto', gap: '0.5rem', alignItems: 'center' }}>
+                      <input
+                        type="text"
+                        placeholder="Name"
+                        value={ing.name_normalized || ''}
+                        onChange={(e) => {
+                          const newIngredients = [...stagingRecipe.ingredients];
+                          newIngredients[idx] = { ...ing, name_normalized: e.target.value };
+                          setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
+                        }}
+                        className="input-field"
+                        onFocus={() => setFocusedIngredientName(ing.name_normalized || '')}
+                        onBlur={(e) => handleRenameIngredient(idx, e.target.value)}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Qty (g)"
+                        value={ing.base_quantity_g}
+                        onChange={(e) => {
+                          const newIngredients = [...stagingRecipe.ingredients];
+                          newIngredients[idx] = { ...ing, base_quantity_g: parseFloat(e.target.value) || 0 };
+                          setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
+                        }}
+                        className="input-field"
+                        style={{ color: 'var(--color-text)' }}
+                      />
+                      <select
+                        value={ing.state || 'fresh'}
+                        onChange={(e) => {
+                          const newIngredients = [...stagingRecipe.ingredients];
+                          newIngredients[idx] = { ...ing, state: e.target.value as any };
+                          setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
+                        }}
+                        className="input-field"
+                      >
+                        <option value="fresh">Fresh</option>
+                        <option value="dry">Dry</option>
+                        <option value="frozen">Frozen</option>
+                        <option value="canned">Canned</option>
+                      </select>
+                      <select
+                        value={ing.role || 'CONSUMABLE'}
+                        onChange={(e) => {
+                          const newIngredients = [...stagingRecipe.ingredients];
+                          newIngredients[idx] = { ...ing, role: e.target.value as any };
+                          setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
+                        }}
+                        className="input-field"
+                      >
+                        <option value="CONSUMABLE">Consumable</option>
+                        <option value="PROCESS_ONLY">Process Only</option>
+                        <option value="REDUCTION">Reduction</option>
+                      </select>
+                      <button 
+                        className="btn btn-danger btn-sm"
+                        onClick={() => handleRemoveIngredient(idx)}
+                        style={{ padding: '0.25rem 0.75rem' }}
+                      >
+                        ×
+                      </button>
                     </div>
                   </div>
                 ))}
