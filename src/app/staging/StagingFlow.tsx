@@ -1138,65 +1138,70 @@ Mash avocados...
                     })}
                     onMouseLeave={() => setHoveredIngredient(null)}
                   >
-                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr auto', gap: '0.5rem', alignItems: 'center' }}>
-                      <input
-                        type="text"
-                        placeholder="Name"
-                        value={ing.name_normalized || ''}
-                        onChange={(e) => {
-                          const newIngredients = [...stagingRecipe.ingredients];
-                          newIngredients[idx] = { ...ing, name_normalized: e.target.value };
-                          setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
-                        }}
-                        className="input-field"
-                        onFocus={() => setFocusedIngredientName(ing.name_normalized || '')}
-                        onBlur={(e) => handleRenameIngredient(idx, e.target.value)}
-                      />
-                      <input
-                        type="number"
-                        placeholder="Qty (g)"
-                        value={ing.base_quantity_g || ''}
-                        onChange={(e) => {
-                          const newIngredients = [...stagingRecipe.ingredients];
-                          newIngredients[idx] = { ...ing, base_quantity_g: parseFloat(e.target.value) || 0 };
-                          setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
-                        }}
-                        className="input-field"
-                      />
-                      <select
-                        value={ing.state || 'fresh'}
-                        onChange={(e) => {
-                          const newIngredients = [...stagingRecipe.ingredients];
-                          newIngredients[idx] = { ...ing, state: e.target.value as any };
-                          setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
-                        }}
-                        className="input-field"
-                      >
-                        <option value="fresh">Fresh</option>
-                        <option value="dry">Dry</option>
-                        <option value="frozen">Frozen</option>
-                        <option value="canned">Canned</option>
-                      </select>
-                      <select
-                        value={ing.role || 'CONSUMABLE'}
-                        onChange={(e) => {
-                          const newIngredients = [...stagingRecipe.ingredients];
-                          newIngredients[idx] = { ...ing, role: e.target.value as any };
-                          setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
-                        }}
-                        className="input-field"
-                      >
-                        <option value="CONSUMABLE">Consumable</option>
-                        <option value="PROCESS_ONLY">Process Only</option>
-                        <option value="REDUCTION">Reduction</option>
-                      </select>
-                      <button 
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleRemoveIngredient(idx)}
-                        style={{ padding: '0.25rem 0.5rem' }}
-                      >
-                        ×
-                      </button>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: '0.5rem' }}>
+                        <input
+                          type="text"
+                          placeholder="Name"
+                          value={ing.name_normalized || ''}
+                          onChange={(e) => {
+                            const newIngredients = [...stagingRecipe.ingredients];
+                            newIngredients[idx] = { ...ing, name_normalized: e.target.value };
+                            setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
+                          }}
+                          className="input-field"
+                          onFocus={() => setFocusedIngredientName(ing.name_normalized || '')}
+                          onBlur={(e) => handleRenameIngredient(idx, e.target.value)}
+                        />
+                        <input
+                          type="number"
+                          placeholder="Qty (g)"
+                          value={ing.base_quantity_g}
+                          onChange={(e) => {
+                            const newIngredients = [...stagingRecipe.ingredients];
+                            newIngredients[idx] = { ...ing, base_quantity_g: parseFloat(e.target.value) || 0 };
+                            setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
+                          }}
+                          className="input-field"
+                          style={{ color: 'var(--color-text)' }}
+                        />
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.5rem' }}>
+                        <select
+                          value={ing.state || 'fresh'}
+                          onChange={(e) => {
+                            const newIngredients = [...stagingRecipe.ingredients];
+                            newIngredients[idx] = { ...ing, state: e.target.value as any };
+                            setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
+                          }}
+                          className="input-field"
+                        >
+                          <option value="fresh">Fresh</option>
+                          <option value="dry">Dry</option>
+                          <option value="frozen">Frozen</option>
+                          <option value="canned">Canned</option>
+                        </select>
+                        <select
+                          value={ing.role || 'CONSUMABLE'}
+                          onChange={(e) => {
+                            const newIngredients = [...stagingRecipe.ingredients];
+                            newIngredients[idx] = { ...ing, role: e.target.value as any };
+                            setStagingRecipe({ ...stagingRecipe, ingredients: newIngredients });
+                          }}
+                          className="input-field"
+                        >
+                          <option value="CONSUMABLE">Consumable</option>
+                          <option value="PROCESS_ONLY">Process Only</option>
+                          <option value="REDUCTION">Reduction</option>
+                        </select>
+                        <button 
+                          className="btn btn-danger btn-sm"
+                          onClick={() => handleRemoveIngredient(idx)}
+                          style={{ padding: '0.25rem 0.75rem' }}
+                        >
+                          ×
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1272,8 +1277,8 @@ Mash avocados...
                           value={stepItem.instruction_raw}
                           onChange={(e) => handleStepTextChange(idx, e.target.value)}
                           className="input-field"
-                          rows={3}
-                          style={{ width: '100%', resize: 'vertical' }}
+                          rows={5}
+                          style={{ width: '100%', resize: 'vertical', color: 'var(--color-text)' }}
                         />
                       </div>
                       <button 
