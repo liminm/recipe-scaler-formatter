@@ -1,7 +1,8 @@
 'use client';
 
+import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 import { useRef, useState } from 'react';
-import { usePathname } from 'next/navigation';
 import { useChili } from '@/context/ChiliContext';
 
 const links = [
@@ -11,6 +12,7 @@ const links = [
 ];
 
 export default function NavBar() {
+  const router = useRouter();
   const pathname = usePathname();
   const { toggleChiliMode, isChiliMode } = useChili();
   const [clickCount, setClickCount] = useState(0);
@@ -33,7 +35,7 @@ export default function NavBar() {
     } else {
       resetTimerRef.current = setTimeout(() => {
         if (clickCount + 1 === 1) {
-          window.location.href = '/';
+          router.push('/');
         }
         setClickCount(0);
       }, 400); // 400ms delay to detect multi-clicks
@@ -48,7 +50,7 @@ export default function NavBar() {
   return (
     <nav className={`topbar ${isChiliMode ? 'chili-nav' : ''}`}>
       <div className="container topbar-content">
-        <a href="/" className="brand" onClick={handleLogoClick}>
+        <Link href="/" className="brand" onClick={handleLogoClick}>
           <span className="brand-mark">
             <img
               src={isChiliMode ? '/chili.png' : '/dumpling-logo.png'}
@@ -58,17 +60,17 @@ export default function NavBar() {
           <span className="brand-text">
             {isChiliMode ? 'Chili Dumpling Maker' : 'Dumpling Maker'}
           </span>
-        </a>
+        </Link>
         <div className="nav-links">
           {links.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className={`nav-link ${isActive(link.href) ? 'active' : ''}`}
               aria-current={isActive(link.href) ? 'page' : undefined}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </div>
       </div>

@@ -1,146 +1,175 @@
 import Link from 'next/link';
 
+const highlights = [
+  {
+    icon: '📅',
+    title: 'Events',
+    desc: 'Create cooking sessions with headcount and target mass. Build menus and scale recipes automatically.',
+    tags: ['Menu Builder', 'Auto Scaling'],
+    actions: [
+      { label: 'View All', href: '/events', variant: 'secondary' },
+      { label: 'New Event', href: '/events/new', variant: 'primary' },
+    ],
+  },
+  {
+    icon: '📖',
+    title: 'Recipe Library',
+    desc: 'Browse and manage your collection of recipes. All quantities stored in metric for consistent scaling.',
+    tags: ['Metric Only', 'Shared Library'],
+    actions: [
+      { label: 'Browse', href: '/recipes', variant: 'secondary' },
+      { label: 'Ingest New', href: '/staging', variant: 'primary' },
+    ],
+  },
+  {
+    icon: '✨',
+    title: 'AI Ingestion',
+    desc: 'Extract recipes from URLs or text using AI. Automatically parse ingredients and steps.',
+    tags: ['URL Scraping', 'AI Parsing'],
+    actions: [{ label: 'Start Ingestion', href: '/staging', variant: 'primary' }],
+  },
+];
+
+const featureCards = [
+  {
+    title: 'Constraint Handling',
+    desc: 'Automatic warnings for oven crowding, temperature shock, and equipment limits.',
+  },
+  {
+    title: 'Dietary Compliance',
+    desc: 'Track allergens and dietary requirements across all recipes in your menu.',
+  },
+  {
+    title: 'Production Ready',
+    desc: 'Generate cook-facing instructions with scaled quantities and timing notes.',
+  },
+  {
+    title: 'Menu Intelligence',
+    desc: 'Spot overlaps across recipes and optimize prep flows to minimize back-of-house friction.',
+  },
+];
+
 export default function Home() {
   return (
-    <div>
-      <header className="mb-6">
-        <h1 style={{ marginBottom: '1rem' }}>Dashboard</h1>
-        <p className="text-muted" style={{ fontSize: '1.125rem', maxWidth: '640px', lineHeight: 1.6 }}>
-          A production engine for scaling recipes to feed large groups. Manage events, build menus, and handle constraints like equipment limits and dietary requirements.
-        </p>
-      </header>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
-        
-        {/* Events Card */}
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <div style={{ marginBottom: 'auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>📅</span>
-              <h2 style={{ margin: 0 }}>Events</h2>
-            </div>
-            <p className="text-muted" style={{ marginBottom: '1rem', lineHeight: 1.5 }}>
-              Create cooking sessions with headcount and target mass. Build menus and scale recipes automatically.
-            </p>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '0.75rem', background: 'rgba(79, 70, 229, 0.15)', color: '#6366f1', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontWeight: 500 }}>
-                Menu Builder
-              </span>
-              <span style={{ fontSize: '0.75rem', background: 'rgba(79, 70, 229, 0.15)', color: '#6366f1', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontWeight: 500 }}>
-                Auto Scaling
-              </span>
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
-            <Link href="/events" className="btn btn-secondary w-full">
-              View All
+    <div className="dashboard">
+      <section className="dash-hero">
+        <div>
+          <p className="eyebrow">Operator view</p>
+          <h1 className="dash-title">Dashboard</h1>
+          <p className="text-muted dash-subtitle">
+            A production engine for scaling recipes to feed large groups. Manage events, build menus, and handle
+            constraints like equipment limits and dietary requirements.
+          </p>
+          <div className="dash-actions">
+            <Link href="/staging" className="btn btn-primary">
+              Ingest a Recipe
             </Link>
-            <Link href="/events/new" className="btn btn-primary w-full">
-              New Event
+            <Link href="/events" className="btn btn-secondary">
+              View Events
             </Link>
           </div>
         </div>
-
-        {/* Recipes Card */}
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <div style={{ marginBottom: 'auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>📖</span>
-              <h2 style={{ margin: 0 }}>Recipe Library</h2>
-            </div>
-            <p className="text-muted" style={{ marginBottom: '1rem', lineHeight: 1.5 }}>
-              Browse and manage your collection of recipes. All quantities stored in metric for consistent scaling.
-            </p>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '0.75rem', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontWeight: 500 }}>
-                Metric Only
-              </span>
-              <span style={{ fontSize: '0.75rem', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontWeight: 500 }}>
-                Shared Library
-              </span>
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
-            <Link href="/recipes" className="btn btn-secondary w-full">
-              Browse
-            </Link>
-            <Link href="/staging" className="btn btn-primary w-full">
-              Ingest New
-            </Link>
-          </div>
-        </div>
-
-        {/* Ingestion Card */}
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <div style={{ marginBottom: 'auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>✨</span>
-              <h2 style={{ margin: 0 }}>AI Ingestion</h2>
-            </div>
-            <p className="text-muted" style={{ marginBottom: '1rem', lineHeight: 1.5 }}>
-              Extract recipes from URLs or text using AI. Automatically parse ingredients and steps.
-            </p>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '0.75rem', background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontWeight: 500 }}>
-                URL Scraping
-              </span>
-              <span style={{ fontSize: '0.75rem', background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontWeight: 500 }}>
-                AI Parsing
-              </span>
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
-            <Link href="/staging" className="btn btn-primary w-full">
-              Start Ingestion
-            </Link>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Quick Stats Section */}
-      <div className="card" style={{ marginBottom: '2rem' }}>
-        <h3 className="mb-4">Quick Stats</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
+        <div className="dash-highlight">
           <div>
-            <p className="text-muted" style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Total Recipes</p>
-            <p className="text-mono" style={{ fontSize: '2rem', fontWeight: 700, margin: 0 }}>—</p>
+            <p className="text-muted" style={{ marginBottom: '0.25rem' }}>
+              Confidence
+            </p>
+            <div className="pill pill-strong">99.9% ingredient coverage</div>
           </div>
           <div>
-            <p className="text-muted" style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Active Events</p>
-            <p className="text-mono" style={{ fontSize: '2rem', fontWeight: 700, margin: 0 }}>—</p>
+            <p className="text-muted" style={{ marginBottom: '0.25rem' }}>
+              Latest ingest
+            </p>
+            <div className="pill">Just now</div>
           </div>
           <div>
-            <p className="text-muted" style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Total Servings Planned</p>
-            <p className="text-mono" style={{ fontSize: '2rem', fontWeight: 700, margin: 0 }}>—</p>
+            <p className="text-muted" style={{ marginBottom: '0.25rem' }}>
+              System status
+            </p>
+            <div className="pill pill-success">Online</div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Features Overview */}
-      <div>
-        <h3 className="mb-4">Core Features</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-          <div className="card" style={{ padding: '1rem' }}>
-            <h4 style={{ fontSize: '0.9375rem', marginBottom: '0.5rem', fontWeight: 600 }}>Constraint Handling</h4>
-            <p className="text-muted" style={{ fontSize: '0.875rem', margin: 0 }}>
-              Automatic warnings for oven crowding, temperature shock, and equipment limits.
-            </p>
+      <section className="dash-grid">
+        {highlights.map((card) => (
+          <div key={card.title} className="dash-card">
+            <div>
+              <div className="dash-card-head">
+                <span className="dash-icon">{card.icon}</span>
+                <h2>{card.title}</h2>
+              </div>
+              <p className="text-muted">{card.desc}</p>
+              <div className="dash-tags">
+                {card.tags.map((tag) => (
+                  <span key={tag} className="chip chip-soft">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="dash-actions-row">
+              {card.actions.map((action) => (
+                <Link
+                  key={action.label}
+                  href={action.href}
+                  className={`btn ${action.variant === 'primary' ? 'btn-primary' : 'btn-secondary'} w-full`}
+                >
+                  {action.label}
+                </Link>
+              ))}
+            </div>
           </div>
-          <div className="card" style={{ padding: '1rem' }}>
-            <h4 style={{ fontSize: '0.9375rem', marginBottom: '0.5rem', fontWeight: 600 }}>Dietary Compliance</h4>
-            <p className="text-muted" style={{ fontSize: '0.875rem', margin: 0 }}>
-              Track allergens and dietary requirements across all recipes in your menu.
-            </p>
+        ))}
+      </section>
+
+      <section className="card dash-stats">
+        <div className="dash-stats-head">
+          <div>
+            <p className="eyebrow">Quick pulse</p>
+            <h3>Operations Snapshot</h3>
           </div>
-          <div className="card" style={{ padding: '1rem' }}>
-            <h4 style={{ fontSize: '0.9375rem', marginBottom: '0.5rem', fontWeight: 600 }}>Production Ready</h4>
-            <p className="text-muted" style={{ fontSize: '0.875rem', margin: 0 }}>
-              Generate cook-facing instructions with scaled quantities and timing notes.
-            </p>
+          <div className="pill">Live</div>
+        </div>
+        <div className="dash-stats-grid">
+          <div className="stat-block">
+            <p className="text-muted">Total Recipes</p>
+            <div className="stat-value">—</div>
+          </div>
+          <div className="stat-block">
+            <p className="text-muted">Active Events</p>
+            <div className="stat-value">—</div>
+          </div>
+          <div className="stat-block">
+            <p className="text-muted">Total Servings Planned</p>
+            <div className="stat-value">—</div>
+          </div>
+          <div className="stat-block">
+            <p className="text-muted">Prep Hours Scheduled</p>
+            <div className="stat-value">—</div>
           </div>
         </div>
-      </div>
+      </section>
+
+      <section>
+        <div className="dash-section-head">
+          <div>
+            <p className="eyebrow">Capabilities</p>
+            <h3>Core Features</h3>
+          </div>
+          <Link href="/staging" className="btn btn-secondary">
+            Ingest Another Recipe
+          </Link>
+        </div>
+        <div className="feature-grid">
+          {featureCards.map((feature) => (
+            <div key={feature.title} className="card feature-card">
+              <h4>{feature.title}</h4>
+              <p className="text-muted">{feature.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

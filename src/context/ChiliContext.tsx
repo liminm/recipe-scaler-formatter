@@ -12,17 +12,14 @@ interface ChiliContextType {
 const ChiliContext = createContext<ChiliContextType | undefined>(undefined);
 
 export function ChiliProvider({ children }: { children: React.ReactNode }) {
-  const [isChiliMode, setIsChiliMode] = useState(false);
+  const [isChiliMode, setIsChiliMode] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('chili_mode') === 'true';
+  });
 
-  // Persist chili mode in localStorage
+  // Clear legacy key on mount without altering current state
   useEffect(() => {
-    // Clear old debug_mode key if it exists
     localStorage.removeItem('debug_mode');
-    
-    const stored = localStorage.getItem('chili_mode');
-    if (stored === 'true') {
-      setIsChiliMode(true);
-    }
   }, []);
 
   // Apply chili-mode class to body
