@@ -7,6 +7,7 @@ import Link from 'next/link';
 interface Recipe {
   id: string;
   title: string;
+  summary: string | null;
   source_url: string | null;
   created_at: string;
 }
@@ -21,7 +22,7 @@ export default function RecipesPage() {
       try {
         const { data, error } = await supabase
           .from('recipes')
-          .select('id, title, source_url, created_at')
+          .select('id, title, summary, source_url, created_at')
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -86,6 +87,11 @@ export default function RecipesPage() {
             <Link key={recipe.id} href={`/recipes/${recipe.id}`} style={{ textDecoration: 'none' }}>
               <div className="card" style={{ height: '100%', cursor: 'pointer' }}>
                 <h3 className="mb-2">{recipe.title}</h3>
+                {recipe.summary && (
+                  <p className="text-muted" style={{ fontSize: '0.9rem', marginBottom: '1rem', lineHeight: '1.5' }}>
+                    {recipe.summary}
+                  </p>
+                )}
                 {recipe.source_url && (
                   <a
                     href={recipe.source_url}

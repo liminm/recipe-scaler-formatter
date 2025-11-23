@@ -10,6 +10,7 @@ import LoadingDumpling from '@/components/LoadingDumpling';
 interface Recipe {
   id: string;
   title: string;
+  summary: string | null;
   source_url: string | null;
   original_yield_servings: number | null;
   chefs_notes: string[];
@@ -121,6 +122,11 @@ export default function RecipeDetailPage() {
           </Link>
         </div>
         <h1 className="mb-2">{recipe.title}</h1>
+        {recipe.summary && (
+          <p className="text-muted" style={{ fontSize: '1rem', marginBottom: '1rem', lineHeight: '1.6' }}>
+            {recipe.summary}
+          </p>
+        )}
         
         {/* Yield Estimate Display */}
         {recipe.estimated_final_weight_g && (

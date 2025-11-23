@@ -18,6 +18,7 @@ export async function POST(request: Request) {
             .insert({
                 id: recipeId,
                 title: stagingRecipe.title,
+                summary: stagingRecipe.summary,
                 source_url: stagingRecipe.source_url,
                 original_yield_servings: stagingRecipe.original_yield_servings,
                 chefs_notes: stagingRecipe.chefs_notes,

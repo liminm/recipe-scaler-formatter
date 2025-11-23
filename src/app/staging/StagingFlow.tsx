@@ -431,7 +431,8 @@ export default function StagingFlow() {
       method: 'POST',
       body: JSON.stringify({ 
         text: inputValue, 
-        titleHint: candidate.title 
+        titleHint: candidate.title,
+        summary: candidate.summary
       }),
     });
     const data = await res.json();
@@ -1047,14 +1048,25 @@ Mash avocados...
               </div>
             )}
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div style={{ marginBottom: '1rem' }}>
               <input
                 type="text"
                 value={stagingRecipe.title}
                 onChange={(e) => setStagingRecipe({ ...stagingRecipe, title: e.target.value })}
                 className="input-field"
-                style={{ fontSize: '1.5rem', fontWeight: 'bold', border: 'none', background: 'transparent', padding: 0 }}
+                style={{ fontSize: '1.5rem', fontWeight: 'bold', border: 'none', background: 'transparent', padding: 0, marginBottom: '0.5rem' }}
+                placeholder="Recipe Title"
               />
+              <textarea
+                value={stagingRecipe.summary || ''}
+                onChange={(e) => setStagingRecipe({ ...stagingRecipe, summary: e.target.value })}
+                className="input-field"
+                placeholder="Brief summary (optional)"
+                rows={2}
+                style={{ width: '100%', resize: 'vertical', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}
+              />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
               <button 
                 className="btn btn-primary"
                 onClick={handleApprove}

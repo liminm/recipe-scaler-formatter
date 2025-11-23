@@ -46,6 +46,7 @@ export type StagingStep = z.infer<typeof StagingStepSchema>;
 export const StagingRecipeSchema = z.object({
     id: z.string().uuid(),
     title: z.string().default('Untitled Recipe'),
+    summary: z.string().optional(),
     source_url: z.string().optional(),
     original_yield_servings: z.number().optional(),
 

@@ -552,6 +552,17 @@ export default function EditRecipePage() {
           />
         </div>
         <div style={{ marginBottom: '1rem' }}>
+          <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem' }}>Summary</label>
+          <textarea
+            value={recipe.summary || ''}
+            onChange={e => setRecipe({ ...recipe, summary: e.target.value })}
+            className="input-field"
+            style={{ width: '100%', resize: 'vertical' }}
+            rows={2}
+            placeholder="Brief summary (optional)"
+          />
+        </div>
+        <div style={{ marginBottom: '1rem' }}>
           <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem' }}>Source URL</label>
           <input
             type="url"

@@ -3,12 +3,12 @@ import { extractRecipe } from '@/services/ingestion/extractor';
 
 export async function POST(request: Request) {
     try {
-        const { text, titleHint } = await request.json();
+        const { text, titleHint, summary } = await request.json();
         if (!text) {
             return NextResponse.json({ error: 'Text is required' }, { status: 400 });
         }
 
-        const recipe = await extractRecipe(text, titleHint);
+        const recipe = await extractRecipe(text, titleHint, summary);
         return NextResponse.json({ recipe });
     } catch (error) {
         console.error('Extract API error:', error);

@@ -3,7 +3,7 @@ import { StagingRecipe } from '../../types/staging';
 import { v4 as uuidv4 } from 'uuid';
 import { estimateYield } from './yieldCalculator';
 
-export async function extractRecipe(rawText: string, titleHint?: string): Promise<StagingRecipe> {
+export async function extractRecipe(rawText: string, titleHint?: string, summary?: string): Promise<StagingRecipe> {
   const model = geminiPro;
 
   const prompt = `
@@ -91,6 +91,7 @@ export async function extractRecipe(rawText: string, titleHint?: string): Promis
     return {
       id: uuidv4(),
       title: data.title || 'Untitled Recipe',
+      summary: summary, // Use the summary provided from RecipeCandidate
       original_yield_servings: data.original_yield_servings,
       ingredients,
       steps,
