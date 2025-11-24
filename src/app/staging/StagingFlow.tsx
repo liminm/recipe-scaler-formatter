@@ -278,6 +278,34 @@ Mash avocados...
     setSelectedCandidateIndices(newSet);
   };
 
+  const handleManualStart = () => {
+    const blankRecipe: StagingRecipe = {
+      id: crypto.randomUUID(),
+      title: 'Untitled Recipe',
+      ingredients: [],
+      steps: [],
+      chefs_notes: [],
+      original_yield_servings: 4, // Default
+    };
+
+    const manualItem: BatchItem = {
+      candidate: { 
+        title: 'Manual Entry', 
+        index: 0, 
+        summary: 'Created manually',
+        originalTextSnippet: '' 
+      },
+      status: 'ready',
+      recipe: blankRecipe
+    };
+
+    setBatchItems([manualItem]);
+    setActiveBatchIndex(0);
+    setStagingRecipe(blankRecipe);
+    setIsSourceTextVisible(false); // No source text for manual entry
+    setStep('editor');
+  };
+
 
 
   const handleApprove = async () => {
@@ -348,23 +376,28 @@ Mash avocados...
                 <div className="ingest-card-head">
                   <div>
                     <p className="eyebrow">Start ingestion</p>
-                    <h2>Ingest Recipe</h2>
+                    <h2 style={{ marginBottom: 0 }}>Add a new recipe</h2>
                   </div>
-                  <div className="pill">Step 1 of 3</div>
                 </div>
 
                 <div className="ingest-tabs">
-                  <button
+                  <button 
                     className={`chip ${inputMode === 'url' ? 'chip-active' : ''}`}
                     onClick={() => setInputMode('url')}
                   >
                     From URL
                   </button>
-                  <button
+                  <button 
                     className={`chip ${inputMode === 'text' ? 'chip-active' : ''}`}
                     onClick={() => setInputMode('text')}
                   >
-                    From Text
+                    Paste Text
+                  </button>
+                  <button 
+                    className="chip"
+                    onClick={handleManualStart}
+                  >
+                    ✍️ Write Manually
                   </button>
                 </div>
 
