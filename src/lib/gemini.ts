@@ -57,9 +57,19 @@ export class GeminiFallbackModel {
                 lastError = error;
 
                 // Check if it's a quota/rate limit error
+                // Check if it's a quota/rate limit error OR a network/fetch error
                 const isQuotaError = error.message?.includes('429') ||
                     error.message?.includes('quota') ||
                     error.message?.includes('Resource has been exhausted');
+
+                const isNetworkError = error.message?.includes('fetch failed') ||
+                    error.message?.includes('network') ||
+                    error.message?.includes('timeout');
+
+                if (isQuotaError || isNetworkError) {
+                    console.warn(`⚠️ ${isQuotaError ? 'Quota exhausted' : 'Network error'} for ${modelName} (${error.message}), attempting fallback...`);
+                    continue; // Try next model
+                }
 
                 if (isQuotaError) {
                     console.warn(`⚠️ Quota exhausted for ${modelName}, attempting fallback...`);

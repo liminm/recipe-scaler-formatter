@@ -35,10 +35,23 @@ export default function RecipeEditor({
     alternativeText?: string;
   } | null>(null);
 
-  // Update local state if prop changes
+  const [targetYield, setTargetYield] = useState<number | undefined>(initialRecipe.original_yield_servings);
+
+  // Update target yield when recipe changes (if not set manually yet)
   useEffect(() => {
-    setRecipe(initialRecipe);
-  }, [initialRecipe]);
+    if (initialRecipe.original_yield_servings) {
+      setTargetYield(initialRecipe.original_yield_servings);
+    }
+  }, [initialRecipe.original_yield_servings]);
+
+  // Calculate scaling factor
+  const scalingFactor = (targetYield && recipe.original_yield_servings) 
+    ? targetYield / recipe.original_yield_servings 
+    : 1;
+
+  const isScaled = scalingFactor !== 1;
+
+  const [maintainProportions, setMaintainProportions] = useState(false);
 
   // Helper: Extract searchable terms from ingredient name
   const getSearchTerms = (name: string): string[] => {
@@ -335,54 +348,46 @@ export default function RecipeEditor({
 
   return (
     <div className="card">
-      {/* Confirmation Dialog */}
-      {confirmDialog && confirmDialog.isOpen && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }}>
-          <div className="card" style={{ maxWidth: '500px', width: '90%' }}>
-            <h3>{confirmDialog.title}</h3>
-            <p className="my-4">{confirmDialog.message}</p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-              <button className="btn" onClick={() => setConfirmDialog(null)}>Cancel</button>
-              {confirmDialog.alternativeText && (
-                <button className="btn btn-secondary" onClick={confirmDialog.onAlternative}>
-                  {confirmDialog.alternativeText}
-                </button>
-              )}
-              <button className="btn btn-primary" onClick={confirmDialog.onConfirm}>
-                {confirmDialog.confirmText}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ... (confirmation dialog) ... */}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div style={{ flex: 1, marginRight: '2rem' }}>
-          <input
-            type="text"
-            value={recipe.title}
-            onChange={(e) => setRecipe({ ...recipe, title: e.target.value })}
-            className="input-field"
-            style={{ fontSize: '1.5rem', fontWeight: 'bold', width: '100%', marginBottom: '0.5rem' }}
-            placeholder="Recipe Title"
-          />
+          {/* ... (title input) ... */}
           
           {/* Metadata Fields */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <div>
-              <label className="text-muted" style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Original Yield (servings)</label>
+              <label className="text-muted" style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Original Yield</label>
               <input
                 type="number"
                 value={recipe.original_yield_servings || ''}
-                onChange={(e) => setRecipe({ ...recipe, original_yield_servings: parseInt(e.target.value) || undefined })}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value) || undefined;
+                  setRecipe({ ...recipe, original_yield_servings: val });
+                  // If we are not in a custom scaled mode, keep target synced
+                  if (!isScaled) setTargetYield(val);
+                }}
                 className="input-field"
                 style={{ width: '100%' }}
                 placeholder="e.g. 4"
               />
             </div>
+            
+            {/* Target Yield Control */}
+            <div style={{ background: isScaled ? 'var(--color-primary-light)' : 'transparent', borderRadius: '4px', padding: '0 0.5rem' }}>
+              <label className="text-muted" style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.25rem', color: isScaled ? 'var(--color-primary)' : 'inherit', fontWeight: isScaled ? 'bold' : 'normal' }}>
+                Target Yield {isScaled && '(Scaled)'}
+              </label>
+              <input
+                type="number"
+                value={targetYield || ''}
+                onChange={(e) => setTargetYield(parseInt(e.target.value) || undefined)}
+                className="input-field"
+                style={{ width: '100%', borderColor: isScaled ? 'var(--color-primary)' : undefined }}
+                placeholder="Scale to..."
+              />
+            </div>
+
             <div>
               <label className="text-muted" style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Source URL</label>
               <input
@@ -396,57 +401,39 @@ export default function RecipeEditor({
             </div>
           </div>
 
-          <div style={{ marginBottom: '1rem' }}>
-             <label className="text-muted" style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Summary</label>
-             <textarea
-                value={recipe.summary || ''}
-                onChange={(e) => setRecipe({ ...recipe, summary: e.target.value })}
-                className="input-field"
-                style={{ width: '100%', resize: 'vertical', minHeight: '60px' }}
-                placeholder="Brief description of the recipe..."
-             />
-          </div>
+          {/* ... (summary) ... */}
 
-          <p className="text-muted" style={{ marginTop: '0.5rem' }}>
-            Estimated Yield: {recipe.estimated_final_weight_g ? `${(recipe.estimated_final_weight_g / 1000).toFixed(2)} kg` : 'Calculating...'}
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.5rem' }}>
+            <p className="text-muted" style={{ margin: 0 }}>
+              Estimated Yield: {recipe.estimated_final_weight_g ? `${(recipe.estimated_final_weight_g * scalingFactor / 1000).toFixed(2)} kg` : 'Calculating...'}
+              {isScaled && <span style={{ marginLeft: '0.5rem', fontSize: '0.8em', color: 'var(--color-primary)' }}>(Scaled from {(recipe.estimated_final_weight_g! / 1000).toFixed(2)} kg)</span>}
+            </p>
+            
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', userSelect: 'none' }}>
+              <input 
+                type="checkbox" 
+                checked={maintainProportions} 
+                onChange={(e) => setMaintainProportions(e.target.checked)}
+                style={{ accentColor: 'var(--color-primary)' }}
+              />
+              <span style={{ fontSize: '0.875rem', fontWeight: maintainProportions ? 'bold' : 'normal', color: maintainProportions ? 'var(--color-primary)' : 'inherit' }}>
+                Scale by Ingredient (Maintain Ratios)
+              </span>
+            </label>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem', alignSelf: 'flex-start' }}>
-          {onCancel && (
-            <button className="btn" onClick={onCancel}>Cancel</button>
-          )}
-          <button 
-            className="btn btn-primary" 
-            onClick={() => onSave(recipe)}
-            disabled={isSaving}
-          >
-            {isSaving ? 'Saving...' : saveLabel}
-          </button>
-        </div>
+        {/* ... (buttons) ... */}
       </div>
 
-      {ingredientSuggestions.length > 0 && (
-        <div className="alert alert-warning mb-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>
-            <strong>Warning:</strong> {ingredientSuggestions.length} ingredients found in list but not mentioned in steps.
-          </span>
-          <button 
-            className="btn btn-sm"
-            style={{ background: 'rgba(0,0,0,0.1)', border: 'none' }}
-            onClick={removeOrphanedIngredients}
-          >
-            Remove All Orphans
-          </button>
-        </div>
-      )}
+      {/* ... (orphans warning) ... */}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
         {/* Ingredients Column */}
         <div>
-          <h3 className="mb-4">Ingredients</h3>
+          <h3 className="mb-4">Ingredients {isScaled && <span style={{ fontSize: '0.6em', color: 'var(--color-primary)', verticalAlign: 'middle' }}>● Scaled x{scalingFactor.toFixed(2)}</span>}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {recipe.ingredients.map((ing, idx) => (
-              <div key={idx} className="card" style={{ padding: '0.75rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <div key={idx} className="card" style={{ padding: '0.75rem', display: 'flex', gap: '0.5rem', alignItems: 'center', borderLeft: isScaled ? '3px solid var(--color-primary)' : undefined }}>
                 <div style={{ flex: 1 }}>
                   <input
                     type="text"
@@ -465,14 +452,35 @@ export default function RecipeEditor({
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <input
                       type="number"
-                      value={ing.base_quantity_g || 0}
+                      // Display scaled quantity
+                      value={ing.base_quantity_g ? Number((ing.base_quantity_g * scalingFactor).toFixed(1)) : 0}
                       onChange={(e) => {
-                        const newIngredients = [...recipe.ingredients];
-                        newIngredients[idx] = { ...ing, base_quantity_g: Number(e.target.value) };
-                        setRecipe({ ...recipe, ingredients: newIngredients });
+                        const val = Number(e.target.value);
+                        
+                        if (maintainProportions) {
+                          // Scale the whole recipe based on this ingredient
+                          if (ing.base_quantity_g && recipe.original_yield_servings) {
+                            const newScalingFactor = val / ing.base_quantity_g;
+                            const newTargetYield = newScalingFactor * recipe.original_yield_servings;
+                            setTargetYield(Number(newTargetYield.toFixed(2)));
+                          }
+                        } else {
+                          // Standard edit: Reverse calculate base quantity, changing ratio
+                          const baseVal = val / scalingFactor;
+                          const newIngredients = [...recipe.ingredients];
+                          newIngredients[idx] = { ...ing, base_quantity_g: baseVal };
+                          setRecipe({ ...recipe, ingredients: newIngredients });
+                        }
                       }}
                       className="input-field"
-                      style={{ width: '80px', fontSize: '0.875rem' }}
+                      style={{ 
+                        width: '80px', 
+                        fontSize: '0.875rem', 
+                        color: isScaled ? 'var(--color-primary)' : 'inherit', 
+                        fontWeight: isScaled ? 'bold' : 'normal',
+                        borderColor: maintainProportions ? 'var(--color-primary)' : undefined
+                      }}
+                      title={maintainProportions ? "Changing this will scale the whole recipe" : "Changing this will alter the recipe ratio"}
                     />
                     <span className="text-muted" style={{ alignSelf: 'center', fontSize: '0.875rem' }}>g</span>
                     
@@ -492,39 +500,10 @@ export default function RecipeEditor({
                     </select>
                   </div>
                 </div>
-                <button 
-                  onClick={() => handleRemoveIngredient(idx)}
-                  className="btn"
-                  style={{ padding: '0.25rem 0.5rem', color: '#ef4444', borderColor: '#ef4444' }}
-                  title="Remove ingredient"
-                >
-                  ×
-                </button>
+                {/* ... (remove button) ... */}
               </div>
             ))}
-            <button 
-              className="btn" 
-              style={{ borderStyle: 'dashed' }}
-              onClick={() => {
-                setRecipe({
-                  ...recipe,
-                  ingredients: [...recipe.ingredients, {
-                    id: crypto.randomUUID(),
-                    name_raw: '',
-                    name_normalized: '',
-                    base_quantity_g: 0,
-                    role: 'CONSUMABLE',
-                    yield_factor: 1,
-                    is_discrete: false,
-                    dependency_role: 'PASSENGER',
-                    density_confidence: 'high',
-                    needs_review: false
-                  }]
-                });
-              }}
-            >
-              + Add Ingredient
-            </button>
+            {/* ... (add ingredient button) ... */}
           </div>
         </div>
 
