@@ -44,14 +44,32 @@ export default function RecipeEditor({
     }
   }, [initialRecipe.original_yield_servings]);
 
-  // Calculate scaling factor
-  const scalingFactor = (targetYield && recipe.original_yield_servings) 
-    ? targetYield / recipe.original_yield_servings 
-    : 1;
+  const [targetPortionSize, setTargetPortionSize] = useState<number | undefined>(undefined);
+
+  // Calculate original portion size (if possible)
+  const originalTotalWeight = recipe.estimated_final_weight_g;
+  const originalPortionSize = (originalTotalWeight && recipe.original_yield_servings)
+    ? originalTotalWeight / recipe.original_yield_servings
+    : undefined;
+
+  // Calculate scaling factor based on portion size OR simple yield scaling
+  let scalingFactor = 1;
+  if (targetPortionSize && targetYield && originalPortionSize && recipe.original_yield_servings) {
+    // Factor = (Target Portion * Target Count) / (Original Portion * Original Count)
+    // Simplified: (Target Portion * Target Count) / Original Total Weight
+    scalingFactor = (targetPortionSize * targetYield) / originalTotalWeight!;
+  } else if (targetYield && recipe.original_yield_servings) {
+    scalingFactor = targetYield / recipe.original_yield_servings;
+  }
 
   const isScaled = scalingFactor !== 1;
 
-  const [maintainProportions, setMaintainProportions] = useState(false);
+  // Sync target portion size when original changes (initial load)
+  useEffect(() => {
+    if (originalPortionSize && targetPortionSize === undefined) {
+      setTargetPortionSize(Number(originalPortionSize.toFixed(0)));
+    }
+  }, [originalPortionSize]);
 
   // Helper: Extract searchable terms from ingredient name
   const getSearchTerms = (name: string): string[] => {
@@ -311,6 +329,59 @@ export default function RecipeEditor({
     return () => clearTimeout(timeoutId);
   }, [recipe.ingredients, recipe.steps]);
 
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopyText = async () => {
+    const lines = [];
+    lines.push(recipe.title);
+    if (recipe.summary) lines.push(recipe.summary);
+    lines.push('');
+    
+    // Yield info
+    if (isScaled) {
+       lines.push(`Yield: ${targetYield} servings (Scaled)`);
+       if (targetPortionSize) lines.push(`Portion Size: ${targetPortionSize}g`);
+       lines.push(`Total Weight: ${(recipe.estimated_final_weight_g! * scalingFactor / 1000).toFixed(2)} kg`);
+    } else {
+       lines.push(`Yield: ${recipe.original_yield_servings || '?'} servings`);
+       if (recipe.estimated_final_weight_g) lines.push(`Total Weight: ${(recipe.estimated_final_weight_g / 1000).toFixed(2)} kg`);
+    }
+    lines.push('');
+
+    lines.push('Ingredients:');
+    recipe.ingredients.forEach(ing => {
+      const qty = ing.base_quantity_g ? (ing.base_quantity_g * scalingFactor).toFixed(1) : '';
+      const name = ing.name_normalized || ing.name_raw;
+      lines.push(`- ${qty}${qty ? 'g' : ''} ${name}`);
+    });
+    lines.push('');
+
+    lines.push('Instructions:');
+    recipe.steps.forEach((step, idx) => {
+      lines.push(`${idx + 1}. ${step.instruction_raw}`);
+    });
+
+    if (recipe.chefs_notes && recipe.chefs_notes.length > 0) {
+      lines.push('');
+      lines.push("Chef's Notes:");
+      recipe.chefs_notes.forEach(note => lines.push(`- ${note}`));
+    }
+
+    if (recipe.source_url) {
+      lines.push('');
+      lines.push(`Source: ${recipe.source_url}`);
+    }
+
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'));
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      alert('Failed to copy to clipboard');
+    }
+  };
+
   const handlePolishSteps = async () => {
     setIsPolishing(true);
     try {
@@ -403,23 +474,54 @@ export default function RecipeEditor({
 
           {/* ... (summary) ... */}
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.5rem' }}>
-            <p className="text-muted" style={{ margin: 0 }}>
-              Estimated Yield: {recipe.estimated_final_weight_g ? `${(recipe.estimated_final_weight_g * scalingFactor / 1000).toFixed(2)} kg` : 'Calculating...'}
-              {isScaled && <span style={{ marginLeft: '0.5rem', fontSize: '0.8em', color: 'var(--color-primary)' }}>(Scaled from {(recipe.estimated_final_weight_g! / 1000).toFixed(2)} kg)</span>}
-            </p>
-            
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', userSelect: 'none' }}>
-              <input 
-                type="checkbox" 
-                checked={maintainProportions} 
-                onChange={(e) => setMaintainProportions(e.target.checked)}
-                style={{ accentColor: 'var(--color-primary)' }}
-              />
-              <span style={{ fontSize: '0.875rem', fontWeight: maintainProportions ? 'bold' : 'normal', color: maintainProportions ? 'var(--color-primary)' : 'inherit' }}>
-                Scale by Ingredient (Maintain Ratios)
-              </span>
-            </label>
+          <div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--color-bg-secondary)', borderRadius: '8px' }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem' }}>Portion Scaling</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', alignItems: 'end' }}>
+              
+              {/* Original Portion */}
+              <div>
+                <label className="text-muted" style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.25rem' }}>
+                  Original Portion
+                </label>
+                <div className="input-field" style={{ background: '#f5f5f5', color: '#666' }}>
+                  {originalPortionSize ? `${originalPortionSize.toFixed(0)}g` : 'N/A'}
+                </div>
+              </div>
+
+              {/* Target Portion Size */}
+              <div>
+                <label className="text-muted" style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.25rem' }}>
+                  Target Portion Size (g)
+                </label>
+                <input
+                  type="number"
+                  value={targetPortionSize || ''}
+                  onChange={(e) => setTargetPortionSize(parseInt(e.target.value) || undefined)}
+                  className="input-field"
+                  style={{ width: '100%', borderColor: targetPortionSize !== Number(originalPortionSize?.toFixed(0)) ? 'var(--color-primary)' : undefined }}
+                  placeholder="e.g. 300"
+                />
+              </div>
+
+              {/* Target Count (already exists above, but maybe redundant here? No, let's keep the one above as the main "Yield" control and just reference it here if needed, or rely on the user understanding the relationship. Actually, let's just show the calculated total weight here.) */}
+              <div>
+                 <label className="text-muted" style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.25rem' }}>
+                  New Total Weight
+                </label>
+                <div style={{ fontWeight: 'bold', color: isScaled ? 'var(--color-primary)' : 'inherit' }}>
+                  {recipe.estimated_final_weight_g ? `${(recipe.estimated_final_weight_g * scalingFactor / 1000).toFixed(2)} kg` : '...'}
+                </div>
+              </div>
+
+            </div>
+            {isScaled && (
+               <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--color-primary)' }}>
+                 Scaling Factor: <strong>{scalingFactor.toFixed(2)}x</strong> 
+                 {targetPortionSize && originalPortionSize && targetPortionSize !== originalPortionSize && (
+                   <span> (Portion size adjusted: {((targetPortionSize / originalPortionSize) * 100).toFixed(0)}%)</span>
+                 )}
+               </div>
+            )}
           </div>
         </div>
         {/* ... (buttons) ... */}
@@ -455,32 +557,21 @@ export default function RecipeEditor({
                       // Display scaled quantity
                       value={ing.base_quantity_g ? Number((ing.base_quantity_g * scalingFactor).toFixed(1)) : 0}
                       onChange={(e) => {
+                        // Standard edit: Reverse calculate base quantity, changing ratio
                         const val = Number(e.target.value);
+                        const baseVal = val / scalingFactor;
                         
-                        if (maintainProportions) {
-                          // Scale the whole recipe based on this ingredient
-                          if (ing.base_quantity_g && recipe.original_yield_servings) {
-                            const newScalingFactor = val / ing.base_quantity_g;
-                            const newTargetYield = newScalingFactor * recipe.original_yield_servings;
-                            setTargetYield(Number(newTargetYield.toFixed(2)));
-                          }
-                        } else {
-                          // Standard edit: Reverse calculate base quantity, changing ratio
-                          const baseVal = val / scalingFactor;
-                          const newIngredients = [...recipe.ingredients];
-                          newIngredients[idx] = { ...ing, base_quantity_g: baseVal };
-                          setRecipe({ ...recipe, ingredients: newIngredients });
-                        }
+                        const newIngredients = [...recipe.ingredients];
+                        newIngredients[idx] = { ...ing, base_quantity_g: baseVal };
+                        setRecipe({ ...recipe, ingredients: newIngredients });
                       }}
                       className="input-field"
                       style={{ 
                         width: '80px', 
                         fontSize: '0.875rem', 
                         color: isScaled ? 'var(--color-primary)' : 'inherit', 
-                        fontWeight: isScaled ? 'bold' : 'normal',
-                        borderColor: maintainProportions ? 'var(--color-primary)' : undefined
+                        fontWeight: isScaled ? 'bold' : 'normal'
                       }}
-                      title={maintainProportions ? "Changing this will scale the whole recipe" : "Changing this will alter the recipe ratio"}
                     />
                     <span className="text-muted" style={{ alignSelf: 'center', fontSize: '0.875rem' }}>g</span>
                     
@@ -615,6 +706,30 @@ export default function RecipeEditor({
             <p className="text-muted">No notes yet.</p>
           )}
         </div>
+      </div>
+      
+      <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+          <div>
+            <button 
+              className="btn btn-secondary" 
+              onClick={handleCopyText}
+              title="Copy formatted recipe to clipboard"
+            >
+              {isCopied ? '✅ Copied!' : '📋 Copy as Text'}
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {onCancel && (
+              <button className="btn" onClick={onCancel}>Cancel</button>
+            )}
+            <button 
+              className="btn btn-primary" 
+              onClick={() => onSave(recipe)}
+              disabled={isSaving}
+            >
+              {isSaving ? 'Saving...' : saveLabel}
+            </button>
+          </div>
       </div>
     </div>
   );
