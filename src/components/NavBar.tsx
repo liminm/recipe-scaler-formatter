@@ -17,9 +17,18 @@ export default function NavBar() {
   const { toggleChiliMode, isChiliMode } = useChili();
   const [clickCount, setClickCount] = useState(0);
   const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [animationClass, setAnimationClass] = useState('');
+
+  const triggerRandomAnimation = () => {
+    if (animationClass) return; // Don't interrupt existing animation
+    const animations = ['anim-bounce', 'anim-wiggle', 'anim-jelly', 'anim-spin', 'anim-tada'];
+    const randomAnim = animations[Math.floor(Math.random() * animations.length)];
+    setAnimationClass(randomAnim);
+  };
 
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent ALL navigation by default
+    triggerRandomAnimation();
 
     if (resetTimerRef.current) {
       clearTimeout(resetTimerRef.current);
@@ -50,7 +59,12 @@ export default function NavBar() {
   return (
     <nav className={`topbar ${isChiliMode ? 'chili-nav' : ''}`}>
       <div className="container topbar-content">
-        <Link href="/" className="brand" onClick={handleLogoClick}>
+        <Link 
+          href="/" 
+          className="brand" 
+          onClick={handleLogoClick}
+          onMouseEnter={triggerRandomAnimation}
+        >
           {isChiliMode ? (
             <>
               <span className="brand-mark">
@@ -63,6 +77,8 @@ export default function NavBar() {
               <img 
                 src="/dumpling-logo.png" 
                 alt="Dumpling Maker" 
+                className={animationClass}
+                onAnimationEnd={() => setAnimationClass('')}
                 style={{ width: '48px', height: '48px', objectFit: 'contain' }} 
               />
               <div style={{ 

@@ -663,6 +663,7 @@ body.chili-mode .nav-link.active {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -1344,4 +1345,123 @@ body.chili-mode .nav-link.active {
     transform: scale(1.5);
     opacity: 0;
   }
+}
+
+/* --- Logo Animations --- */
+@keyframes bounce-fun {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  25% {
+    transform: translateY(-8px) rotate(-5deg);
+  }
+
+  50% {
+    transform: translateY(0) rotate(3deg);
+  }
+
+  75% {
+    transform: translateY(-4px) rotate(-3deg);
+  }
+}
+
+@keyframes wiggle-fun {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(-15deg);
+  }
+
+  50% {
+    transform: rotate(10deg);
+  }
+
+  75% {
+    transform: rotate(-5deg);
+  }
+}
+
+@keyframes jelly-fun {
+
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+
+  25% {
+    transform: scale(1.25, 0.75);
+  }
+
+  50% {
+    transform: scale(0.75, 1.25);
+  }
+
+  75% {
+    transform: scale(1.15, 0.85);
+  }
+}
+
+@keyframes spin-fun {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes tada-fun {
+  0% {
+    transform: scale(1);
+  }
+
+  10%,
+  20% {
+    transform: scale(0.9) rotate(-3deg);
+  }
+
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: scale(1.1) rotate(3deg);
+  }
+
+  40%,
+  60%,
+  80% {
+    transform: scale(1.1) rotate(-3deg);
+  }
+
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+
+.anim-bounce {
+  animation: bounce-fun 0.6s ease-in-out;
+}
+
+.anim-wiggle {
+  animation: wiggle-fun 0.5s ease-in-out;
+}
+
+.anim-jelly {
+  animation: jelly-fun 0.5s ease-in-out;
+}
+
+.anim-spin {
+  animation: spin-fun 0.6s ease-in-out;
+}
+
+.anim-tada {
+  animation: tada-fun 0.8s ease-in-out;
 }
