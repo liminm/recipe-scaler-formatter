@@ -19,10 +19,34 @@ export default function NavBar() {
   const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [animationClass, setAnimationClass] = useState('');
 
+  const lastAnimationRef = useRef<string>('');
+
   const triggerRandomAnimation = () => {
     if (animationClass) return; // Don't interrupt existing animation
-    const animations = ['anim-bounce', 'anim-wiggle', 'anim-jelly', 'anim-spin', 'anim-tada'];
-    const randomAnim = animations[Math.floor(Math.random() * animations.length)];
+    
+    let animations;
+    if (isChiliMode) {
+      animations = [
+        'anim-chili-fire-breath', 'anim-chili-sizzle', 'anim-chili-hiccup', 
+        'anim-chili-flame-flicker', 'anim-chili-charred', 'anim-chili-heat-stroke', 
+        'anim-chili-dragon-flip', 'anim-chili-pepper-sneeze', 'anim-chili-red-alert', 
+        'anim-chili-combustion'
+      ];
+    } else {
+      animations = [
+        'anim-dumpling-steam-rise', 'anim-dumpling-pot-bobble', 'anim-dumpling-chopstick-squeeze',
+        'anim-dumpling-rolling-dough', 'anim-dumpling-soy-dip', 'anim-dumpling-happy-hop',
+        'anim-dumpling-pleat-pulse', 'anim-dumpling-plate-slide', 'anim-dumpling-tummy-rub',
+        'anim-dumpling-fresh-fold'
+      ];
+    }
+    
+    let randomAnim;
+    do {
+      randomAnim = animations[Math.floor(Math.random() * animations.length)];
+    } while (randomAnim === lastAnimationRef.current && animations.length > 1);
+
+    lastAnimationRef.current = randomAnim;
     setAnimationClass(randomAnim);
   };
 
