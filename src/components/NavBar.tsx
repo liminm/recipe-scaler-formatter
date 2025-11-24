@@ -51,15 +51,34 @@ export default function NavBar() {
     <nav className={`topbar ${isChiliMode ? 'chili-nav' : ''}`}>
       <div className="container topbar-content">
         <Link href="/" className="brand" onClick={handleLogoClick}>
-          <span className="brand-mark">
-            <img
-              src={isChiliMode ? '/chili.png' : '/dumpling-logo.png'}
-              alt={isChiliMode ? 'Chili Dumpling Maker' : 'Dumpling Maker'}
-            />
-          </span>
-          <span className="brand-text">
-            {isChiliMode ? 'Chili Dumpling Maker' : 'Dumpling Maker'}
-          </span>
+          {isChiliMode ? (
+            <>
+              <span className="brand-mark">
+                <img src="/chili.png" alt="Chili Dumpling Maker" />
+              </span>
+              <span className="brand-text">Chili Dumpling Maker</span>
+            </>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <img 
+                src="/dumpling-logo.png" 
+                alt="Dumpling Maker" 
+                style={{ width: '48px', height: '48px', objectFit: 'contain' }} 
+              />
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                justifyContent: 'center',
+                lineHeight: 0.9,
+                fontFamily: 'var(--font-nunito)', 
+                fontWeight: 800, 
+                color: '#4a3728' 
+              }}>
+                <span style={{ fontSize: '1.25rem', letterSpacing: '-0.02em' }}>Dumpling</span>
+                <span style={{ fontSize: '1.25rem', letterSpacing: '-0.02em' }}>Maker</span>
+              </div>
+            </div>
+          )}
         </Link>
         <div className="nav-links">
           {links.map((link) => (

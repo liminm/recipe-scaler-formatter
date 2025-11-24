@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import { Inter, JetBrains_Mono, Nunito } from 'next/font/google';
 import './globals.css';
 
 import IdleDumplingManager from '@/components/IdleDumplingManager';
@@ -8,6 +8,7 @@ import { ChiliProvider } from '@/context/ChiliContext';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
+const nunito = Nunito({ subsets: ['latin'], variable: '--font-nunito', weight: ['700', '800'] });
 
 export const metadata: Metadata = {
   title: 'Dumpling Maker',
@@ -21,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${jetbrains.variable}`}>
+      <body className={`${inter.variable} ${jetbrains.variable} ${nunito.variable}`}>
         <ChiliProvider>
           <IdleDumplingManager />
           <div className="app-shell">
