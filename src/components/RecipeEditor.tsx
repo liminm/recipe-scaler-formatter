@@ -360,19 +360,58 @@ export default function RecipeEditor({
       )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <div>
+        <div style={{ flex: 1, marginRight: '2rem' }}>
           <input
             type="text"
             value={recipe.title}
             onChange={(e) => setRecipe({ ...recipe, title: e.target.value })}
             className="input-field"
-            style={{ fontSize: '1.5rem', fontWeight: 'bold', width: '100%' }}
+            style={{ fontSize: '1.5rem', fontWeight: 'bold', width: '100%', marginBottom: '0.5rem' }}
+            placeholder="Recipe Title"
           />
+          
+          {/* Metadata Fields */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div>
+              <label className="text-muted" style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Original Yield (servings)</label>
+              <input
+                type="number"
+                value={recipe.original_yield_servings || ''}
+                onChange={(e) => setRecipe({ ...recipe, original_yield_servings: parseInt(e.target.value) || undefined })}
+                className="input-field"
+                style={{ width: '100%' }}
+                placeholder="e.g. 4"
+              />
+            </div>
+            <div>
+              <label className="text-muted" style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Source URL</label>
+              <input
+                type="url"
+                value={recipe.source_url || ''}
+                onChange={(e) => setRecipe({ ...recipe, source_url: e.target.value })}
+                className="input-field"
+                style={{ width: '100%' }}
+                placeholder="https://..."
+              />
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+             <label className="text-muted" style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Summary</label>
+             <textarea
+                value={recipe.summary || ''}
+                onChange={(e) => setRecipe({ ...recipe, summary: e.target.value })}
+                className="input-field"
+                style={{ width: '100%', resize: 'vertical', minHeight: '60px' }}
+                placeholder="Brief description of the recipe..."
+             />
+          </div>
+
           <p className="text-muted" style={{ marginTop: '0.5rem' }}>
             Estimated Yield: {recipe.estimated_final_weight_g ? `${(recipe.estimated_final_weight_g / 1000).toFixed(2)} kg` : 'Calculating...'}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignSelf: 'flex-start' }}>
           {onCancel && (
             <button className="btn" onClick={onCancel}>Cancel</button>
           )}
@@ -547,6 +586,55 @@ export default function RecipeEditor({
               + Add Step
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Chef's Notes */}
+      <div className="card mt-6" style={{ marginTop: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h3>Chef's Notes</h3>
+          <button 
+            className="btn btn-secondary btn-sm"
+            onClick={() => {
+              setRecipe({
+                ...recipe,
+                chefs_notes: [...(recipe.chefs_notes || []), '']
+              });
+            }}
+          >
+            + Add Note
+          </button>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {(recipe.chefs_notes || []).map((note, idx) => (
+            <div key={idx} style={{ display: 'flex', gap: '0.5rem' }}>
+              <input
+                type="text"
+                value={note}
+                onChange={(e) => {
+                  const newNotes = [...(recipe.chefs_notes || [])];
+                  newNotes[idx] = e.target.value;
+                  setRecipe({ ...recipe, chefs_notes: newNotes });
+                }}
+                className="input-field"
+                style={{ flex: 1 }}
+                placeholder="Add a note..."
+              />
+              <button 
+                onClick={() => {
+                  const newNotes = (recipe.chefs_notes || []).filter((_, i) => i !== idx);
+                  setRecipe({ ...recipe, chefs_notes: newNotes });
+                }}
+                className="btn"
+                style={{ padding: '0.25rem 0.5rem', color: '#ef4444', borderColor: '#ef4444' }}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          {(recipe.chefs_notes || []).length === 0 && (
+            <p className="text-muted">No notes yet.</p>
+          )}
         </div>
       </div>
     </div>
