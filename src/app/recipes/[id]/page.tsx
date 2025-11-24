@@ -109,24 +109,75 @@ export default function RecipeDetailPage() {
     );
   }
 
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopyText = async () => {
+    const lines = [];
+    lines.push(recipe.title);
+    if (recipe.summary) lines.push(recipe.summary);
+    lines.push('');
+    
+    // Yield info
+    lines.push(`Yield: ${recipe.original_yield_servings || '?'} servings`);
+    if (recipe.estimated_final_weight_g) lines.push(`Total Weight: ${(recipe.estimated_final_weight_g / 1000).toFixed(2)} kg`);
+    lines.push('');
+
+    lines.push('Ingredients:');
+    ingredients.forEach(ing => {
+      const qty = ing.base_quantity_g ? ing.base_quantity_g.toFixed(1) : '';
+      const name = ing.name_normalized;
+      lines.push(`- ${qty}${qty ? 'g' : ''} ${name}`);
+    });
+    lines.push('');
+
+    lines.push('Instructions:');
+    steps.forEach((step, idx) => {
+      lines.push(`${idx + 1}. ${step.instruction_raw}`);
+    });
+
+    if (recipe.chefs_notes && recipe.chefs_notes.length > 0) {
+      lines.push('');
+      lines.push("Chef's Notes:");
+      recipe.chefs_notes.forEach(note => lines.push(`- ${note}`));
+    }
+
+    if (recipe.source_url) {
+      lines.push('');
+      lines.push(`Source: ${recipe.source_url}`);
+    }
+
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'));
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      alert('Failed to copy to clipboard');
+    }
+  };
+
   return (
     <div>
       {/* Header */}
       <div className="mb-6">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <Link href="/recipes" className="text-muted" style={{ fontSize: '0.875rem' }}>
-            ← Back to Recipes
-          </Link>
-          <Link href={`/recipes/${recipeId}/edit`}>
-            <button className="btn btn-primary">✏️ Edit Recipe</button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+        <div>
+          <h1 style={{ marginBottom: '0.5rem' }}>{recipe.title}</h1>
+          {recipe.summary && <p className="text-muted" style={{ maxWidth: '600px' }}>{recipe.summary}</p>}
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button 
+            className="btn btn-secondary" 
+            onClick={handleCopyText}
+            title="Copy formatted recipe to clipboard"
+          >
+            {isCopied ? '✅ Copied!' : '📋 Copy as Text'}
+          </button>
+          <Link href={`/recipes/${recipe.id}/edit`} className="btn btn-primary">
+            Edit Recipe
           </Link>
         </div>
-        <h1 className="mb-2">{recipe.title}</h1>
-        {recipe.summary && (
-          <p className="text-muted" style={{ fontSize: '1rem', marginBottom: '1rem', lineHeight: '1.6' }}>
-            {recipe.summary}
-          </p>
-        )}
+      </div>
         
         {/* Yield Estimate Display */}
         {recipe.estimated_final_weight_g && (
