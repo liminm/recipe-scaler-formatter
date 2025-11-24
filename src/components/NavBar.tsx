@@ -66,12 +66,27 @@ export default function NavBar() {
           onMouseEnter={triggerRandomAnimation}
         >
           {isChiliMode ? (
-            <>
-              <span className="brand-mark">
-                <img src="/chili.png" alt="Chili Dumpling Maker" />
-              </span>
-              <span className="brand-text">Chili Dumpling Maker</span>
-            </>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <img 
+                src="/chili.png" 
+                alt="Chili Dumpling Maker" 
+                className={animationClass}
+                onAnimationEnd={() => setAnimationClass('')}
+                style={{ width: '48px', height: '48px', objectFit: 'contain' }} 
+              />
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                justifyContent: 'center',
+                lineHeight: 0.9,
+                fontFamily: 'var(--font-nunito)', 
+                fontWeight: 800, 
+                color: '#c0392b' // Using a chili red color for the text in chili mode
+              }}>
+                <span style={{ fontSize: '1.25rem', letterSpacing: '-0.02em' }}>Chili Dumpling</span>
+                <span style={{ fontSize: '1.25rem', letterSpacing: '-0.02em' }}>Maker</span>
+              </div>
+            </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <img 
