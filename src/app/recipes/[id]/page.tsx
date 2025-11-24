@@ -47,6 +47,7 @@ export default function RecipeDetailPage() {
   const [steps, setSteps] = useState<Step[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
     async function fetchRecipe() {
@@ -109,7 +110,6 @@ export default function RecipeDetailPage() {
     );
   }
 
-  const [isCopied, setIsCopied] = useState(false);
 
   const handleCopyText = async () => {
     const lines = [];
