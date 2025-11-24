@@ -1,28 +1,20 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { useChili } from '@/context/ChiliContext';
+import { DUMPLING_JOKES } from '@/data/dumplingJokes';
+import { CHILI_JOKES } from '@/data/chiliJokes';
 
 interface LoadingDumplingProps {
   message?: string;
   size?: 'small' | 'medium' | 'large';
 }
 
-type AnimationType = 'jump' | 'flip' | 'spin-wobble' | 'peek' | 'dvd';
-
 export default function LoadingDumpling({ message, size = 'medium' }: LoadingDumplingProps) {
-  const [animation, setAnimation] = useState<AnimationType>('jump');
+  const { isChiliMode } = useChili();
   const [mounted, setMounted] = useState(false);
-  
-  // DVD Animation State
-  const [dvdPos, setDvdPos] = useState({ x: 0, y: 0 });
-  const [dvdHue, setDvdHue] = useState(0);
-  // --- 4. Scroll Surfer State ---
-  const [isScrolling, setIsScrolling] = useState(false);
-  const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const requestRef = useRef<number | null>(null);
-  const velocityRef = useRef({ dx: 2, dy: 2 });
-  const posRef = useRef({ x: 0, y: 0 });
+  const [joke, setJoke] = useState('');
+  const [animationClass, setAnimationClass] = useState('');
 
   const sizeMap = {
     small: 48,
@@ -32,171 +24,100 @@ export default function LoadingDumpling({ message, size = 'medium' }: LoadingDum
   
   const pxSize = sizeMap[size];
 
+  // Animation lists
+  const chiliAnimations = [
+    'anim-chili-fire-breath', 'anim-chili-sizzle', 'anim-chili-hiccup', 
+    'anim-chili-flame-flicker', 'anim-chili-charred', 'anim-chili-heat-stroke', 
+    'anim-chili-dragon-flip', 'anim-chili-pepper-sneeze', 'anim-chili-red-alert', 
+    'anim-chili-combustion'
+  ];
+
+  const dumplingAnimations = [
+    'anim-dumpling-steam-rise', 'anim-dumpling-pot-bobble', 'anim-dumpling-chopstick-squeeze',
+    'anim-dumpling-rolling-dough', 'anim-dumpling-soy-dip', 'anim-dumpling-happy-hop',
+    'anim-dumpling-pleat-pulse', 'anim-dumpling-plate-slide', 'anim-dumpling-tummy-rub',
+    'anim-dumpling-fresh-fold'
+  ];
+
   useEffect(() => {
     setMounted(true);
-    // Randomly pick an animation
-    // Weighted: 'jump' is classic, so give it slightly higher chance
-    const types: AnimationType[] = ['jump', 'jump', 'flip', 'spin-wobble', 'peek', 'dvd'];
-    // Only allow DVD for medium/large as it needs space
-    const availableTypes = size === 'small' ? types.filter(t => t !== 'dvd') : types;
     
-    const randomType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
-    setAnimation(randomType);
-  }, [size]);
+    const pool = isChiliMode ? CHILI_JOKES : DUMPLING_JOKES;
+    setJoke(pool[Math.floor(Math.random() * pool.length)]);
 
-  // DVD Animation Loop
-  useEffect(() => {
-    if (animation !== 'dvd' || !containerRef.current) return;
+    // Initial animation
+    const anims = isChiliMode ? chiliAnimations : dumplingAnimations;
+    setAnimationClass(anims[Math.floor(Math.random() * anims.length)]);
 
-    const animate = () => {
-      if (!containerRef.current) return;
-      
-      const containerW = containerRef.current.clientWidth;
-      const containerH = containerRef.current.clientHeight || 300; // Fallback height
-      const dumplingSize = pxSize;
-      
-      let { x, y } = posRef.current;
-      let { dx, dy } = velocityRef.current;
-      
-      x += dx;
-      y += dy;
-      
-      let bounced = false;
-      
-      // Bounce X
-      if (x + dumplingSize >= containerW || x <= 0) {
-        dx = -dx;
-        x = Math.max(0, Math.min(x, containerW - dumplingSize));
-        bounced = true;
-      }
-      
-      // Bounce Y
-      if (y + dumplingSize >= containerH || y <= 0) {
-        dy = -dy;
-        y = Math.max(0, Math.min(y, containerH - dumplingSize));
-        bounced = true;
-      }
-      
-      if (bounced) {
-        setDvdHue(h => (h + 60) % 360);
-      }
-      
-      posRef.current = { x, y };
-      velocityRef.current = { dx, dy };
-      setDvdPos({ x, y });
-      
-      requestRef.current = requestAnimationFrame(animate);
-    };
-    
-    requestRef.current = requestAnimationFrame(animate);
-    
+    // Cycle jokes every 6 seconds
+    const jokeInterval = setInterval(() => {
+      const nextPool = isChiliMode ? CHILI_JOKES : DUMPLING_JOKES;
+      setJoke(nextPool[Math.floor(Math.random() * nextPool.length)]);
+    }, 6000);
+
+    // Cycle animations every 2 seconds
+    const animInterval = setInterval(() => {
+      const currentAnims = isChiliMode ? chiliAnimations : dumplingAnimations;
+      setAnimationClass(currentAnims[Math.floor(Math.random() * currentAnims.length)]);
+    }, 2000);
+
     return () => {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      clearInterval(jokeInterval);
+      clearInterval(animInterval);
     };
-  }, [animation, pxSize]);
+  }, [isChiliMode]);
 
   if (!mounted) return null;
 
-  // Container styles
-  const containerStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '1.5rem',
-    padding: '2rem',
-    width: '100%',
-    minHeight: animation === 'dvd' ? '300px' : 'auto',
-    position: 'relative',
-    overflow: 'hidden' // For peek and dvd
-  };
-
   return (
-    <div ref={containerRef} style={containerStyle}>
-      {animation === 'dvd' ? (
-        <div 
-          style={{
-            position: 'absolute',
-            left: dvdPos.x,
-            top: dvdPos.y,
-            filter: `hue-rotate(${dvdHue}deg)`,
-            transition: 'filter 0.5s ease'
-          }}
-        >
-          <img 
-            src="/dumpling-logo.png" 
-            alt="Loading..." 
-            style={{ width: `${pxSize}px`, height: `${pxSize}px` }} 
-          />
-        </div>
-      ) : (
-        <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-          <div className={`dumpling-anim-${animation}`}>
-            <img 
-              src="/dumpling-logo.png" 
-              alt="Loading..." 
-              style={{ width: `${pxSize}px`, height: `${pxSize}px`, position: 'relative', zIndex: 2 }} 
-            />
-          </div>
-          {animation === 'jump' && (
-            <div className="dust-cloud" style={{
-              position: 'absolute',
-              bottom: '-5px',
-              width: `${pxSize * 0.8}px`,
-              height: `${pxSize * 0.2}px`,
-              background: 'radial-gradient(ellipse at center, rgba(139, 111, 71, 0.3) 0%, transparent 70%)',
-              borderRadius: '50%',
-              zIndex: 1
-            }} />
-          )}
-        </div>
-      )}
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '1.5rem',
+      padding: '2rem',
+      width: '100%',
+      minHeight: '300px'
+    }}>
+      <div className={animationClass}>
+        <img 
+          src={isChiliMode ? "/chili.png" : "/dumpling-logo.png"} 
+          alt="Loading..." 
+          style={{ width: `${pxSize}px`, height: `${pxSize}px`, objectFit: 'contain' }} 
+        />
+      </div>
       
-      {message && (
-        <p className="text-muted" style={{ 
-          fontSize: '0.9375rem',
-          textAlign: 'center',
-          maxWidth: '300px',
-          animation: 'fade-pulse 2s ease-in-out infinite',
-          zIndex: 10, // Ensure text is above peek animation
-          background: animation === 'dvd' ? 'rgba(255,255,255,0.8)' : 'transparent',
-          padding: animation === 'dvd' ? '0.5rem' : 0,
-          borderRadius: '0.5rem'
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', textAlign: 'center' }}>
+        {message && (
+          <p className="text-muted" style={{ 
+            fontSize: '1rem',
+            fontWeight: 600,
+            animation: 'pulse 2s infinite'
+          }}>
+            {message}
+          </p>
+        )}
+        
+        <div style={{
+          maxWidth: '400px',
+          padding: '1rem',
+          background: isChiliMode ? 'rgba(192, 57, 43, 0.1)' : 'rgba(255, 255, 255, 0.5)',
+          borderRadius: '1rem',
+          border: `1px solid ${isChiliMode ? 'rgba(192, 57, 43, 0.2)' : 'rgba(0,0,0,0.05)'}`,
+          backdropFilter: 'blur(4px)'
         }}>
-          {message}
-        </p>
-      )}
-
-      <style jsx>{`
-        .dumpling-anim-jump {
-          animation: jump 1s ease-in-out infinite;
-          transform-origin: center bottom;
-        }
-        
-        .dust-cloud {
-          animation: dust 1s ease-in-out infinite;
-          opacity: 0;
-        }
-        
-        .dumpling-anim-flip {
-          animation: flip 1.5s ease-in-out infinite;
-          transform-origin: center center;
-        }
-        
-        .dumpling-anim-spin-wobble {
-          animation: spin-wobble 2s ease-in-out infinite;
-          transform-origin: center center;
-        }
-        
-        .dumpling-anim-peek {
-          animation: peek 3s ease-in-out infinite;
-        }
-
-        @keyframes fade-pulse {
-          0%, 100% { opacity: 0.6; }
-          50% { opacity: 1; }
-        }
-      `}</style>
+          <p style={{ 
+            fontSize: '0.9rem', 
+            color: isChiliMode ? '#c0392b' : '#666',
+            fontStyle: 'italic',
+            margin: 0,
+            lineHeight: 1.5
+          }}>
+            "{joke}"
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

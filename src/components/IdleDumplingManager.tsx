@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useChili } from '@/context/ChiliContext';
+import { DUMPLING_JOKES } from '@/data/dumplingJokes';
+import { CHILI_JOKES } from '@/data/chiliJokes';
 
 /**
  * IdleDumplingManager
@@ -17,7 +19,32 @@ import { useChili } from '@/context/ChiliContext';
 export default function IdleDumplingManager() {
   const { isChiliMode } = useChili();
   const mascotImage = isChiliMode ? '/chili.png' : '/dumpling-logo.png';
-  const mascotMessage = isChiliMode ? '🌶️ Spicy!' : 'Hi there! 🥟';
+  
+  // Hover message variations
+  const hoverMessages = [
+    'Click me! 👆',
+    'Press me for wisdom! 🧠',
+    'I have secrets... 🤫',
+    'Tap me! ✨',
+    'Want to hear something funny? 😄',
+    'Click for a surprise! 🎁',
+    'I know things... 👀',
+    'Press for dumpling facts! 📚',
+    'Psst... click me! 🗣️',
+    'I\'ve got jokes! 🎭',
+    'Give me a click! 👈',
+    'Tap for wisdom! 🦉',
+    'Click if you dare! 😏',
+    'I have stories! 📖',
+    'Press me pretty please! 🙏',
+    'Click for enlightenment! 💡',
+    'Want some knowledge? 🎓',
+    'I\'m clickable! 🖱️',
+    'Try clicking me! 🎯',
+    'Press for fun facts! 🎉'
+  ];
+  
+  const [hoverMessage, setHoverMessage] = useState('');
 
   // --- 1. Screen Walker State ---
   const [walkerState, setWalkerState] = useState<'idle' | 'walking'>('idle');
@@ -25,6 +52,13 @@ export default function IdleDumplingManager() {
 
   // --- 2. Corner Companion State ---
   const [companionHover, setCompanionHover] = useState(false);
+  const [showJoke, setShowJoke] = useState(false);
+  const [currentJoke, setCurrentJoke] = useState('');
+  const [bubbleVisible, setBubbleVisible] = useState(false);
+  const jokeHideTimeout = useRef<NodeJS.Timeout | null>(null);
+  const bubbleHideTimeout = useRef<NodeJS.Timeout | null>(null);
+  const bubbleFadeTimeout = useRef<NodeJS.Timeout | null>(null);
+  const bubbleInactivityTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // --- 3. Nav Peeker State ---
   const [peekerState, setPeekerState] = useState<'hidden' | 'peeking'>('hidden');
@@ -33,6 +67,62 @@ export default function IdleDumplingManager() {
   // --- 4. Scroll Surfer State ---
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  // Handle joke click
+  const handleCompanionClick = () => {
+    const pool = isChiliMode ? CHILI_JOKES : DUMPLING_JOKES;
+    const randomJoke = pool[Math.floor(Math.random() * pool.length)];
+    setCurrentJoke(randomJoke);
+    setShowJoke(true);
+    setBubbleVisible(true);
+    if (jokeHideTimeout.current) {
+      clearTimeout(jokeHideTimeout.current);
+      jokeHideTimeout.current = null;
+    }
+    if (bubbleHideTimeout.current) {
+      clearTimeout(bubbleHideTimeout.current);
+      bubbleHideTimeout.current = null;
+    }
+    if (bubbleFadeTimeout.current) {
+      clearTimeout(bubbleFadeTimeout.current);
+      bubbleFadeTimeout.current = null;
+    }
+    if (bubbleInactivityTimeout.current) {
+      clearTimeout(bubbleInactivityTimeout.current);
+      bubbleInactivityTimeout.current = null;
+    }
+    // Auto dismiss after inactivity (~10s)
+    bubbleInactivityTimeout.current = setTimeout(() => {
+      setBubbleVisible(false);
+      bubbleHideTimeout.current = setTimeout(() => setShowJoke(false), 500);
+    }, 10000);
+  };
+
+  // Clear timers on unmount
+  useEffect(() => {
+    return () => {
+      if (jokeHideTimeout.current) clearTimeout(jokeHideTimeout.current);
+      if (bubbleHideTimeout.current) clearTimeout(bubbleHideTimeout.current);
+      if (bubbleFadeTimeout.current) clearTimeout(bubbleFadeTimeout.current);
+      if (bubbleInactivityTimeout.current) clearTimeout(bubbleInactivityTimeout.current);
+    };
+  }, []);
+
+  const resetInactivity = () => {
+    if (bubbleInactivityTimeout.current) {
+      clearTimeout(bubbleInactivityTimeout.current);
+      bubbleInactivityTimeout.current = null;
+    }
+    bubbleInactivityTimeout.current = setTimeout(() => {
+      setBubbleVisible(false);
+      bubbleHideTimeout.current = setTimeout(() => setShowJoke(false), 500);
+    }, 10000);
+  };
+
+  // Set random hover message on mount
+  useEffect(() => {
+    setHoverMessage(hoverMessages[Math.floor(Math.random() * hoverMessages.length)]);
+  }, []);
 
   // --- Logic: Screen Walker ---
   useEffect(() => {
@@ -148,10 +238,14 @@ export default function IdleDumplingManager() {
         pointerEvents: 'auto',
         transition: 'transform 0.3s ease',
         transform: companionHover ? 'scale(1.2) translateY(-10px)' : 'scale(1)',
-        cursor: 'grab'
+        cursor: 'pointer'
       }}
-      onMouseEnter={() => setCompanionHover(true)}
+      onMouseEnter={() => {
+        setCompanionHover(true);
+        setHoverMessage(hoverMessages[Math.floor(Math.random() * hoverMessages.length)]);
+      }}
       onMouseLeave={() => setCompanionHover(false)}
+      onClick={handleCompanionClick}
       >
         <img 
           src={mascotImage} 
@@ -162,24 +256,110 @@ export default function IdleDumplingManager() {
             animation: companionHover ? 'spin-wobble 2s infinite' : 'breathe 4s ease-in-out infinite'
           }} 
         />
-        {/* Little speech bubble on hover */}
-        <div style={{
-          position: 'absolute',
-          top: '-40px',
-          right: '0',
-          background: isChiliMode ? 'linear-gradient(135deg, #ffcccc, #ffdddd)' : 'white',
-          padding: '5px 10px',
-          borderRadius: '10px',
-          boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-          opacity: companionHover ? 1 : 0,
-          transition: 'opacity 0.2s',
-          whiteSpace: 'nowrap',
-          fontSize: '12px',
-          pointerEvents: 'none',
-          border: isChiliMode ? '1px solid #ff6b6b' : 'none'
-        }}>
-          {mascotMessage}
-        </div>
+        
+        {/* Joke bubble - larger and more visible */}
+        {showJoke && (
+          <div style={{
+            position: 'absolute',
+            bottom: '60px',
+            right: '0',
+            minWidth: '250px',
+            maxWidth: '350px',
+            background: isChiliMode ? 'linear-gradient(135deg, #c0392b, #e74c3c)' : 'linear-gradient(135deg, #fff, #f8f9fa)',
+            padding: '12px 16px',
+            borderRadius: '16px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            opacity: bubbleVisible ? 1 : 0,
+            transition: 'opacity 0.35s ease',
+            fontSize: '0.875rem',
+            pointerEvents: 'auto',
+            border: isChiliMode ? '2px solid #fff' : '2px solid #8b6f47',
+            color: isChiliMode ? '#fff' : '#333',
+            lineHeight: 1.4,
+            fontStyle: 'italic',
+            zIndex: 10000
+          }}
+          onMouseEnter={() => {
+            setBubbleVisible(true);
+            if (bubbleHideTimeout.current) {
+              clearTimeout(bubbleHideTimeout.current);
+              bubbleHideTimeout.current = null;
+            }
+            if (bubbleFadeTimeout.current) {
+              clearTimeout(bubbleFadeTimeout.current);
+              bubbleFadeTimeout.current = null;
+            }
+            resetInactivity();
+          }}
+          onMouseLeave={() => {
+            if (bubbleHideTimeout.current) clearTimeout(bubbleHideTimeout.current);
+            if (bubbleFadeTimeout.current) clearTimeout(bubbleFadeTimeout.current);
+            bubbleFadeTimeout.current = setTimeout(() => setBubbleVisible(false), 1200);
+            bubbleHideTimeout.current = setTimeout(() => setShowJoke(false), 1500);
+          }}
+          >
+            <div style={{ 
+              fontWeight: 600, 
+              marginBottom: '4px',
+              fontSize: '0.75rem',
+              opacity: 0.8
+            }}>
+              {isChiliMode ? '🌶️ Spicy Fact:' : '🥟 Dumpling Wisdom:'}
+            </div>
+            {currentJoke}
+            <button
+              onClick={() => setShowJoke(false)}
+              style={{
+                position: 'absolute',
+                top: '6px',
+                right: '6px',
+                border: 'none',
+                background: 'transparent',
+                color: isChiliMode ? '#fff' : '#8b6f47',
+                cursor: 'pointer',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                lineHeight: 1
+              }}
+              aria-label="Close joke"
+            >
+              ×
+            </button>
+            
+            {/* Little triangle pointer */}
+            <div style={{
+              position: 'absolute',
+              bottom: '-10px',
+              right: '15px',
+              width: 0,
+              height: 0,
+              borderLeft: '10px solid transparent',
+              borderRight: '10px solid transparent',
+              borderTop: `10px solid ${isChiliMode ? '#e74c3c' : '#f8f9fa'}`
+            }} />
+          </div>
+        )}
+        
+        {/* Hover hint bubble */}
+        {!showJoke && (
+          <div style={{
+            position: 'absolute',
+            top: '-40px',
+            right: '0',
+            background: isChiliMode ? 'linear-gradient(135deg, #ffcccc, #ffdddd)' : 'white',
+            padding: '5px 10px',
+            borderRadius: '10px',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+            opacity: companionHover ? 1 : 0,
+            transition: 'opacity 0.2s',
+            whiteSpace: 'nowrap',
+            fontSize: '12px',
+            pointerEvents: 'none',
+            border: isChiliMode ? '1px solid #ff6b6b' : 'none'
+          }}>
+            {hoverMessage}
+          </div>
+        )}
       </div>
 
       {/* 3. Nav Peeker */}
