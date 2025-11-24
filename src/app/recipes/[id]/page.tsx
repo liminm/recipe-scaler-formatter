@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useChili } from '@/context/ChiliContext';
 import LoadingDumpling from '@/components/LoadingDumpling';
 
@@ -39,7 +39,6 @@ interface Step {
 export default function RecipeDetailPage() {
   const params = useParams();
   const recipeId = params.id as string;
-  const router = useRouter();
   const { isChiliMode } = useChili();
   
   const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -90,10 +89,29 @@ export default function RecipeDetailPage() {
     fetchRecipe();
   }, [recipeId]);
 
+  const formatQuantity = (qty: number | null | undefined) => {
+    if (qty === null || qty === undefined) return '—';
+    const rounded = Math.round(qty * 10) / 10;
+    return `${rounded.toLocaleString()} g`;
+  };
+
+  const confidenceClass =
+    recipe?.yield_confidence === 'high'
+      ? 'confidence-high'
+      : recipe?.yield_confidence === 'medium'
+        ? 'confidence-medium'
+        : recipe?.yield_confidence === 'low'
+          ? 'confidence-low'
+          : 'confidence-unknown';
+
+  const confidenceLabel = recipe?.yield_confidence
+    ? `${recipe.yield_confidence.charAt(0).toUpperCase()}${recipe.yield_confidence.slice(1)} confidence`
+    : 'Confidence unknown';
+
   if (isLoading) {
     return (
       <div className="flex-center" style={{ minHeight: '50vh' }}>
-        <p className="text-muted">Loading recipe...</p>
+        <LoadingDumpling message="Steaming your recipe..." />
       </div>
     );
   }
@@ -157,158 +175,160 @@ export default function RecipeDetailPage() {
   };
 
   return (
-    <div>
-      {/* Header */}
-      <div className="mb-6">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+    <div className="recipe-page">
+      <div className="recipe-hero">
         <div>
-          <h1 style={{ marginBottom: '0.5rem' }}>{recipe.title}</h1>
-          {recipe.summary && <p className="text-muted" style={{ maxWidth: '600px' }}>{recipe.summary}</p>}
+          <div className="eyebrow">Recipe</div>
+          <h1 className="recipe-hero-title">{recipe.title}</h1>
+          {recipe.summary && <p className="recipe-hero-summary">{recipe.summary}</p>}
+          <div className="recipe-hero-meta">
+            <span className="pill pill-soft">{ingredients.length} ingredients</span>
+            <span className="pill pill-soft">{steps.length} steps</span>
+            {recipe.original_yield_servings && (
+              <span className="pill pill-soft">Original yield: {recipe.original_yield_servings} servings</span>
+            )}
+            {recipe.source_url && (
+              <a
+                href={recipe.source_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pill pill-ghost"
+              >
+                Source link ↗
+              </a>
+            )}
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button 
-            className="btn btn-secondary" 
-            onClick={handleCopyText}
-            title="Copy formatted recipe to clipboard"
-          >
-            {isCopied ? '✅ Copied!' : '📋 Copy as Text'}
-          </button>
-          <Link href={`/recipes/${recipe.id}/edit`} className="btn btn-primary">
-            Edit Recipe
-          </Link>
-        </div>
-      </div>
-        
-        {/* Yield Estimate Display */}
-        {recipe.estimated_final_weight_g && (
-          <div style={{ 
-            background: 'var(--color-surface)', 
-            padding: '0.75rem 1rem', 
-            borderRadius: '0.5rem', 
-            marginBottom: '1rem',
-            border: '1px solid var(--color-border)',
-            display: 'inline-flex',
-            gap: '2rem',
-            alignItems: 'center'
-          }}>
-            <div>
-              <span className="text-muted" style={{ fontSize: '0.875rem', display: 'block', marginBottom: '0.25rem' }}>
-                Estimated Final Weight
+
+        <div className="recipe-hero-panel">
+          <div className="hero-stat">
+            <span className="stat-label">Estimated Final Weight</span>
+            <div className="stat-value">
+              {recipe.estimated_final_weight_g ? `~${recipe.estimated_final_weight_g.toLocaleString()} g` : 'Awaiting estimate'}
+            </div>
+            <div className="stat-meta">
+              <span className={`confidence-chip ${confidenceClass}`}>
+                <span className={`confidence-dot ${confidenceClass}`} />
+                {confidenceLabel}
               </span>
-              <span style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
-                ~{recipe.estimated_final_weight_g}g
-              </span>
-              {recipe.yield_confidence && (
-                <span style={{ marginLeft: '0.5rem', fontSize: '1rem' }}>
-                  {recipe.yield_confidence === 'high' && '🟢'}
-                  {recipe.yield_confidence === 'medium' && '🟡'}
-                  {recipe.yield_confidence === 'low' && '🔴'}
-                </span>
+              {recipe.original_yield_servings && (
+                <span className="text-dim">Based on {recipe.original_yield_servings} servings</span>
               )}
             </div>
           </div>
-        )}
-
-        {isChiliMode && (
-          <div style={{ 
-            marginTop: '0.5rem', 
-            padding: '0.5rem', 
-            background: '#333', 
-            color: '#0f0', 
-            borderRadius: '4px',
-            fontSize: '0.8rem',
-            fontFamily: 'monospace'
-          }}>
-            <div>🔧 <strong>Extraction Model:</strong> {recipe.extraction_model || 'Unknown'}</div>
-            <div>🔧 <strong>Yield Model:</strong> {recipe.yield_estimation_model || 'Unknown'}</div>
-          </div>
-        )}
-        
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          {recipe.source_url && (
-            <a
-              href={recipe.source_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary"
-              style={{ fontSize: '0.875rem' }}
+          <div className="hero-actions">
+            <button 
+              className="btn btn-secondary"
+              onClick={handleCopyText}
+              title="Copy formatted recipe to clipboard"
             >
-              View Source ↗
-            </a>
-          )}
-          {recipe.original_yield_servings && (
-            <span className="text-muted" style={{ fontSize: '0.875rem' }}>
-              Original Yield: {recipe.original_yield_servings} servings
-            </span>
-          )}
+              {isCopied ? '✅ Copied!' : '📋 Copy as text'}
+            </button>
+            <Link href={`/recipes/${recipe.id}/edit`} className="btn btn-primary">
+              Edit recipe
+            </Link>
+          </div>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      {isChiliMode && (
+        <div className="model-card">
+          <div className="eyebrow">Chili debug</div>
+          <div className="model-grid">
+            <div className="model-pill">
+              <span className="text-dim">Extraction</span>
+              <strong>{recipe.extraction_model || 'Unknown'}</strong>
+            </div>
+            <div className="model-pill">
+              <span className="text-dim">Yield model</span>
+              <strong>{recipe.yield_estimation_model || 'Unknown'}</strong>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="recipe-meta-grid">
+        <div className="meta-card">
+          <span className="meta-label">Ingredients</span>
+          <span className="meta-value">{ingredients.length}</span>
+          <p className="meta-hint">Consumable + process-only entries.</p>
+        </div>
+        <div className="meta-card">
+          <span className="meta-label">Instructions</span>
+          <span className="meta-value">{steps.length}</span>
+          <p className="meta-hint">Ordered steps ready to cook.</p>
+        </div>
+        <div className="meta-card">
+          <span className="meta-label">Original yield</span>
+          <span className="meta-value">{recipe.original_yield_servings ? `${recipe.original_yield_servings} servings` : 'Not provided'}</span>
+          <p className="meta-hint">Baseline for scaling and shopping lists.</p>
+        </div>
+      </div>
+
+      <div className="recipe-body">
         {/* Left Column: Ingredients */}
-        <div className="card">
-          <h2 className="mb-4">Ingredients</h2>
+        <div className="card ingredients-card">
+          <div className="section-head">
+            <div>
+              <div className="eyebrow">Pantry</div>
+              <h2>Ingredients</h2>
+            </div>
+            <div className="section-meta">
+              <span className="pill pill-soft">{ingredients.length} items</span>
+            </div>
+          </div>
           {ingredients.length === 0 ? (
             <p className="text-muted">No ingredients found</p>
           ) : (
-            <table className="w-full" style={{ borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
-                  <th className="text-muted" style={{ padding: '0.5rem', textAlign: 'left', fontSize: '0.875rem' }}>Name</th>
-                  <th className="text-muted" style={{ padding: '0.5rem', textAlign: 'right', fontSize: '0.875rem' }}>Qty (g)</th>
-                  <th className="text-muted" style={{ padding: '0.5rem', textAlign: 'left', fontSize: '0.875rem' }}>State</th>
-                  <th className="text-muted" style={{ padding: '0.5rem', textAlign: 'left', fontSize: '0.875rem' }}>Role</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ingredients.map((ing) => (
-                  <tr key={ing.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                    <td style={{ padding: '0.75rem 0.5rem' }}>{ing.name_normalized}</td>
-                    <td className="text-mono" style={{ padding: '0.75rem 0.5rem', textAlign: 'right' }}>
-                      {ing.base_quantity_g}
-                    </td>
-                    <td className="text-muted" style={{ padding: '0.75rem 0.5rem', fontSize: '0.875rem' }}>
-                      {ing.state || '-'}
-                    </td>
-                    <td className="text-muted" style={{ padding: '0.75rem 0.5rem', fontSize: '0.875rem' }}>
-                      {ing.role}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="ingredient-list">
+              {ingredients.map((ing) => (
+                <div key={ing.id} className="ingredient-item">
+                  <div className="ingredient-main">
+                    <div className="ingredient-name">{ing.name_normalized}</div>
+                    <div className="ingredient-meta">
+                      <span className="ingredient-tag">{ing.state || 'Unspecified'}</span>
+                      <span className={`ingredient-tag ${ing.role?.toLowerCase() === 'consumable' ? 'tag-consumable' : 'tag-process'}`}>
+                        {ing.role || 'Role not set'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="ingredient-qty">{formatQuantity(ing.base_quantity_g)}</div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
         {/* Right Column: Steps */}
-        <div className="card">
-          <h2 className="mb-4">Instructions</h2>
+        <div className="card steps-card">
+          <div className="section-head">
+            <div>
+              <div className="eyebrow">Cook mode</div>
+              <h2>Instructions</h2>
+            </div>
+            <div className="section-meta">
+              <span className="pill pill-soft">{steps.length} steps</span>
+            </div>
+          </div>
           {steps.length === 0 ? (
             <p className="text-muted">No steps found</p>
           ) : (
-            <ol style={{ paddingLeft: '1.5rem', margin: 0 }}>
-              {steps.map((step) => (
-                <li key={step.id} style={{ marginBottom: '1.5rem' }}>
-                  <p style={{ marginBottom: '0.5rem' }}>{step.instruction_raw}</p>
-                  {step.constraint_tags && step.constraint_tags.length > 0 && (
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                      {step.constraint_tags.map((tag, idx) => (
-                        <span
-                          key={idx}
-                          style={{
-                            fontSize: '0.75rem',
-                            background: 'var(--color-warning)',
-                            color: '#000',
-                            padding: '0.25rem 0.5rem',
-                            borderRadius: '0.25rem',
-                            fontWeight: 600
-                          }}
-                        >
-                          ⚠ {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+            <ol className="step-list">
+              {steps.map((step, idx) => (
+                <li key={step.id} className="step-item">
+                  <div className="step-number">{idx + 1}</div>
+                  <div className="step-content">
+                    <p className="step-text">{step.instruction_raw}</p>
+                    {step.constraint_tags && step.constraint_tags.length > 0 && (
+                      <div className="step-tags">
+                        {step.constraint_tags.map((tag, tagIdx) => (
+                          <span key={tagIdx} className="constraint-pill">
+                            ⚠ {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </li>
               ))}
             </ol>
@@ -318,11 +338,16 @@ export default function RecipeDetailPage() {
 
       {/* Chef's Notes */}
       {recipe.chefs_notes && recipe.chefs_notes.length > 0 && (
-        <div className="card mt-6">
-          <h3 className="mb-4">Chef's Notes</h3>
-          <ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
+        <div className="card notes-card">
+          <div className="section-head">
+            <div>
+              <div className="eyebrow">Chef's notes</div>
+              <h3>Tips for success</h3>
+            </div>
+          </div>
+          <ul className="notes-list">
             {recipe.chefs_notes.map((note, idx) => (
-              <li key={idx} className="text-muted" style={{ marginBottom: '0.5rem' }}>
+              <li key={idx} className="note-line">
                 {note}
               </li>
             ))}
