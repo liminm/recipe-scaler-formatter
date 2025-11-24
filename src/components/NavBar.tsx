@@ -108,7 +108,7 @@ export default function NavBar() {
                 color: '#c0392b' // Using a chili red color for the text in chili mode
               }}>
                 <span style={{ fontSize: '1.25rem', letterSpacing: '-0.02em' }}>Chili Dumpling</span>
-                <span style={{ fontSize: '1.25rem', letterSpacing: '-0.02em' }}>Maker</span>
+                <span style={{ fontSize: '1.25rem', letterSpacing: '-0.02em' }}>Maker 🌶️</span>
               </div>
             </div>
           ) : (
