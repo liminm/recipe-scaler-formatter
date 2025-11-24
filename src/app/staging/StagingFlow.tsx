@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { RecipeCandidate } from '@/services/ingestion/splitter';
 import { StagingRecipe, StagingIngredient, StagingStep } from '@/types/staging';
 import LoadingDumpling from '@/components/LoadingDumpling';
@@ -16,6 +17,7 @@ interface BatchItem {
 }
 
 export default function StagingFlow() {
+  const router = useRouter();
   const { isChiliMode } = useChili();
   const [inputMode, setInputMode] = useState<'url' | 'text'>('url');
   const [inputValue, setInputValue] = useState('');
@@ -309,8 +311,14 @@ Mash avocados...
         loadBatchItem(nextIndex);
       } else {
         // All done?
-        alert('All recipes in batch processed!');
-        // Maybe redirect or show summary?
+        if (batchItems.length === 1) {
+          // Single recipe: Redirect immediately
+          router.push(`/recipes/${data.recipeId}`);
+        } else {
+          // Batch: Redirect to the last one (or maybe list?)
+          // Let's redirect to the last one so they can see it
+          router.push(`/recipes/${data.recipeId}`);
+        }
       }
       
     } catch (error: any) {
