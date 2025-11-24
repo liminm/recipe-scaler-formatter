@@ -594,7 +594,25 @@ export default function RecipeEditor({
                 {/* ... (remove button) ... */}
               </div>
             ))}
-            {/* ... (add ingredient button) ... */}
+            {/* Add Ingredient Button */}
+            <button
+              onClick={() => {
+                const newIngredient: StagingIngredient = {
+                  name_raw: '',
+                  name_normalized: '',
+                  base_quantity_g: 0,
+                  role: 'CONSUMABLE'
+                };
+                setRecipe({
+                  ...recipe,
+                  ingredients: [...recipe.ingredients, newIngredient]
+                });
+              }}
+              className="btn btn-secondary w-full"
+              style={{ borderStyle: 'dashed' }}
+            >
+              + Add Ingredient
+            </button>
           </div>
         </div>
 

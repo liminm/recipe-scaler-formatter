@@ -19,7 +19,7 @@ interface BatchItem {
 export default function StagingFlow() {
   const router = useRouter();
   const { isChiliMode } = useChili();
-  const [inputMode, setInputMode] = useState<'url' | 'text'>('url');
+  const [inputMode, setInputMode] = useState<'url' | 'text' | 'manual'>('url');
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
@@ -27,13 +27,9 @@ export default function StagingFlow() {
   const [step, setStep] = useState<'input' | 'selection' | 'editor'>('input');
   const [stagingRecipe, setStagingRecipe] = useState<StagingRecipe | null>(null);
   
-
-
   // Source text visibility toggle
   const [isSourceTextVisible, setIsSourceTextVisible] = useState(true);
 
-
-  
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
@@ -96,14 +92,6 @@ export default function StagingFlow() {
     if (nextItem.status !== 'pending') return;
 
     console.log(`Starting background prefetch for: ${nextItem.candidate.title}`);
-    
-    // Optimistically mark as loading to prevent double fetch
-    // Note: In a real app we might want a separate 'prefetching' state or just be careful
-    // For now, we'll just fire the request and update when done.
-    // We won't update state to 'loading' here to avoid UI flicker if the user switches to it.
-    // Actually, let's just let the user switch and trigger load if needed.
-    // But to be efficient, we can fire the promise and store it?
-    // For simplicity in this refactor, let's just do a fire-and-forget update:
     
     fetchRecipe(nextItem.candidate)
       .then(recipe => {
@@ -178,20 +166,10 @@ export default function StagingFlow() {
 
     setBatchItems(newBatchItems);
     
-    // Load the first one
-    // We need to set the state first, then trigger load. 
-    // Since setState is async, we can't call loadBatchItem immediately with the new state.
-    // But we can manually do the first load logic here or use an effect.
-    // Let's do it manually to ensure smooth transition.
-    
     setIsLoading(true);
     setLoadingMessage(`Extracting ${selected[0].title}...`);
     
     try {
-      // Optimistically set the batch items
-      // We'll update the first one's status to loading in the state update below if we wanted,
-      // but let's just fetch first.
-      
       const firstRecipe = await fetchRecipe(selected[0]);
       
       newBatchItems[0].status = 'ready';
@@ -202,7 +180,6 @@ export default function StagingFlow() {
       setStagingRecipe(firstRecipe);
       setStep('editor');
       
-      // Trigger prefetch for next
       if (newBatchItems.length > 1) {
          triggerPrefetch(newBatchItems, 0);
       }
@@ -210,7 +187,7 @@ export default function StagingFlow() {
     } catch (error: any) {
        console.error(error);
        alert('Failed to start batch import');
-       setBatchItems(newBatchItems); // Still set them so user can try again?
+       setBatchItems(newBatchItems); 
     } finally {
       setIsLoading(false);
     }
@@ -239,7 +216,6 @@ Mash avocados...
   };
 
   const handleSelectCandidate = async (candidate: RecipeCandidate) => {
-    // Treat single selection as a batch of 1
     const newBatchItems: BatchItem[] = [{
       candidate,
       status: 'pending',
@@ -247,7 +223,6 @@ Mash avocados...
     }];
     setBatchItems(newBatchItems);
     
-    // Load it
     setIsLoading(true);
     setLoadingMessage(`Extracting ${candidate.title}...`);
     
@@ -306,18 +281,12 @@ Mash avocados...
     setStep('editor');
   };
 
-
-
   const handleApprove = async () => {
     if (!stagingRecipe) return;
     
-    // Update status to saving
     setBatchItems(prev => prev.map((item, idx) => 
       idx === activeBatchIndex ? { ...item, status: 'saving' } : item
     ));
-    
-    // We don't set global isLoading here because we want to allow navigation/interaction
-    // But we might want to disable the save button for this specific recipe.
     
     try {
       const res = await fetch('/api/recipes/create', {
@@ -327,24 +296,17 @@ Mash avocados...
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       
-      // Mark as saved
       setBatchItems(prev => prev.map((item, idx) => 
         idx === activeBatchIndex ? { ...item, status: 'saved' } : item
       ));
       
-      // Auto-advance to next pending/ready item
       const nextIndex = activeBatchIndex + 1;
       if (nextIndex < batchItems.length) {
-        // Switch to next
         loadBatchItem(nextIndex);
       } else {
-        // All done?
         if (batchItems.length === 1) {
-          // Single recipe: Redirect immediately
           router.push(`/recipes/${data.recipeId}`);
         } else {
-          // Batch: Redirect to the last one (or maybe list?)
-          // Let's redirect to the last one so they can see it
           router.push(`/recipes/${data.recipeId}`);
         }
       }
@@ -394,15 +356,15 @@ Mash avocados...
                     Paste Text
                   </button>
                   <button 
-                    className="chip"
-                    onClick={handleManualStart}
+                    className={`chip ${inputMode === 'manual' ? 'chip-active' : ''}`}
+                    onClick={() => setInputMode('manual')}
                   >
                     ✍️ Write Manually
                   </button>
                 </div>
 
                 <div>
-                  {inputMode === 'url' ? (
+                  {inputMode === 'url' && (
                     <input
                       type="url"
                       placeholder="https://example.com/recipe"
@@ -410,7 +372,8 @@ Mash avocados...
                       onChange={(e) => setInputValue(e.target.value)}
                       className="input-field"
                     />
-                  ) : (
+                  )}
+                  {inputMode === 'text' && (
                     <textarea
                       placeholder="Paste recipe text here..."
                       value={inputValue}
@@ -420,15 +383,24 @@ Mash avocados...
                       style={{ fontFamily: 'var(--font-mono)', minHeight: '220px' }}
                     />
                   )}
+                  {inputMode === 'manual' && (
+                    <div className="card" style={{ textAlign: 'center', padding: '3rem 1rem', background: 'var(--color-surface-hover)', borderStyle: 'dashed' }}>
+                      <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📝</div>
+                      <h3>Start from scratch</h3>
+                      <p className="text-muted" style={{ maxWidth: '400px', margin: '0 auto' }}>
+                        Create a blank recipe and fill in the details yourself. No AI extraction will be performed.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="ingest-actions">
                   <button
                     className="btn btn-primary w-full"
-                    onClick={handleSubmit}
-                    disabled={!inputValue.trim()}
+                    onClick={inputMode === 'manual' ? handleManualStart : handleSubmit}
+                    disabled={inputMode !== 'manual' && !inputValue.trim()}
                   >
-                    Analyze
+                    {inputMode === 'url' ? 'Analyze URL' : inputMode === 'text' ? 'Analyze Text' : 'Start Writing'}
                   </button>
                   {isChiliMode && (
                     <button className="btn btn-secondary w-full" onClick={handleMockSplit} style={{ borderStyle: 'dashed' }}>
