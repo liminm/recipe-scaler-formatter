@@ -595,14 +595,14 @@ Mash avocados...
           
           {/* Right: Editable Recipe Form */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {!isSourceTextVisible && (
+            {!isSourceTextVisible && (stagingRecipe.raw_text || inputValue) && (
               <button 
                 onClick={() => setIsSourceTextVisible(true)}
                 className="btn btn-secondary btn-sm"
                 style={{ alignSelf: 'flex-start' }}
                 title="Show Source Text"
               >
-                Show Source
+                Show Source Text
               </button>
             )}
             
