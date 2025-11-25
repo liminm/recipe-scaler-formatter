@@ -28,6 +28,19 @@ export default function KitchenWisdom() {
     'I\'m full of wisdom! 🥟'
   ];
 
+  const chiliIdleMessages = [
+    'I\'m burning up! 🔥',
+    'Too hot to handle? 🌶️',
+    'Spicy secrets here... 🤫',
+    'Feeling the heat? 🌡️',
+    'I\'ve got fire jokes! 🎭',
+    'Need some spice? 🧂',
+    'Cooking with fire! 🍳',
+    'Hot stuff coming through! 💨',
+    'Ready for the burn? ❤️‍🔥',
+    'I\'m on fire! 🚒'
+  ];
+
   const hoverMessages = [
     'Click me! 👆',
     'Tap for wisdom! 🧠',
@@ -41,16 +54,31 @@ export default function KitchenWisdom() {
     'Tap for a surprise! 🎈'
   ];
 
+  const chiliHoverMessages = [
+    'Click for heat! 🔥',
+    'Tap for spice! 🌶️',
+    'Press for fire! 🧨',
+    'Ignite me! 💥',
+    'Tap to burn! ❤️‍🔥',
+    'Click for a hot take! 🗣️',
+    'Press for sizzle! 🥓',
+    'Give me a spark! ⚡',
+    'Click to explode! 💣',
+    'Tap for a scorcher! ☀️'
+  ];
+
   // Cycle idle messages
   useEffect(() => {
-    setIdleMessage(idleMessages[Math.floor(Math.random() * idleMessages.length)]);
+    const messages = isChiliMode ? chiliIdleMessages : idleMessages;
+    setIdleMessage(messages[Math.floor(Math.random() * messages.length)]);
 
     const interval = setInterval(() => {
-      setIdleMessage(idleMessages[Math.floor(Math.random() * idleMessages.length)]);
+      const currentMessages = isChiliMode ? chiliIdleMessages : idleMessages;
+      setIdleMessage(currentMessages[Math.floor(Math.random() * currentMessages.length)]);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isChiliMode]);
 
   const handleCrackOpen = () => {
     if (isAnimating) return;
@@ -72,9 +100,11 @@ export default function KitchenWisdom() {
       <div className="home-card-top">
         <span className="icon-badge">{isChiliMode ? '🌶️' : '🥠'}</span>
         <div>
-          <h2>Kitchen Wisdom</h2>
+          <h2>{isChiliMode ? "Spicy Secrets" : "Kitchen Wisdom"}</h2>
           <p className="text-muted">
-            {joke ? "Fresh from the steamer!" : "Need a break? Crack open a joke."}
+            {joke 
+              ? (isChiliMode ? "Hot off the grill!" : "Fresh from the steamer!") 
+              : (isChiliMode ? "Need some heat? Crack open a joke." : "Need a break? Crack open a joke.")}
           </p>
         </div>
       </div>
@@ -85,7 +115,8 @@ export default function KitchenWisdom() {
           onClick={handleCrackOpen}
           onMouseEnter={() => {
             setIsHovered(true);
-            setHoverMessage(hoverMessages[Math.floor(Math.random() * hoverMessages.length)]);
+            const messages = isChiliMode ? chiliHoverMessages : hoverMessages;
+            setHoverMessage(messages[Math.floor(Math.random() * messages.length)]);
           }}
           onMouseLeave={() => setIsHovered(false)}
         >
@@ -116,7 +147,11 @@ export default function KitchenWisdom() {
           className={`btn ${isChiliMode ? 'btn-primary' : 'btn-secondary'} w-full`}
           disabled={isAnimating}
         >
-          {isAnimating ? 'Cooking...' : (joke ? 'Crack Another' : 'Crack Open')}
+          {isAnimating 
+            ? (isChiliMode ? 'Sizzling...' : 'Cooking...') 
+            : (joke 
+                ? (isChiliMode ? 'More Heat' : 'Crack Another') 
+                : (isChiliMode ? 'Add Spice' : 'Crack Open'))}
         </button>
       </div>
 
