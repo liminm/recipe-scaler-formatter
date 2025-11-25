@@ -356,10 +356,42 @@ Mash avocados...
         <div className="ingest-panel">
           <div className="ingest-card">
             {isLoading ? (
-              <LoadingDumpling
-                message={inputMode === 'url' ? 'Fetching recipe from URL...' : 'Processing recipe text...'}
-                size="medium"
-              />
+              <div className="ingest-loading-grid">
+                <div className="ingest-loading-main card">
+                  <div>
+                    <p className="eyebrow">AI pipeline</p>
+                    <h3 style={{ marginBottom: '0.35rem' }}>Processing your recipe…</h3>
+                    <p className="text-muted" style={{ marginBottom: '0.5rem' }}>
+                      We’re fetching the source, splitting candidates, and extracting ingredients and steps.
+                    </p>
+                  </div>
+                  <LoadingDumpling
+                    message={inputMode === 'url' ? 'Fetching recipe from URL...' : 'Processing recipe text...'}
+                    size="large"
+                  />
+                  <div className="ingest-track">
+                    <div className="track-chip active">Fetch & clean source</div>
+                    <div className="track-chip">Split into recipes</div>
+                    <div className="track-chip">Extract ingredients & steps</div>
+                  </div>
+                  <p className="text-dim" style={{ margin: 0 }}>This usually takes 15–30 seconds depending on the source.</p>
+                </div>
+
+                <div className="ingest-loading-aside">
+                  <div className="ingest-aside-card">
+                    <p className="eyebrow">Tips</p>
+                    <ul>
+                      <li>Full ingredient lines work best; include quantities and units.</li>
+                      <li>If there are multiple recipes in one paste, we’ll offer a split.</li>
+                      <li>Links behind a login may fail—paste the text instead.</li>
+                    </ul>
+                  </div>
+                  <div className="ingest-aside-card">
+                    <p className="eyebrow">Output</p>
+                    <p className="text-muted">We’ll parse steps, ingredients, yields, and metadata, then let you edit before saving.</p>
+                  </div>
+                </div>
+              </div>
             ) : (
               <>
                 <div className="ingest-card-head">
