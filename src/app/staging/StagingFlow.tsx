@@ -410,20 +410,21 @@ Mash avocados...
       )}
       
       {step === 'selection' && (
-        <div className="selection-wrap">
+        <>
           {isLoading ? (
-            <div className="selection-loading card">
-              <LoadingDumpling 
-                message={loadingMessage || "Extracting recipe details with AI... This may take 20-30 seconds."}
-                size="large"
-              />
-              <div className="selection-loading-meta">
-                <span className="track-chip active">Extracting candidates</span>
-                <span className="track-chip">Preparing preview</span>
+            <div className="ingest-panel" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+              <div className="ingest-card" style={{ maxWidth: '600px', width: '100%', textAlign: 'center' }}>
+                <div className="ingest-loading-main card" style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
+                  <LoadingDumpling
+                    message={loadingMessage || "Extracting recipe details with AI..."}
+                    size="large"
+                  />
+                </div>
               </div>
             </div>
           ) : (
-            <>
+            <div className="selection-wrap">
+
               <div className="selection-head">
                 <div>
                   <p className="eyebrow">Select recipe</p>
@@ -447,35 +448,37 @@ Mash avocados...
                 </div>
               </div>
 
-              <div className="selection-grid">
-                {candidates.map((c) => {
-                  const isSelected = selectedCandidateIndices.has(c.index);
-                  return (
-                    <button
-                      key={c.index}
-                      className={`selection-card ${isSelected ? 'active' : ''}`}
-                      onClick={() => toggleCandidateSelection(c.index)}
-                    >
-                      <div className="selection-card-head">
-                        <div>
-                          <h3 className="mb-0">{c.title}</h3>
+              <div className="selection-panel card">
+                <div className="selection-grid">
+                  {candidates.map((c) => {
+                    const isSelected = selectedCandidateIndices.has(c.index);
+                    return (
+                      <button
+                        key={c.index}
+                        className={`selection-card ${isSelected ? 'active' : ''}`}
+                        onClick={() => toggleCandidateSelection(c.index)}
+                      >
+                        <div className="selection-card-head">
+                          <div className="selection-title">
+                            <h3 className="mb-0">{c.title}</h3>
+                            <p className="selection-summary text-muted">{c.summary}</p>
+                          </div>
+                          <div className={`selection-check ${isSelected ? 'checked' : ''}`} aria-hidden>
+                            {isSelected ? '✔' : ''}
+                          </div>
                         </div>
-                        <div className={`selection-check ${isSelected ? 'checked' : ''}`} aria-hidden>
-                          {isSelected ? '✔' : ''}
+                        <div className="selection-snippet">
+                          “{c.originalTextSnippet}...”
                         </div>
-                      </div>
-                      <p className="text-muted selection-summary">{c.summary}</p>
-                      <div className="selection-snippet">
-                        “{c.originalTextSnippet}...”
-                      </div>
-                    </button>
-                  );
-                })}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               
-            </>
+            </div>
           )}
-        </div>
+        </>
       )}
       
 

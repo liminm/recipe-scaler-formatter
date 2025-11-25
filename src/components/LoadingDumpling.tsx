@@ -49,17 +49,17 @@ export default function LoadingDumpling({ message, size = 'medium' }: LoadingDum
     const anims = isChiliMode ? chiliAnimations : dumplingAnimations;
     setAnimationClass(anims[Math.floor(Math.random() * anims.length)]);
 
-    // Cycle jokes every 6 seconds
+    // Cycle jokes every 10 seconds
     const jokeInterval = setInterval(() => {
       const nextPool = isChiliMode ? CHILI_JOKES : DUMPLING_JOKES;
       setJoke(nextPool[Math.floor(Math.random() * nextPool.length)]);
-    }, 6000);
+    }, 10000);
 
-    // Cycle animations every 2 seconds
+    // Cycle animations every 4 seconds
     const animInterval = setInterval(() => {
       const currentAnims = isChiliMode ? chiliAnimations : dumplingAnimations;
       setAnimationClass(currentAnims[Math.floor(Math.random() * currentAnims.length)]);
-    }, 2000);
+    }, 4000);
 
     return () => {
       clearInterval(jokeInterval);
