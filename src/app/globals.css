@@ -308,7 +308,7 @@ body.chili-mode .nav-link.active {
 
 .main-content {
   flex: 1;
-  padding-top: 6rem;
+  padding-top: 7rem;
   padding-bottom: 5rem;
 }
 
@@ -1144,6 +1144,7 @@ body.chili-mode .nav-link.active {
   justify-content: center;
   padding: 2.75rem 2rem;
   border-radius: 1.5rem;
+  margin-top: 1rem;
   border: 1px solid var(--color-border);
   background: radial-gradient(circle at 18% 15%, rgba(232, 149, 111, 0.16), rgba(255, 255, 255, 0.95)),
     radial-gradient(circle at 90% 10%, rgba(212, 165, 116, 0.14), rgba(255, 255, 255, 0.96));
@@ -1268,17 +1269,6 @@ body.chili-mode .nav-link.active {
   border: 1px solid var(--color-border);
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 12px 28px rgba(61, 40, 23, 0.08);
-}
-
-.hero-row {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.hero-buttons {
-  justify-content: center;
 }
 
 .panel-foot {
@@ -1777,6 +1767,7 @@ body.chili-mode .nav-link.active {
 @media (max-width: 960px) {
   .home-hero {
     padding: 2rem 1.25rem;
+    margin-top: 0.75rem;
   }
 
   .home-grid {
@@ -1839,6 +1830,7 @@ body.chili-mode .nav-link.active {
 @media (max-width: 640px) {
   .home-hero {
     padding: 1.6rem 1rem;
+    margin-top: 0.5rem;
   }
 
   .hero-search {

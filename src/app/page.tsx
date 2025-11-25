@@ -21,13 +21,6 @@ const highlights = [
       { label: 'Ingest New', href: '/staging', variant: 'primary' },
     ],
   },
-  {
-    icon: '✨',
-    title: 'AI Ingestion',
-    desc: 'Extract recipes from URLs or text using AI. Automatically parse ingredients and steps.',
-    tags: ['URL Scraping', 'AI Parsing'],
-    actions: [{ label: 'Start Ingestion', href: '/staging', variant: 'primary' }],
-  },
 ];
 
 export default function Home() {
@@ -53,24 +46,6 @@ export default function Home() {
               Analyze
             </button>
           </form>
-
-          <div className="hero-row">
-            <span className="chip chip-soft">URL scraping</span>
-            <span className="chip chip-soft">AI parsing</span>
-            <Link href="/staging" className="text-primary hero-link">Open ingest workspace ↗</Link>
-          </div>
-
-          <div className="hero-buttons">
-            <Link href="/events" className="btn btn-secondary">
-              View events
-            </Link>
-            <Link href="/recipes" className="btn btn-secondary">
-              Browse library
-            </Link>
-            <Link href="/events/new" className="btn btn-primary">
-              Plan an event
-            </Link>
-          </div>
         </div>
       </section>
 
