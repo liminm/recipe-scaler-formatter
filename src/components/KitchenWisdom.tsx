@@ -109,7 +109,7 @@ export default function KitchenWisdom() {
         </div>
       </div>
 
-      <div className="wisdom-body">
+      <div className="wisdom-body" style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div 
           className={`wisdom-mascot ${isAnimating ? 'anim-shake' : ''}`}
           onClick={handleCrackOpen}
@@ -119,10 +119,13 @@ export default function KitchenWisdom() {
             setHoverMessage(messages[Math.floor(Math.random() * messages.length)]);
           }}
           onMouseLeave={() => setIsHovered(false)}
+          style={{ margin: '0 auto', width: '80px', height: '80px', position: 'relative' }}
         >
           <img 
             src={mascotImage} 
             alt="Mascot" 
+            width={80}
+            height={80}
             className={isAnimating ? 'blur-sm' : ''}
           />
           
@@ -170,6 +173,8 @@ export default function KitchenWisdom() {
           padding: 1.5rem 0;
           min-height: 200px;
           gap: 1rem;
+          width: 100%;
+          text-align: center;
         }
 
         .wisdom-mascot {
@@ -178,6 +183,11 @@ export default function KitchenWisdom() {
           position: relative;
           cursor: pointer;
           transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          margin: 0 auto;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          transform: translateZ(0);
         }
 
         .wisdom-mascot:hover {
