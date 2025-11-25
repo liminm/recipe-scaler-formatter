@@ -9,12 +9,16 @@ if (!apiKey) {
 const genAI = new GoogleGenerativeAI(apiKey || 'placeholder');
 
 // Define the model hierarchy as requested by user
-const MODEL_HIERARCHY = [
-    'gemini-2.5-pro',
-    'gemini-2.5-flash',
-    'gemini-2.5-flash-preview',
-    'gemini-2.0-flash',
-    'gemini-2.5-flash-lite'
+const CRITICAL_HIERARCHY = [
+    'gemini-2.5-pro',        // High Intelligence (Primary for Critical)
+    'gemini-2.5-flash',      // Fast Backup
+    'gemini-2.0-flash',      // Reliable Backup
+];
+
+const STANDARD_HIERARCHY = [
+    'gemini-2.5-flash',      // Fast & Capable (Primary for Standard)
+    'gemini-2.0-flash',      // Reliable Backup
+    'gemini-2.5-flash-lite'  // Ultimate Fallback
 ];
 
 // Define task types and their minimum acceptable model tier (floor)
@@ -26,13 +30,18 @@ export const TASK_FLOORS = {
 
 export class GeminiFallbackModel {
     private models: GenerativeModel[];
+    private modelNames: string[];
     private floorIndex: number;
 
     constructor(floorIndex: number = TASK_FLOORS.STANDARD) {
         this.floorIndex = floorIndex;
-        // Initialize all models in the chain up to the floor
-        this.models = MODEL_HIERARCHY
-            .slice(0, this.floorIndex + 1)
+
+        // Select the appropriate hierarchy based on the floor/task type
+        const hierarchy = floorIndex === TASK_FLOORS.CRITICAL ? CRITICAL_HIERARCHY : STANDARD_HIERARCHY;
+        this.modelNames = hierarchy;
+
+        // Initialize all models in the chain
+        this.models = hierarchy
             .map(modelName => genAI.getGenerativeModel({ model: modelName }));
     }
 
@@ -41,13 +50,13 @@ export class GeminiFallbackModel {
 
         for (let i = 0; i < this.models.length; i++) {
             const model = this.models[i];
-            const modelName = MODEL_HIERARCHY[i];
+            const modelName = this.modelNames[i];
 
             try {
                 // Attempt generation
                 const result = await model.generateContent(prompt);
 
-                // If we fell back, log it (could be enhanced to notify UI)
+                // If we fell back, log it
                 if (i > 0) {
                     console.warn(`⚠️ Fallback: Used ${modelName} (Tier ${i + 1}) instead of primary model.`);
                 }
@@ -56,7 +65,6 @@ export class GeminiFallbackModel {
             } catch (error: any) {
                 lastError = error;
 
-                // Check if it's a quota/rate limit error
                 // Check if it's a quota/rate limit error OR a network/fetch error
                 const isQuotaError = error.message?.includes('429') ||
                     error.message?.includes('quota') ||
@@ -71,12 +79,7 @@ export class GeminiFallbackModel {
                     continue; // Try next model
                 }
 
-                if (isQuotaError) {
-                    console.warn(`⚠️ Quota exhausted for ${modelName}, attempting fallback...`);
-                    continue; // Try next model
-                }
-
-                // If it's not a quota error (e.g. bad request), fail immediately
+                // If it's not a quota/network error (e.g. bad request), fail immediately
                 throw error;
             }
         }

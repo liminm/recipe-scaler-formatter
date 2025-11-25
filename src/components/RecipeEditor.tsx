@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { StagingRecipe, StagingIngredient, StagingStep } from '@/types/staging';
-import { estimateYield } from '@/services/ingestion/yieldCalculator';
 
 interface RecipeEditorProps {
   recipe: StagingRecipe;
@@ -315,7 +314,19 @@ export default function RecipeEditor({
     
     const timeoutId = setTimeout(async () => {
       try {
-        const yieldEstimate = await estimateYield(recipe.ingredients, recipe.steps);
+        const res = await fetch('/api/ingest/yield', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            ingredients: recipe.ingredients, 
+            steps: recipe.steps 
+          })
+        });
+        
+        if (!res.ok) throw new Error('Yield API failed');
+        
+        const yieldEstimate = await res.json();
+        
         setRecipe(prev => ({
           ...prev,
           estimated_final_weight_g: yieldEstimate.estimatedFinalWeight_g,
@@ -598,10 +609,16 @@ export default function RecipeEditor({
             <button
               onClick={() => {
                 const newIngredient: StagingIngredient = {
+                  id: crypto.randomUUID(),
                   name_raw: '',
                   name_normalized: '',
                   base_quantity_g: 0,
-                  role: 'CONSUMABLE'
+                  role: 'CONSUMABLE',
+                  yield_factor: 1,
+                  is_discrete: false,
+                  dependency_role: 'PASSENGER',
+                  density_confidence: 'high',
+                  needs_review: false
                 };
                 setRecipe({
                   ...recipe,

@@ -3,8 +3,25 @@ import { StagingRecipe } from '../../types/staging';
 import { v4 as uuidv4 } from 'uuid';
 import { estimateYield } from './yieldCalculator';
 
+import { createHash } from 'crypto';
+
+// Simple in-memory cache to speed up repeated extractions
+const EXTRACTION_CACHE = new Map<string, StagingRecipe>();
+
 export async function extractRecipe(rawText: string, titleHint?: string, summary?: string): Promise<StagingRecipe> {
+  // Check cache
+  const hash = createHash('md5').update(rawText).digest('hex');
+  if (EXTRACTION_CACHE.has(hash)) {
+    console.log('⚡ Cache Hit! Returning cached recipe.');
+    return {
+      ...EXTRACTION_CACHE.get(hash)!,
+      id: uuidv4() // Always return a new ID to avoid state conflicts
+    };
+  }
+
   const model = geminiPro;
+
+  const titleHintString = titleHint ? `Title Hint: "${titleHint}"` : '';
 
   const prompt = `
     You are a Professional Recipe Extractor. Your job is to convert raw recipe text into a structured, metric-only JSON format.
@@ -14,7 +31,7 @@ export async function extractRecipe(rawText: string, titleHint?: string, summary
     ${rawText}
     """
     
-    ${titleHint ? `Title Hint: "${titleHint}"` : ''}
+    ${titleHintString}
     
     Instructions:
     1. Extract the Title (use hint if available/better).
@@ -28,33 +45,27 @@ export async function extractRecipe(rawText: string, titleHint?: string, summary
     4. Extract Metadata:
        - Yield (servings).
        - Chef's Notes (warnings, tips).
-    5. Naming Consistency:
-       - Ensure that the ingredient names used in the 'steps' exactly match the 'name_normalized' field in the ingredients list.
-       - If the text uses an alias (e.g. 'aji') in the steps, but the normalized name is 'Chili Pepper', rewrite the step to use 'Chili Pepper'.
-       - OR, if the alias is more appropriate (e.g. 'Aji' for a Chilean recipe), set 'name_normalized' to 'Aji' and use 'Aji' in the steps.
-       - The goal is 100% consistency between the list and the instructions.
+    Output strictly valid JSON matching this Minified Interface (for speed):
     
-    Output strictly valid JSON matching this TypeScript interface:
-    
-    interface StagingRecipe {
-      title: string;
-      original_yield_servings?: number;
-      ingredients: {
-        name_raw: string;
-        name_normalized?: string;
-        quantity_raw?: string;
-        unit_raw?: string;
-        base_quantity_g?: number; // Estimate in grams
-        state?: 'fresh' | 'canned' | 'dry' | 'frozen' | 'pre-cooked';
-        role?: 'CONSUMABLE' | 'PROCESS_ONLY' | 'REDUCTION';
-        density_confidence?: 'high' | 'low';
+    interface MinifiedRecipe {
+      t: string; // title
+      y?: number; // original_yield_servings
+      i: { // ingredients
+        n: string; // name_raw
+        nn?: string; // name_normalized
+        q?: string; // quantity_raw
+        u?: string; // unit_raw
+        g?: number; // base_quantity_g (grams)
+        s?: 'fresh' | 'canned' | 'dry' | 'frozen' | 'pre-cooked'; // state
+        r?: 'CONSUMABLE' | 'PROCESS_ONLY' | 'REDUCTION'; // role
+        dc?: 'high' | 'low'; // density_confidence
       }[];
-      steps: {
-        order: number;
-        instruction_raw: string;
-        constraint_tags?: string[];
+      s: { // steps
+        o: number; // order
+        i: string; // instruction_raw
+        c?: string[]; // constraint_tags
       }[];
-      chefs_notes: string[];
+      n: string[]; // chefs_notes
     }
   `;
 
@@ -68,40 +79,51 @@ export async function extractRecipe(rawText: string, titleHint?: string, summary
 
     const data = JSON.parse(jsonStr);
 
-    // Process ingredients and steps
-    const ingredients = (data.ingredients || []).map((ing: any) => ({
-      ...ing,
+    // Map minified keys back to full StagingRecipe structure
+    const ingredients = (data.i || []).map((ing: any) => ({
       id: uuidv4(),
-      role: ing.role || 'CONSUMABLE',
-      dependency_role: ing.dependency_role || 'PASSENGER',
-      state: ing.state || 'fresh',
-      needs_review: !ing.base_quantity_g // Flag for review if weight missing
+      name_raw: ing.n,
+      name_normalized: ing.nn,
+      quantity_raw: ing.q,
+      unit_raw: ing.u,
+      base_quantity_g: ing.g,
+      state: ing.s || 'fresh',
+      role: ing.r || 'CONSUMABLE',
+      dependency_role: 'PASSENGER', // Default
+      density_confidence: ing.dc,
+      needs_review: !ing.g // Flag for review if weight missing
     }));
 
-    const steps = (data.steps || []).map((step: any, idx: number) => ({
-      ...step,
+    const steps = (data.s || []).map((step: any, idx: number) => ({
       id: uuidv4(),
-      order: idx,
-      constraint_tags: step.constraint_tags || []
+      order: step.o !== undefined ? step.o : idx,
+      instruction_raw: step.i,
+      constraint_tags: step.c || []
     }));
 
     // Calculate yield estimate
-    const yieldEstimate = await estimateYield(ingredients, steps);
+    // OPTIMIZATION: We skip server-side yield estimation to speed up response.
+    // The client (RecipeEditor) will fetch it asynchronously.
 
-    return {
+    const resultRecipe = {
       id: uuidv4(),
-      title: data.title || 'Untitled Recipe',
+      title: data.t || 'Untitled Recipe',
       summary: summary, // Use the summary provided from RecipeCandidate
-      original_yield_servings: data.original_yield_servings,
+      original_yield_servings: data.y,
       ingredients,
       steps,
-      chefs_notes: data.chefs_notes || [],
-      estimated_final_weight_g: yieldEstimate.estimatedFinalWeight_g,
-      yield_confidence: yieldEstimate.confidence,
+      chefs_notes: data.n || [],
+      estimated_final_weight_g: 0, // Will be populated by client
+      yield_confidence: 'low' as const,
       extraction_model: modelUsed,
-      yield_estimation_model: yieldEstimate.modelUsed,
+      yield_estimation_model: 'pending',
       raw_text: rawText
     };
+
+    // Cache the result
+    EXTRACTION_CACHE.set(hash, resultRecipe);
+
+    return resultRecipe;
 
   } catch (error) {
     console.error('Extractor failed:', error);
