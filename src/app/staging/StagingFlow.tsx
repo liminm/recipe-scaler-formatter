@@ -31,6 +31,8 @@ export default function StagingFlow() {
   const [isSourceTextVisible, setIsSourceTextVisible] = useState(true);
   const [shouldAutoSubmit, setShouldAutoSubmit] = useState(false);
 
+  const [loadingStage, setLoadingStage] = useState('Initializing...');
+
   // Handle Quick Ingest from Home Screen
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -76,8 +78,10 @@ export default function StagingFlow() {
       // Determine mode
       if (query.startsWith('http')) {
         setInputMode('url');
+        setLoadingStage('Fetching recipe from URL...');
       } else {
         setInputMode('text');
+        setLoadingStage('Processing recipe text...');
       }
       
       // Trigger auto-submit
@@ -91,6 +95,7 @@ export default function StagingFlow() {
       let textToSplit = inputValue;
       
       if (inputMode === 'url') {
+        setLoadingStage('Fetching & cleaning source...');
         const res = await fetch('/api/ingest/scrape', {
           method: 'POST',
           body: JSON.stringify({ url: inputValue }),
@@ -100,6 +105,7 @@ export default function StagingFlow() {
         textToSplit = data.rawText;
       }
       
+      setLoadingStage('Splitting into recipes...');
       const res = await fetch('/api/ingest/split', {
         method: 'POST',
         body: JSON.stringify({ text: textToSplit }),
@@ -107,6 +113,7 @@ export default function StagingFlow() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       
+      setLoadingStage('Extracting ingredients & steps...');
       setCandidates(data.candidates);
       setStep('selection');
       
@@ -390,116 +397,100 @@ Mash avocados...
 
 
       {step === 'input' && (
-        <div className="ingest-panel">
-          <div className="ingest-card">
-            <div className="ingest-loading-grid">
-              <div className="ingest-loading-main card">
-                <div>
-                  <p className="eyebrow">AI pipeline</p>
-                  <h3 style={{ marginBottom: '0.35rem' }}>Processing your recipe…</h3>
-                  <p className="text-muted" style={{ marginBottom: '0.5rem' }}>
-                    We’re fetching the source, splitting candidates, and extracting ingredients and steps.
-                  </p>
-                </div>
-                <LoadingDumpling
-                  message={inputMode === 'url' ? 'Fetching recipe from URL...' : 'Processing recipe text...'}
-                  size="large"
-                />
-                <div className="ingest-track">
-                  <div className="track-chip active">Fetch & clean source</div>
-                  <div className="track-chip">Split into recipes</div>
-                  <div className="track-chip">Extract ingredients & steps</div>
-                </div>
-                <p className="text-dim" style={{ margin: 0 }}>This usually takes 15–30 seconds depending on the source.</p>
-              </div>
-
-              <div className="ingest-loading-aside">
-                <div className="ingest-aside-card">
-                  <p className="eyebrow">Tips</p>
-                  <ul>
-                    <li>Full ingredient lines work best; include quantities and units.</li>
-                    <li>If there are multiple recipes in one paste, we’ll offer a split.</li>
-                    <li>Links behind a login may fail—paste the text instead.</li>
-                  </ul>
-                </div>
-                <div className="ingest-aside-card">
-                  <p className="eyebrow">Output</p>
-                  <p className="text-muted">We’ll parse steps, ingredients, yields, and metadata, then let you edit before saving.</p>
-                </div>
-              </div>
+        <div className="ingest-panel" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <div className="ingest-card" style={{ maxWidth: '600px', width: '100%', textAlign: 'center' }}>
+            <div className="ingest-loading-main card" style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
+              <LoadingDumpling
+                message={loadingStage}
+                size="large"
+              />
             </div>
           </div>
         </div>
       )}
       
       {step === 'selection' && (
-        <div>
+        <div className="selection-wrap">
           {isLoading ? (
-            <LoadingDumpling 
-              message={loadingMessage || "Extracting recipe details with AI... This may take 20-30 seconds."}
-              size="large"
-            />
+            <div className="selection-loading card">
+              <LoadingDumpling 
+                message={loadingMessage || "Extracting recipe details with AI... This may take 20-30 seconds."}
+                size="large"
+              />
+              <div className="selection-loading-meta">
+                <span className="track-chip active">Extracting candidates</span>
+                <span className="track-chip">Preparing preview</span>
+              </div>
+            </div>
           ) : (
             <>
-              <h2 style={{ marginBottom: '1rem' }}>Select Recipe</h2>
-              <p style={{ marginBottom: '1rem', color: 'var(--color-text-muted)' }}>
-                We found {candidates.length} potential recipe(s). Choose one to import.
-              </p>
+              <div className="selection-head">
+                <div>
+                  <p className="eyebrow">Select recipe</p>
+                  <h2 className="mb-0">We found {candidates.length} potential recipe{candidates.length === 1 ? '' : 's'}</h2>
+                  <p className="text-muted">Choose one or more to import into the editor.</p>
+                </div>
+                <div className="selection-actions">
+                  <button 
+                    className="btn"
+                    onClick={() => setStep('input')}
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    disabled={selectedCandidateIndices.size === 0}
+                    onClick={handleBatchImport}
+                  >
+                    Import Selected ({selectedCandidateIndices.size})
+                  </button>
+                </div>
+              </div>
               
-              <div className="grid">
+              <div className="selection-grid">
                 {candidates.map((c) => {
                   const isSelected = selectedCandidateIndices.has(c.index);
                   return (
-                    <div 
-                      key={c.index} 
-                      className="card" 
-                      style={{ 
-                        display: 'flex', 
-                        flexDirection: 'column',
-                        border: isSelected ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                        cursor: 'pointer'
-                      }}
+                    <button
+                      key={c.index}
+                      className={`selection-card ${isSelected ? 'active' : ''}`}
                       onClick={() => toggleCandidateSelection(c.index)}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-                        <h3 className="mb-0">{c.title}</h3>
-                        <input 
-                          type="checkbox" 
-                          checked={isSelected}
-                          onChange={() => {}} // Handled by div click
-                          style={{ transform: 'scale(1.5)', cursor: 'pointer' }}
-                        />
+                      <div className="selection-card-head">
+                        <div>
+                          <div className="selection-badge">Candidate</div>
+                          <h3 className="mb-0">{c.title}</h3>
+                        </div>
+                        <div className={`selection-check ${isSelected ? 'checked' : ''}`}>
+                          {isSelected ? '✔' : ''}
+                        </div>
                       </div>
-                      <p className="text-muted mb-4" style={{ flex: 1 }}>{c.summary}</p>
-                      <div className="text-mono text-muted mb-4" style={{ fontSize: '0.875rem', fontStyle: 'italic' }}>
-                        "{c.originalTextSnippet}..."
+                      <p className="text-muted selection-summary">{c.summary}</p>
+                      <div className="selection-snippet">
+                        “{c.originalTextSnippet}...”
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
               
-              <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <div className="selection-footer">
                 <button 
-                  className="btn" 
-                  onClick={() => router.push('/')}
+                  className="btn"
+                  onClick={() => setStep('input')}
                 >
-                  Back
+                  ← Back
                 </button>
-                
-                <div style={{ flex: 1 }}></div>
                 
                 <button
                   className="btn btn-primary"
                   disabled={selectedCandidateIndices.size === 0}
                   onClick={handleBatchImport}
-                  style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}
                 >
                   Import Selected ({selectedCandidateIndices.size})
                 </button>
               </div>
               
-
             </>
           )}
         </div>
