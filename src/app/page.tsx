@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import KitchenWisdom from '@/components/KitchenWisdom';
 
 const highlights = [
   {
@@ -80,6 +81,7 @@ export default function Home() {
             </div>
           </div>
         ))}
+        <KitchenWisdom />
       </section>
     </div>
   );
