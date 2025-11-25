@@ -1,16 +1,56 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useChili } from '@/context/ChiliContext';
 import { DUMPLING_JOKES } from '@/data/dumplingJokes';
 import { CHILI_JOKES } from '@/data/chiliJokes';
 
 export default function KitchenWisdom() {
   const { isChiliMode } = useChili();
+  const [hoverMessage, setHoverMessage] = useState('');
+  const [idleMessage, setIdleMessage] = useState('');
+  const [isHovered, setIsHovered] = useState(false);
   const [joke, setJoke] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
   const mascotImage = isChiliMode ? '/chili.png' : '/dumpling-logo.png';
+
+  const idleMessages = [
+    'I have secrets... 🤫',
+    'I know things... 👀',
+    'Psst... over here! 🗣️',
+    'I have stories! 📖',
+    'Want some knowledge? 🎓',
+    'I\'ve got jokes! 🎭',
+    'Need a break? ☕',
+    'Cooking something? 🍳',
+    'Penny for your thoughts? 🪙',
+    'I\'m full of wisdom! 🥟'
+  ];
+
+  const hoverMessages = [
+    'Click me! 👆',
+    'Tap for wisdom! 🧠',
+    'Press me! ✨',
+    'Crack me open! 🥠',
+    'Tap to reveal! 🎁',
+    'Click for a joke! 😄',
+    'Press for fun! 🎉',
+    'Give me a tap! 👈',
+    'Click here! 🎯',
+    'Tap for a surprise! 🎈'
+  ];
+
+  // Cycle idle messages
+  useEffect(() => {
+    setIdleMessage(idleMessages[Math.floor(Math.random() * idleMessages.length)]);
+
+    const interval = setInterval(() => {
+      setIdleMessage(idleMessages[Math.floor(Math.random() * idleMessages.length)]);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleCrackOpen = () => {
     if (isAnimating) return;
@@ -43,14 +83,23 @@ export default function KitchenWisdom() {
         <div 
           className={`wisdom-mascot ${isAnimating ? 'anim-shake' : ''}`}
           onClick={handleCrackOpen}
+          onMouseEnter={() => {
+            setIsHovered(true);
+            setHoverMessage(hoverMessages[Math.floor(Math.random() * hoverMessages.length)]);
+          }}
+          onMouseLeave={() => setIsHovered(false)}
         >
           <img 
             src={mascotImage} 
             alt="Mascot" 
             className={isAnimating ? 'blur-sm' : ''}
           />
+          
+          {/* Unified Bubble */}
           {!joke && !isAnimating && (
-            <div className="click-hint">Tap me!</div>
+            <div className="hover-bubble fade-in">
+              {isHovered ? hoverMessage : idleMessage}
+            </div>
           )}
         </div>
 
@@ -106,17 +155,21 @@ export default function KitchenWisdom() {
           object-fit: contain;
         }
 
-        .click-hint {
+        .hover-bubble {
           position: absolute;
-          top: -10px;
-          right: -20px;
+          top: -25px;
+          right: -30px;
           background: var(--color-primary);
           color: white;
           font-size: 0.7rem;
           padding: 2px 6px;
           border-radius: 10px;
           font-weight: bold;
+          white-space: nowrap;
+          z-index: 10;
+          pointer-events: none;
           animation: bounce 2s infinite;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .wisdom-content {
@@ -153,12 +206,12 @@ export default function KitchenWisdom() {
         }
 
         .fade-in {
-          animation: fadeIn 0.5s ease-out;
+          animation: fadeIn 0.3s ease-out;
         }
 
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
+          from { opacity: 0; transform: translateY(5px) translateX(-50%); }
+          to { opacity: 1; transform: translateY(0) translateX(-50%); }
         }
       `}</style>
     </div>
