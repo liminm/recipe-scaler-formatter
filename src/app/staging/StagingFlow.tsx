@@ -132,12 +132,257 @@ export default function StagingFlow() {
   const [batchItems, setBatchItems] = useState<BatchItem[]>([]);
   const [activeBatchIndex, setActiveBatchIndex] = useState<number>(-1);
 
-  // ... (fetchRecipe, triggerPrefetch, loadBatchItem, handleBatchImport, handleMockSplit, handleSelectCandidate, toggleCandidateSelection, handleManualStart, handleApprove omitted for brevity, they remain unchanged) ...
-  // Wait, I cannot omit them in replace_file_content unless I use multiple chunks or careful ranges.
-  // The user wants to remove the INPUT UI.
-  // Let's look at the render part.
+  // Helper to fetch a recipe (used for both immediate and prefetch)
+  const fetchRecipe = async (candidate: RecipeCandidate): Promise<StagingRecipe> => {
+    const res = await fetch('/api/ingest/extract', {
+      method: 'POST',
+      body: JSON.stringify({ 
+        text: inputValue, 
+        titleHint: candidate.title,
+        summary: candidate.summary
+      }),
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    return data.recipe;
+  };
 
-  // ...
+  // Trigger background prefetch for the next pending item
+  const triggerPrefetch = (items: BatchItem[], currentIndex: number) => {
+    const nextIndex = currentIndex + 1;
+    if (nextIndex >= items.length) return;
+    
+    const nextItem = items[nextIndex];
+    if (nextItem.status !== 'pending') return;
+
+    console.log(`Starting background prefetch for: ${nextItem.candidate.title}`);
+    
+    fetchRecipe(nextItem.candidate)
+      .then(recipe => {
+        console.log(`Prefetch complete for: ${nextItem.candidate.title}`);
+        setBatchItems(prev => prev.map((item, idx) => 
+          idx === nextIndex ? { ...item, status: 'ready', recipe } : item
+        ));
+      })
+      .catch(err => console.error('Prefetch failed:', err));
+  };
+
+  const loadBatchItem = async (index: number) => {
+    if (index < 0 || index >= batchItems.length) return;
+    
+    // Save current work if we are switching FROM a valid recipe
+    if (activeBatchIndex !== -1 && activeBatchIndex !== index && stagingRecipe) {
+       setBatchItems(prev => prev.map((item, idx) => 
+         idx === activeBatchIndex ? { ...item, recipe: stagingRecipe } : item
+       ));
+    }
+
+    setActiveBatchIndex(index);
+    const item = batchItems[index];
+
+    if (item.status === 'ready' && item.recipe) {
+      setStagingRecipe(item.recipe);
+      setStep('editor');
+    } else if (item.status === 'pending' || item.status === 'error') {
+      setIsLoading(true);
+      setLoadingMessage(`Extracting ${item.candidate.title}...`);
+      
+      // Update status to loading
+      setBatchItems(prev => prev.map((it, idx) => 
+        idx === index ? { ...it, status: 'loading' } : it
+      ));
+
+      try {
+        const recipe = await fetchRecipe(item.candidate);
+        setBatchItems(prev => prev.map((it, idx) => 
+          idx === index ? { ...it, status: 'ready', recipe } : it
+        ));
+        setStagingRecipe(recipe);
+        setStep('editor');
+        
+        // Trigger prefetch for next
+        triggerPrefetch(batchItems, index);
+        
+      } catch (error: any) {
+        console.error(error);
+        setBatchItems(prev => prev.map((it, idx) => 
+          idx === index ? { ...it, status: 'error', error: error.message } : it
+        ));
+        alert(`Failed to load recipe: ${error.message}`);
+      } finally {
+        setIsLoading(false);
+      }
+    } else if (item.status === 'saved' && item.recipe) {
+       setStagingRecipe(item.recipe);
+       setStep('editor');
+    }
+  };
+
+  const handleBatchImport = async () => {
+    const selected = candidates.filter(c => selectedCandidateIndices.has(c.index));
+    if (selected.length === 0) return;
+
+    const newBatchItems: BatchItem[] = selected.map(c => ({
+      candidate: c,
+      status: 'pending',
+      recipe: null
+    }));
+
+    setBatchItems(newBatchItems);
+    
+    setIsLoading(true);
+    setLoadingMessage(`Extracting ${selected[0].title}...`);
+    
+    try {
+      const firstRecipe = await fetchRecipe(selected[0]);
+      
+      newBatchItems[0].status = 'ready';
+      newBatchItems[0].recipe = firstRecipe;
+      
+      setBatchItems(newBatchItems);
+      setActiveBatchIndex(0);
+      setStagingRecipe(firstRecipe);
+      setStep('editor');
+      
+      if (newBatchItems.length > 1) {
+         triggerPrefetch(newBatchItems, 0);
+      }
+      
+    } catch (error: any) {
+       console.error(error);
+       alert('Failed to start batch import');
+       setBatchItems(newBatchItems); 
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMockSplit = () => {
+    const mockText = `
+Recipe 1: Tacos
+Take some beef...
+
+Recipe 2: Salsa
+Tomatoes and chilies...
+
+Recipe 3: Guacamole
+Mash avocados...
+    `;
+    setInputValue(mockText);
+    
+    const mockCandidates: RecipeCandidate[] = [
+      { index: 0, title: "Mock Recipe 1: Tacos", summary: "Delicious beef tacos", originalTextSnippet: "Take some beef..." },
+      { index: 1, title: "Mock Recipe 2: Salsa", summary: "Spicy red salsa", originalTextSnippet: "Tomatoes and chilies..." },
+      { index: 2, title: "Mock Recipe 3: Guacamole", summary: "Creamy avocado dip", originalTextSnippet: "Mash avocados..." },
+    ];
+    setCandidates(mockCandidates);
+    setStep('selection');
+  };
+
+  const handleSelectCandidate = async (candidate: RecipeCandidate) => {
+    const newBatchItems: BatchItem[] = [{
+      candidate,
+      status: 'pending',
+      recipe: null
+    }];
+    setBatchItems(newBatchItems);
+    
+    setIsLoading(true);
+    setLoadingMessage(`Extracting ${candidate.title}...`);
+    
+    try {
+      const recipe = await fetchRecipe(candidate);
+      newBatchItems[0].status = 'ready';
+      newBatchItems[0].recipe = recipe;
+      
+      setBatchItems(newBatchItems);
+      setActiveBatchIndex(0);
+      setStagingRecipe(recipe);
+      setStep('editor');
+    } catch (error: any) {
+      console.error(error);
+      alert('Failed to extract recipe');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleCandidateSelection = (index: number) => {
+    const newSet = new Set(selectedCandidateIndices);
+    if (newSet.has(index)) {
+      newSet.delete(index);
+    } else {
+      newSet.add(index);
+    }
+    setSelectedCandidateIndices(newSet);
+  };
+
+  const handleManualStart = () => {
+    const blankRecipe: StagingRecipe = {
+      id: crypto.randomUUID(),
+      title: 'Untitled Recipe',
+      ingredients: [],
+      steps: [],
+      chefs_notes: [],
+      original_yield_servings: 4, // Default
+    };
+
+    const manualItem: BatchItem = {
+      candidate: { 
+        title: 'Manual Entry', 
+        index: 0, 
+        summary: 'Created manually',
+        originalTextSnippet: '' 
+      },
+      status: 'ready',
+      recipe: blankRecipe
+    };
+
+    setBatchItems([manualItem]);
+    setActiveBatchIndex(0);
+    setStagingRecipe(blankRecipe);
+    setIsSourceTextVisible(false); // No source text for manual entry
+    setStep('editor');
+  };
+
+  const handleApprove = async () => {
+    if (!stagingRecipe) return;
+    
+    setBatchItems(prev => prev.map((item, idx) => 
+      idx === activeBatchIndex ? { ...item, status: 'saving' } : item
+    ));
+    
+    try {
+      const res = await fetch('/api/recipes/create', {
+        method: 'POST',
+        body: JSON.stringify({ stagingRecipe }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      
+      setBatchItems(prev => prev.map((item, idx) => 
+        idx === activeBatchIndex ? { ...item, status: 'saved' } : item
+      ));
+      
+      const nextIndex = activeBatchIndex + 1;
+      if (nextIndex < batchItems.length) {
+        loadBatchItem(nextIndex);
+      } else {
+        if (batchItems.length === 1) {
+          router.push(`/recipes/${data.recipeId}`);
+        } else {
+          router.push(`/recipes/${data.recipeId}`);
+        }
+      }
+      
+    } catch (error: any) {
+      console.error(error);
+      alert(`Failed to save recipe: ${error.message}`);
+      setBatchItems(prev => prev.map((item, idx) => 
+        idx === activeBatchIndex ? { ...item, status: 'error', error: error.message } : item
+      ));
+    }
+  };
 
   return (
     <div>
@@ -147,8 +392,6 @@ export default function StagingFlow() {
       {step === 'input' && (
         <div className="ingest-panel">
           <div className="ingest-card">
-            {/* Always show loading state if we are here, because we redirect otherwise */}
-            {/* If we are waiting for auto-submit, we show loading too */}
             <div className="ingest-loading-grid">
               <div className="ingest-loading-main card">
                 <div>
