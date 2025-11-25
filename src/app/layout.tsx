@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono, Nunito } from 'next/font/google';
 import './globals.css';
 
-import IdleDumplingManager from '@/components/IdleDumplingManager';
+
 import NavBar from '@/components/NavBar';
 import { ChiliProvider } from '@/context/ChiliContext';
 
@@ -24,7 +24,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${jetbrains.variable} ${nunito.variable}`}>
         <ChiliProvider>
-          <IdleDumplingManager />
+
           <div className="app-shell">
             <NavBar />
             <main className="container main-content">

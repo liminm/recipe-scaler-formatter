@@ -1496,12 +1496,6 @@ body.chili-mode .nav-link.active {
   box-shadow: 0 8px 16px rgba(232, 149, 111, 0.18);
 }
 
-.home-card-tags {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-}
-
 .home-card-actions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
