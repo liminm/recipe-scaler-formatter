@@ -446,7 +446,7 @@ Mash avocados...
                   </button>
                 </div>
               </div>
-              
+
               <div className="selection-grid">
                 {candidates.map((c) => {
                   const isSelected = selectedCandidateIndices.has(c.index);
@@ -458,10 +458,9 @@ Mash avocados...
                     >
                       <div className="selection-card-head">
                         <div>
-                          <div className="selection-badge">Candidate</div>
                           <h3 className="mb-0">{c.title}</h3>
                         </div>
-                        <div className={`selection-check ${isSelected ? 'checked' : ''}`}>
+                        <div className={`selection-check ${isSelected ? 'checked' : ''}`} aria-hidden>
                           {isSelected ? '✔' : ''}
                         </div>
                       </div>
@@ -472,23 +471,6 @@ Mash avocados...
                     </button>
                   );
                 })}
-              </div>
-              
-              <div className="selection-footer">
-                <button 
-                  className="btn"
-                  onClick={() => setStep('input')}
-                >
-                  ← Back
-                </button>
-                
-                <button
-                  className="btn btn-primary"
-                  disabled={selectedCandidateIndices.size === 0}
-                  onClick={handleBatchImport}
-                >
-                  Import Selected ({selectedCandidateIndices.size})
-                </button>
               </div>
               
             </>

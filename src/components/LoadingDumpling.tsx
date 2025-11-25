@@ -33,10 +33,10 @@ export default function LoadingDumpling({ message, size = 'medium' }: LoadingDum
   ];
 
   const dumplingAnimations = [
-    'anim-dumpling-steam-rise', 'anim-dumpling-pot-bobble', 'anim-dumpling-chopstick-squeeze',
-    'anim-dumpling-rolling-dough', 'anim-dumpling-soy-dip', 'anim-dumpling-happy-hop',
-    'anim-dumpling-pleat-pulse', 'anim-dumpling-plate-slide', 'anim-dumpling-tummy-rub',
-    'anim-dumpling-fresh-fold'
+    'anim-dumpling-bounce-walk',
+    'anim-dumpling-excited-hop',
+    'anim-dumpling-walk',
+    'anim-dumpling-tumble'
   ];
 
   useEffect(() => {
