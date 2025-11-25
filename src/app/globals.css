@@ -312,6 +312,10 @@ body.chili-mode .nav-link.active {
   padding-bottom: 5rem;
 }
 
+.main-content > :first-child {
+  margin-top: 1rem;
+}
+
 .footer {
   border-top: 2px solid var(--color-border);
   padding: 2rem;
@@ -1144,7 +1148,6 @@ body.chili-mode .nav-link.active {
   justify-content: center;
   padding: 2.75rem 2rem;
   border-radius: 1.5rem;
-  margin-top: 1rem;
   border: 1px solid var(--color-border);
   background: radial-gradient(circle at 18% 15%, rgba(232, 149, 111, 0.16), rgba(255, 255, 255, 0.95)),
     radial-gradient(circle at 90% 10%, rgba(212, 165, 116, 0.14), rgba(255, 255, 255, 0.96));
@@ -1767,7 +1770,6 @@ body.chili-mode .nav-link.active {
 @media (max-width: 960px) {
   .home-hero {
     padding: 2rem 1.25rem;
-    margin-top: 0.75rem;
   }
 
   .home-grid {
@@ -1830,7 +1832,6 @@ body.chili-mode .nav-link.active {
 @media (max-width: 640px) {
   .home-hero {
     padding: 1.6rem 1rem;
-    margin-top: 0.5rem;
   }
 
   .hero-search {
