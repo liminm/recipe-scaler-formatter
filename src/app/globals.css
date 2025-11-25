@@ -1442,6 +1442,37 @@ body.chili-mode .nav-link.active {
   box-shadow: 0 12px 28px rgba(61, 40, 23, 0.08);
 }
 
+.hero-manual {
+  margin-top: 0.9rem;
+  display: flex;
+  justify-content: center;
+}
+
+.hero-manual-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 0.85rem;
+  border: 1px dashed var(--color-border);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.hero-manual-link:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: 0 8px 18px rgba(232, 149, 111, 0.16);
+  transform: translateY(-1px);
+}
+
+.manual-icon {
+  font-size: 1rem;
+}
+
 .panel-foot {
   display: flex;
   gap: 0.5rem;
@@ -2002,6 +2033,10 @@ body.chili-mode .nav-link.active {
 
   .hero-search {
     grid-template-columns: 1fr;
+  }
+
+  .hero-manual {
+    margin-top: 0.65rem;
   }
 
   .topbar-content {

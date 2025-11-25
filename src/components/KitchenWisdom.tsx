@@ -170,6 +170,7 @@ export default function KitchenWisdom() {
           pointer-events: none;
           animation: bounce 2s infinite;
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          transform: rotate(-5deg);
         }
 
         .wisdom-content {
@@ -201,8 +202,8 @@ export default function KitchenWisdom() {
         }
 
         @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
+          0%, 100% { transform: translateY(0) rotate(-5deg); }
+          50% { transform: translateY(-5px) rotate(-5deg); }
         }
 
         .fade-in {
@@ -210,8 +211,8 @@ export default function KitchenWisdom() {
         }
 
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(5px) translateX(-50%); }
-          to { opacity: 1; transform: translateY(0) translateX(-50%); }
+          from { opacity: 0; transform: translateY(5px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>

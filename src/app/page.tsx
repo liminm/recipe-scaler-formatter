@@ -46,13 +46,10 @@ export default function Home() {
             </button>
           </form>
 
-          <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
-            <Link 
-              href="/staging?mode=manual" 
-              className="text-muted hover:text-primary transition-colors"
-              style={{ fontSize: '0.9rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
-            >
-              <span>✍️</span> Write manually
+          <div className="hero-manual">
+            <Link href="/staging?mode=manual" className="hero-manual-link">
+              <span className="manual-icon">✍️</span>
+              <span>Write manually</span>
             </Link>
           </div>
         </div>
