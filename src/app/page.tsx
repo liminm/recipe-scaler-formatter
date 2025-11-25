@@ -33,41 +33,41 @@ const highlights = [
 export default function Home() {
   return (
     <div className="dashboard">
-      <section className="dash-hero">
-        <div>
-          <p className="eyebrow">Operator view</p>
-          <h1 className="dash-title">Dashboard</h1>
-          <p className="text-muted dash-subtitle">
-            A production engine for scaling recipes to feed large groups. Manage events, build menus, and handle
-            constraints like equipment limits and dietary requirements.
+      <section className="dash-hero" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '4rem 2rem' }}>
+        <div style={{ maxWidth: '600px', width: '100%' }}>
+          <p className="eyebrow" style={{ justifyContent: 'center' }}>Operator view</p>
+          <h1 className="dash-title" style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>What are we cooking?</h1>
+          <p className="text-muted dash-subtitle" style={{ marginBottom: '2rem' }}>
+            Scale recipes, build menus, and feed the crowd.
           </p>
-          <div className="dash-actions">
-            <Link href="/staging" className="btn btn-primary">
-              Ingest a Recipe
-            </Link>
+          
+          {/* Quick Ingest Form */}
+          <form 
+            action="/staging" 
+            method="GET"
+            className="card"
+            style={{ padding: '0.5rem', display: 'flex', gap: '0.5rem', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+          >
+            <input 
+              type="text" 
+              name="q" 
+              placeholder="Paste recipe URL or text..." 
+              className="input-field"
+              style={{ flex: 1, border: 'none', fontSize: '1.1rem', padding: '0.75rem' }}
+              autoFocus
+            />
+            <button type="submit" className="btn btn-primary" style={{ padding: '0 1.5rem' }}>
+              Analyze
+            </button>
+          </form>
+
+          <div className="dash-actions" style={{ justifyContent: 'center', marginTop: '1.5rem' }}>
             <Link href="/events" className="btn btn-secondary">
               View Events
             </Link>
-          </div>
-        </div>
-        <div className="dash-highlight">
-          <div>
-            <p className="text-muted" style={{ marginBottom: '0.25rem' }}>
-              Confidence
-            </p>
-            <div className="pill pill-strong">99.9% ingredient coverage</div>
-          </div>
-          <div>
-            <p className="text-muted" style={{ marginBottom: '0.25rem' }}>
-              Latest ingest
-            </p>
-            <div className="pill">Just now</div>
-          </div>
-          <div>
-            <p className="text-muted" style={{ marginBottom: '0.25rem' }}>
-              System status
-            </p>
-            <div className="pill pill-success">Online</div>
+            <Link href="/recipes" className="btn btn-secondary">
+              Browse Library
+            </Link>
           </div>
         </div>
       </section>

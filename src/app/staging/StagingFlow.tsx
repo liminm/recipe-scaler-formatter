@@ -30,6 +30,33 @@ export default function StagingFlow() {
   // Source text visibility toggle
   const [isSourceTextVisible, setIsSourceTextVisible] = useState(true);
 
+  // Handle Quick Ingest from Home Screen
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get('q');
+    if (query) {
+      setInputValue(query);
+      // Determine mode
+      if (query.startsWith('http')) {
+        setInputMode('url');
+      } else {
+        setInputMode('text');
+      }
+      
+      // Auto-submit after a brief delay to ensure state is set
+      // We use a flag to prevent double submission if strict mode is on
+      if (!isLoading && step === 'input') {
+          // We need to call handleSubmit, but it depends on state that might not be updated yet in this closure.
+          // Better to set a "shouldSubmit" flag or just call the logic directly.
+          // For simplicity, let's just trigger it via a timeout to let the state settle.
+          setTimeout(() => {
+             const submitBtn = document.getElementById('ingest-submit-btn');
+             if (submitBtn) submitBtn.click();
+          }, 100);
+      }
+    }
+  }, []); // Run once on mount
+
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
@@ -395,12 +422,21 @@ Mash avocados...
                 </div>
 
                 <div className="ingest-actions">
-                  <button
-                    className="btn btn-primary w-full"
+                  <button 
+                    id="ingest-submit-btn"
                     onClick={inputMode === 'manual' ? handleManualStart : handleSubmit}
-                    disabled={inputMode !== 'manual' && !inputValue.trim()}
+                    disabled={isLoading || (inputMode !== 'manual' && !inputValue.trim())}
+                    className="btn btn-primary w-full"
+                    style={{ padding: '1rem', fontSize: '1.1rem' }}
                   >
-                    {inputMode === 'url' ? 'Analyze URL' : inputMode === 'text' ? 'Analyze Text' : 'Start Writing'}
+                    {isLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <LoadingDumpling /> Analyzing...
+                      </span>
+                    ) : (
+                      inputMode === 'manual' ? 'Start Writing' : 
+                      inputMode === 'url' ? 'Analyze URL' : 'Analyze Text'
+                    )}
                   </button>
                   {isChiliMode && (
                     <button className="btn btn-secondary w-full" onClick={handleMockSplit} style={{ borderStyle: 'dashed' }}>
