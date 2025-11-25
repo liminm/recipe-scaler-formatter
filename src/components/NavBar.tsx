@@ -8,7 +8,6 @@ import { useChili } from '@/context/ChiliContext';
 const links = [
   { href: '/events', label: 'Events' },
   { href: '/recipes', label: 'Recipes' },
-  { href: '/staging', label: '+ Ingest' },
 ];
 
 export default function NavBar() {
