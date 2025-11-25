@@ -29,6 +29,7 @@ export default function StagingFlow() {
   
   // Source text visibility toggle
   const [isSourceTextVisible, setIsSourceTextVisible] = useState(true);
+  const [shouldAutoSubmit, setShouldAutoSubmit] = useState(false);
 
   // Handle Quick Ingest from Home Screen
   useEffect(() => {
@@ -73,13 +74,8 @@ export default function StagingFlow() {
         setInputMode('text');
       }
       
-      // Auto-submit after a brief delay to ensure state is set
-      if (!isLoading && step === 'input') {
-          setTimeout(() => {
-             const submitBtn = document.getElementById('ingest-submit-btn');
-             if (submitBtn) submitBtn.click();
-          }, 100);
-      }
+      // Trigger auto-submit
+      setShouldAutoSubmit(true);
     }
   }, []); // Run once on mount
 
@@ -115,6 +111,14 @@ export default function StagingFlow() {
       setIsLoading(false);
     }
   };
+
+  // Auto-submit effect
+  useEffect(() => {
+    if (shouldAutoSubmit && inputValue && !isLoading && step === 'input') {
+      handleSubmit();
+      setShouldAutoSubmit(false);
+    }
+  }, [shouldAutoSubmit, inputValue, isLoading, step]);
   
   // Multi-import state
   const [selectedCandidateIndices, setSelectedCandidateIndices] = useState<Set<number>>(new Set());
