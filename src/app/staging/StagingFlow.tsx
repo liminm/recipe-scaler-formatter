@@ -34,7 +34,37 @@ export default function StagingFlow() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const query = params.get('q');
-    if (query) {
+    const mode = params.get('mode');
+
+    if (mode === 'manual') {
+      setInputMode('manual');
+      // Auto-start manual mode
+      const blankRecipe: StagingRecipe = {
+        id: crypto.randomUUID(),
+        title: 'Untitled Recipe',
+        ingredients: [],
+        steps: [],
+        chefs_notes: [],
+        original_yield_servings: 4,
+      };
+      
+      const manualItem: BatchItem = {
+        candidate: { 
+          title: 'Manual Entry', 
+          index: 0, 
+          summary: 'Created manually',
+          originalTextSnippet: '' 
+        },
+        status: 'ready',
+        recipe: blankRecipe
+      };
+
+      setBatchItems([manualItem]);
+      setActiveBatchIndex(0);
+      setStagingRecipe(blankRecipe);
+      setIsSourceTextVisible(false);
+      setStep('editor');
+    } else if (query) {
       setInputValue(query);
       // Determine mode
       if (query.startsWith('http')) {
@@ -44,11 +74,7 @@ export default function StagingFlow() {
       }
       
       // Auto-submit after a brief delay to ensure state is set
-      // We use a flag to prevent double submission if strict mode is on
       if (!isLoading && step === 'input') {
-          // We need to call handleSubmit, but it depends on state that might not be updated yet in this closure.
-          // Better to set a "shouldSubmit" flag or just call the logic directly.
-          // For simplicity, let's just trigger it via a timeout to let the state settle.
           setTimeout(() => {
              const submitBtn = document.getElementById('ingest-submit-btn');
              if (submitBtn) submitBtn.click();
