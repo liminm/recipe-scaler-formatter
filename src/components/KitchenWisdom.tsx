@@ -15,7 +15,16 @@ export default function KitchenWisdom() {
   const [joke, setJoke] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const mascotImage = isChiliMode ? '/chili.png' : '/dumpling-logo.png';
+  // Determine mascot image
+  let mascotImage = isChiliMode ? '/chili.png' : '/dumpling-logo.png';
+  
+  if (!isChiliMode) {
+    if (joke) {
+      mascotImage = '/dumpling-laugh.png';
+    } else if (isHovered) {
+      mascotImage = '/dumpling-wink.png';
+    }
+  }
 
   const idleMessages = [
     'I have secrets... 🤫',
