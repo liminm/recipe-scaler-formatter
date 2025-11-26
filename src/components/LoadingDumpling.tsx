@@ -5,6 +5,8 @@ import { useChili } from '@/context/ChiliContext';
 import { DUMPLING_JOKES } from '@/data/dumplingJokes';
 import { CHILI_JOKES } from '@/data/chiliJokes';
 
+import { getNextJoke } from '@/services/jokes';
+
 interface LoadingDumplingProps {
   message?: string;
   size?: 'small' | 'medium' | 'large';
@@ -43,7 +45,7 @@ export default function LoadingDumpling({ message, size = 'medium' }: LoadingDum
     setMounted(true);
     
     const pool = isChiliMode ? CHILI_JOKES : DUMPLING_JOKES;
-    setJoke(pool[Math.floor(Math.random() * pool.length)]);
+    setJoke(getNextJoke(pool));
 
     // Initial animation
     const anims = isChiliMode ? chiliAnimations : dumplingAnimations;
@@ -52,7 +54,7 @@ export default function LoadingDumpling({ message, size = 'medium' }: LoadingDum
     // Cycle jokes every 10 seconds
     const jokeInterval = setInterval(() => {
       const nextPool = isChiliMode ? CHILI_JOKES : DUMPLING_JOKES;
-      setJoke(nextPool[Math.floor(Math.random() * nextPool.length)]);
+      setJoke(getNextJoke(nextPool));
     }, 10000);
 
     // Cycle animations every 4 seconds

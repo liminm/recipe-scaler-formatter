@@ -5,6 +5,8 @@ import { useChili } from '@/context/ChiliContext';
 import { DUMPLING_JOKES } from '@/data/dumplingJokes';
 import { CHILI_JOKES } from '@/data/chiliJokes';
 
+import { getNextJoke } from '@/services/jokes';
+
 export default function KitchenWisdom() {
   const { isChiliMode } = useChili();
   const [hoverMessage, setHoverMessage] = useState('');
@@ -89,7 +91,7 @@ export default function KitchenWisdom() {
     // Play animation for a bit, then show joke
     setTimeout(() => {
       const pool = isChiliMode ? CHILI_JOKES : DUMPLING_JOKES;
-      const randomJoke = pool[Math.floor(Math.random() * pool.length)];
+      const randomJoke = getNextJoke(pool);
       setJoke(randomJoke);
       setIsAnimating(false);
     }, 800);
@@ -109,7 +111,15 @@ export default function KitchenWisdom() {
         </div>
       </div>
 
-      <div className="wisdom-body" style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="wisdom-body" style={{ 
+        width: '100%', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        padding: '1.5rem 0',
+        minHeight: '200px'
+      }}>
         <div 
           className={`wisdom-mascot ${isAnimating ? 'anim-shake' : ''}`}
           onClick={handleCrackOpen}
