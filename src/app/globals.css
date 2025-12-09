@@ -3451,9 +3451,11 @@ body.chili-mode .nav-link.active {
     font-size: 0.85rem !important;
   }
 
-  /* === Hide Kitchen Wisdom on Mobile === */
+  /* === Kitchen Wisdom on Mobile - Compact === */
   .kitchen-wisdom-card {
-    display: none !important;
+    display: block !important;
+    padding: 0.75rem !important;
+    font-size: 0.85rem !important;
   }
 
   /* === General Compact Styles === */
