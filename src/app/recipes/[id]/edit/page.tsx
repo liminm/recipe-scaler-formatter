@@ -36,7 +36,6 @@ export default function EditRecipePage() {
           title: recipe.title,
           summary: recipe.summary || '',
           source_url: recipe.source_url || '',
-          original_yield_servings: recipe.original_yield_servings || undefined,
           chefs_notes: recipe.chefs_notes || [],
           estimated_final_weight_g: recipe.estimated_final_weight_g || undefined,
           yield_confidence: recipe.yield_confidence,
@@ -54,7 +53,8 @@ export default function EditRecipePage() {
             is_discrete: ing.is_discrete || false,
             dependency_role: ing.dependency_role || 'PASSENGER',
             density_confidence: ing.density_confidence || 'high',
-            needs_review: false
+            needs_review: false,
+            is_to_taste: ing.is_to_taste || false
           })),
           
           steps: steps.map((step: any) => ({
@@ -85,7 +85,6 @@ export default function EditRecipePage() {
           title: updatedRecipe.title,
           summary: updatedRecipe.summary,
           source_url: updatedRecipe.source_url,
-          original_yield_servings: updatedRecipe.original_yield_servings,
           chefs_notes: updatedRecipe.chefs_notes,
           estimated_final_weight_g: updatedRecipe.estimated_final_weight_g,
           yield_confidence: updatedRecipe.yield_confidence

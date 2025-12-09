@@ -5,6 +5,7 @@ import './globals.css';
 
 import NavBar from '@/components/NavBar';
 import { ChiliProvider } from '@/context/ChiliContext';
+import ModelSettings from '@/components/ModelSettings';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
@@ -33,6 +34,7 @@ export default function RootLayout({
             <footer className="footer">
               <p>Dumpling Maker &copy; 2025</p>
             </footer>
+            <ModelSettings />
           </div>
         </ChiliProvider>
       </body>

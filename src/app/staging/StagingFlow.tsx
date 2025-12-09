@@ -8,6 +8,7 @@ import LoadingDumpling from '@/components/LoadingDumpling';
 import { estimateYield } from '@/services/ingestion/yieldCalculator';
 import { useChili } from '@/context/ChiliContext';
 import RecipeEditor from '@/components/RecipeEditor';
+import ScaleView from '@/components/ScaleView';
 
 interface BatchItem {
   candidate: RecipeCandidate;
@@ -24,7 +25,7 @@ export default function StagingFlow() {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [candidates, setCandidates] = useState<RecipeCandidate[]>([]);
-  const [step, setStep] = useState<'input' | 'selection' | 'editor'>('input');
+  const [step, setStep] = useState<'input' | 'selection' | 'editor' | 'scale'>('input');
   const [stagingRecipe, setStagingRecipe] = useState<StagingRecipe | null>(null);
   
   // Source text visibility toggle
@@ -54,7 +55,6 @@ export default function StagingFlow() {
         ingredients: [],
         steps: [],
         chefs_notes: [],
-        original_yield_servings: 4,
       };
       
       const manualItem: BatchItem = {
@@ -331,7 +331,6 @@ Mash avocados...
       ingredients: [],
       steps: [],
       chefs_notes: [],
-      original_yield_servings: 4, // Default
     };
 
     const manualItem: BatchItem = {
@@ -560,10 +559,23 @@ Mash avocados...
             <RecipeEditor
               recipe={stagingRecipe}
               onSave={handleApprove}
+              onScaleExport={() => setStep('scale')}
               isSaving={batchItems[activeBatchIndex]?.status === 'saving'}
-              saveLabel="Approve & Save"
+              saveLabel="Save to Library"
             />
           </div>
+        </div>
+      )}
+
+      {step === 'scale' && stagingRecipe && (
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <ScaleView
+            recipe={stagingRecipe}
+            onBack={() => setStep('editor')}
+            onSave={async (recipe) => {
+              await handleApprove();
+            }}
+          />
         </div>
       )}
     </div>

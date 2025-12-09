@@ -28,6 +28,7 @@ export const StagingIngredientSchema = z.object({
     // QA Flags
     density_confidence: z.enum(['high', 'low']).default('high'),
     needs_review: z.boolean().default(false),
+    is_to_taste: z.boolean().default(false), // "to taste" or unquantified garnish
 });
 
 export type StagingIngredient = z.infer<typeof StagingIngredientSchema>;
@@ -48,7 +49,6 @@ export const StagingRecipeSchema = z.object({
     title: z.string().default('Untitled Recipe'),
     summary: z.string().optional(),
     source_url: z.string().optional(),
-    original_yield_servings: z.number().optional(),
 
     ingredients: z.array(StagingIngredientSchema).default([]),
     steps: z.array(StagingStepSchema).default([]),

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { geminiFlash } from '@/lib/gemini';
+import { cookies } from 'next/headers';
+import { getAIModel } from '@/lib/ai/factory';
+import { AIProvider } from '@/lib/ai/types';
 
 export async function POST(request: Request) {
     try {
@@ -27,7 +29,11 @@ export async function POST(request: Request) {
       Output JSON:
     `;
 
-        const { result, modelUsed } = await geminiFlash.generateContent({
+        const cookieStore = await cookies();
+        const provider = (cookieStore.get('ai_provider')?.value || 'gemini') as AIProvider;
+        const model = getAIModel(provider, 'standard');
+
+        const { result, modelUsed } = await model.generateContent({
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
             generationConfig: {
                 responseMimeType: "application/json",
@@ -39,7 +45,12 @@ export async function POST(request: Request) {
 
         let polishedSteps: string[] = [];
         try {
-            polishedSteps = JSON.parse(text);
+            // Strip markdown code fences if present (some LLMs wrap JSON in ```json ... ```)
+            let cleanText = text.trim();
+            if (cleanText.startsWith('```')) {
+                cleanText = cleanText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+            }
+            polishedSteps = JSON.parse(cleanText);
         } catch (e) {
             console.error('Failed to parse Gemini response:', text);
             return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 });

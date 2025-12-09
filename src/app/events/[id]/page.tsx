@@ -9,7 +9,6 @@ import ShoppingList from '@/components/ShoppingList';
 interface Recipe {
   id: string;
   title: string;
-  original_yield_servings?: number;
   estimated_final_weight_g?: number;
   tags?: string[];
 }
@@ -85,7 +84,7 @@ export default function EventDetailPage() {
                   console.error('Failed to load ingredients for', item.base_recipe_id);
                 }
 
-                const baseServings = item.base_recipe?.original_yield_servings || 4;
+                const baseServings = 4; // Default, since we're now weight-based
                 return {
                   recipeId: item.base_recipe_id,
                   title: item.base_recipe?.title || 'Unknown Recipe',
@@ -143,7 +142,7 @@ export default function EventDetailPage() {
       console.error('Failed to fetch recipe details', e);
     }
 
-    const baseServings = recipe.original_yield_servings || 4;
+    const baseServings = 4; // Default, since we're now weight-based
     const newMenuItem: MenuRecipe = {
       recipeId: recipe.id,
       title: recipe.title,
@@ -345,7 +344,6 @@ export default function EventDetailPage() {
                   recipe={{
                     id: selectedItem.recipeId,
                     title: selectedItem.title,
-                    original_yield_servings: selectedItem.baseServings,
                     ingredients: selectedItem.ingredients.map(ing => ({
                       id: crypto.randomUUID(),
                       name_raw: ing.name,
@@ -356,7 +354,8 @@ export default function EventDetailPage() {
                       is_discrete: false,
                       dependency_role: 'PASSENGER',
                       density_confidence: 'high',
-                      needs_review: false
+                      needs_review: false,
+                      is_to_taste: false
                     })),
                     steps: (selectedItem.steps || []).map((step, idx) => ({
                       id: crypto.randomUUID(),
@@ -376,8 +375,7 @@ export default function EventDetailPage() {
                         body: JSON.stringify({
                           title: updatedRecipe.title,
                           ingredients: updatedRecipe.ingredients,
-                          steps: updatedRecipe.steps,
-                          original_yield_servings: updatedRecipe.original_yield_servings
+                          steps: updatedRecipe.steps
                         })
                       });
 
@@ -387,7 +385,7 @@ export default function EventDetailPage() {
                         return {
                           ...m,
                           title: updatedRecipe.title,
-                          baseServings: updatedRecipe.original_yield_servings || m.baseServings,
+                          baseServings: m.baseServings, // Keep existing
                           ingredients: updatedRecipe.ingredients.map(ing => ({
                             name: ing.name_normalized || ing.name_raw,
                             quantity: 0, // Calculated dynamically

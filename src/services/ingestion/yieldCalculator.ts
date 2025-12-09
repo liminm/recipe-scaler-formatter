@@ -1,5 +1,6 @@
 import { StagingIngredient, StagingStep } from '@/types/staging';
-import { geminiFlash } from '@/lib/gemini';
+import { getAIModel } from '@/lib/ai/factory';
+import { AIProvider } from '@/lib/ai/types';
 
 export interface YieldEstimate {
     estimatedFinalWeight_g: number;
@@ -15,9 +16,10 @@ export interface YieldEstimate {
  */
 export async function estimateYield(
     ingredients: StagingIngredient[],
-    steps: StagingStep[]
+    steps: StagingStep[],
+    provider: AIProvider = 'gemini'
 ): Promise<YieldEstimate> {
-    const model = geminiFlash;
+    const model = getAIModel(provider, 'standard');
 
     // Calculate base weight from consumable ingredients
     const consumableIngredients = ingredients.filter(ing =>

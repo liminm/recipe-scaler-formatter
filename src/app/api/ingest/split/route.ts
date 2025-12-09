@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { splitRecipes } from '@/services/ingestion/splitter';
+import { AIProvider } from '@/lib/ai/types';
 
 export async function POST(request: Request) {
     try {
@@ -8,7 +10,10 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Text is required' }, { status: 400 });
         }
 
-        const candidates = await splitRecipes(text);
+        const cookieStore = await cookies();
+        const provider = (cookieStore.get('ai_provider')?.value || 'gemini') as AIProvider;
+
+        const candidates = await splitRecipes(text, provider);
         return NextResponse.json({ candidates });
     } catch (error) {
         console.error('Split API error:', error);

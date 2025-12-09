@@ -1,4 +1,5 @@
-import { geminiPro } from '../../lib/gemini';
+import { getAIModel } from '../../lib/ai/factory';
+import { AIProvider } from '../../lib/ai/types';
 
 export interface RecipeCandidate {
     index: number;
@@ -7,8 +8,8 @@ export interface RecipeCandidate {
     originalTextSnippet: string; // A snippet to help identify it
 }
 
-export async function splitRecipes(rawText: string): Promise<RecipeCandidate[]> {
-    const model = geminiPro;
+export async function splitRecipes(rawText: string, provider: AIProvider = 'gemini'): Promise<RecipeCandidate[]> {
+    const model = getAIModel(provider, 'critical');
 
     // Truncate extremely long text to avoid token limits, though Flash has a large window.
     // 50k chars is usually safe for a few recipes.
