@@ -293,7 +293,7 @@ export default function ScaleView({ recipe, onBack, onSave }: ScaleViewProps) {
       }}>
         <h3 style={{ margin: '0 0 1rem', fontSize: '1rem' }}>Scale To</h3>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }} className="mobile-stack mobile-gap-sm">
           <input
             type="number"
             value={targetServings}
@@ -410,7 +410,7 @@ export default function ScaleView({ recipe, onBack, onSave }: ScaleViewProps) {
           </label>
         )}
         
-        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }} className="mobile-stack mobile-btn-stack">
           <button className="btn" onClick={onBack}>
             ← Back
           </button>

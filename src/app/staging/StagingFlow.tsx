@@ -483,7 +483,7 @@ Mash avocados...
 
       {step === 'editor' && stagingRecipe && (
         <div
-          className="ingest-editor-grid"
+          className="ingest-editor-grid mobile-cols-1"
           style={{
             gridTemplateColumns: batchItems.length > 1
               ? (isSourceTextVisible ? '260px 1fr 1.2fr' : '260px 1fr')

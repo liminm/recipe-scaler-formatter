@@ -116,7 +116,7 @@ export default function RecipesPage() {
             Discover, browse, and reuse every recipe captured across events. All recipes stay in metric with consistent
             ingredient parsing.
           </p>
-          <div className="hero-stats">
+          <div className="hero-stats mobile-cols-2 mobile-gap-sm">
             <div className="stat-card">
               <p className="text-muted">Total recipes</p>
               <strong>{stats.total}</strong>
@@ -151,7 +151,7 @@ export default function RecipesPage() {
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
-        <div className="controls-row">
+        <div className="controls-row mobile-stack mobile-gap-sm">
           <div className="filter-chips">
             <button
               type="button"
@@ -190,7 +190,7 @@ export default function RecipesPage() {
           </div>
         </div>
       ) : (
-        <div className="recipe-grid">
+        <div className="recipe-grid mobile-cols-1">
           {filteredRecipes.map((recipe) => {
             const domain = getDomain(recipe.source_url);
             return (

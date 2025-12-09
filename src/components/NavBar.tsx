@@ -17,6 +17,7 @@ export default function NavBar() {
   const [clickCount, setClickCount] = useState(0);
   const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [animationClass, setAnimationClass] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const lastAnimationRef = useRef<string>('');
 
@@ -79,6 +80,10 @@ export default function NavBar() {
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
+  const handleMobileNavClick = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <nav className={`topbar ${isChiliMode ? 'chili-nav' : ''}`}>
       <div className="container topbar-content">
@@ -134,7 +139,9 @@ export default function NavBar() {
             </div>
           )}
         </Link>
-        <div className="nav-links">
+
+        {/* Desktop Navigation */}
+        <div className="nav-links mobile-hide">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -146,7 +153,89 @@ export default function NavBar() {
             </Link>
           ))}
         </div>
+
+        {/* Mobile Hamburger Button */}
+        <button 
+          className="mobile-show mobile-show-flex mobile-menu-btn touch-target"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle menu"
+          aria-expanded={isMobileMenuOpen}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '0.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '4px',
+          }}
+        >
+          <span style={{ 
+            display: 'block', 
+            width: '24px', 
+            height: '3px', 
+            backgroundColor: 'var(--color-text)',
+            borderRadius: '2px',
+            transition: 'transform 0.2s, opacity 0.2s',
+            transform: isMobileMenuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none'
+          }} />
+          <span style={{ 
+            display: 'block', 
+            width: '24px', 
+            height: '3px', 
+            backgroundColor: 'var(--color-text)',
+            borderRadius: '2px',
+            transition: 'opacity 0.2s',
+            opacity: isMobileMenuOpen ? 0 : 1
+          }} />
+          <span style={{ 
+            display: 'block', 
+            width: '24px', 
+            height: '3px', 
+            backgroundColor: 'var(--color-text)',
+            borderRadius: '2px',
+            transition: 'transform 0.2s, opacity 0.2s',
+            transform: isMobileMenuOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none'
+          }} />
+        </button>
       </div>
+
+      {/* Mobile Dropdown Menu */}
+      {isMobileMenuOpen && (
+        <div 
+          className="mobile-show mobile-show-block mobile-nav-dropdown"
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            backgroundColor: 'var(--color-surface)',
+            borderBottom: '1px solid var(--color-border)',
+            boxShadow: 'var(--shadow-md)',
+            zIndex: 100,
+          }}
+        >
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={handleMobileNavClick}
+              className={`nav-link ${isActive(link.href) ? 'active' : ''}`}
+              style={{
+                display: 'block',
+                padding: '1rem 1.5rem',
+                borderBottom: '1px solid var(--color-border)',
+                fontSize: '1rem',
+              }}
+              aria-current={isActive(link.href) ? 'page' : undefined}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      )}
     </nav>
   );
 }

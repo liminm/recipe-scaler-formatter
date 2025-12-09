@@ -67,7 +67,7 @@ export default function EventsListPage() {
           </div>
         </div>
       ) : (
-        <div className="recipe-grid">
+        <div className="recipe-grid mobile-cols-1">
           {events.map((event) => (
             <Link key={event.id} href={`/events/${event.id}`} className="recipe-card">
               <div className="card-top">

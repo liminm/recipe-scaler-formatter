@@ -440,7 +440,7 @@ export default function RecipeEditor({
 
       {/* ... (orphans warning) ... */}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }} className="mobile-cols-1 mobile-gap-md">
         {/* Ingredients Column */}
         <div>
           <h3 className="mb-4">Ingredients</h3>

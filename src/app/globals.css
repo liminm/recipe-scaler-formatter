@@ -2848,3 +2848,227 @@ body.chili-mode .nav-link.active {
 .anim-dumpling-excited-hop {
   animation: dumpling-excited-hop 1s ease-in-out infinite;
 }
+
+/* ============================================
+   MOBILE RESPONSIVE UTILITY CLASSES
+   ============================================ */
+
+/* === Breakpoint Variables === */
+/* Tablet: 768px, Phone: 480px */
+
+/* === Layout Utilities === */
+
+/* Stack children vertically on mobile */
+@media (max-width: 768px) {
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+
+  .mobile-stack>* {
+    width: 100%;
+  }
+}
+
+/* Hide on mobile, show on desktop */
+.mobile-hide {
+  display: initial;
+}
+
+@media (max-width: 768px) {
+  .mobile-hide {
+    display: none !important;
+  }
+}
+
+/* Show on mobile, hide on desktop */
+.mobile-show {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .mobile-show {
+    display: initial !important;
+  }
+
+  .mobile-show.mobile-show-flex {
+    display: flex !important;
+  }
+
+  .mobile-show.mobile-show-block {
+    display: block !important;
+  }
+}
+
+/* Full width on mobile */
+@media (max-width: 768px) {
+  .mobile-full-width {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Center text on mobile */
+@media (max-width: 768px) {
+  .mobile-center {
+    text-align: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* === Grid Utilities === */
+
+/* Single column grid on mobile */
+@media (max-width: 768px) {
+  .mobile-cols-1 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .mobile-cols-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* === Spacing Utilities === */
+
+@media (max-width: 768px) {
+  .mobile-p-0 {
+    padding: 0 !important;
+  }
+
+  .mobile-p-sm {
+    padding: 0.5rem !important;
+  }
+
+  .mobile-p-md {
+    padding: 0.75rem !important;
+  }
+
+  .mobile-px-sm {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  .mobile-py-sm {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  .mobile-gap-sm {
+    gap: 0.5rem !important;
+  }
+
+  .mobile-gap-md {
+    gap: 0.75rem !important;
+  }
+
+  .mobile-mb-sm {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .mobile-mb-md {
+    margin-bottom: 1rem !important;
+  }
+}
+
+/* === Typography Utilities === */
+
+@media (max-width: 768px) {
+  .mobile-text-sm {
+    font-size: 0.875rem !important;
+  }
+
+  .mobile-text-base {
+    font-size: 1rem !important;
+  }
+
+  .mobile-heading-sm h1,
+  h1.mobile-heading-sm {
+    font-size: 1.5rem !important;
+  }
+
+  .mobile-heading-sm h2,
+  h2.mobile-heading-sm {
+    font-size: 1.25rem !important;
+  }
+
+  .mobile-heading-sm h3,
+  h3.mobile-heading-sm {
+    font-size: 1.1rem !important;
+  }
+}
+
+/* === Touch Target Utilities === */
+
+/* Ensure minimum touch target size (44x44px per WCAG) */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@media (max-width: 768px) {
+  .mobile-touch-target {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 0.75rem !important;
+  }
+}
+
+/* === Button Utilities === */
+
+@media (max-width: 768px) {
+  .mobile-btn-stack {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  .mobile-btn-stack>button,
+  .mobile-btn-stack>.btn {
+    width: 100% !important;
+  }
+}
+
+/* === Container Utilities === */
+
+@media (max-width: 768px) {
+  .mobile-container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .mobile-card-compact {
+    padding: 0.75rem !important;
+  }
+}
+
+/* === Overflow Utilities === */
+
+@media (max-width: 768px) {
+  .mobile-overflow-x-auto {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-no-scroll {
+    overflow: hidden !important;
+  }
+}
+
+/* === Specific Phone Breakpoint (480px) === */
+
+@media (max-width: 480px) {
+  .phone-stack {
+    flex-direction: column !important;
+  }
+
+  .phone-full-width {
+    width: 100% !important;
+  }
+
+  .phone-text-sm {
+    font-size: 0.8rem !important;
+  }
+
+  .phone-hide {
+    display: none !important;
+  }
+}
