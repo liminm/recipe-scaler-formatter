@@ -216,15 +216,15 @@ export default function RecipeDetailPage() {
               )}
             </div>
           </div>
-          <div className="hero-actions">
+          <div className="hero-actions mobile-stack mobile-gap-sm">
             <button 
-              className="btn btn-secondary"
+              className="btn btn-secondary touch-target"
               onClick={handleCopyText}
               title="Copy formatted recipe to clipboard"
             >
               {isCopied ? '✅ Copied!' : '📋 Copy as text'}
             </button>
-            <Link href={`/recipes/${recipe.id}/edit`} className="btn btn-primary">
+            <Link href={`/recipes/${recipe.id}/edit`} className="btn btn-primary touch-target">
               Edit recipe
             </Link>
           </div>

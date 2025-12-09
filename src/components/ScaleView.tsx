@@ -410,31 +410,31 @@ export default function ScaleView({ recipe, onBack, onSave }: ScaleViewProps) {
           </label>
         )}
         
-        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }} className="mobile-stack mobile-btn-stack">
-          <button className="btn" onClick={onBack}>
+        <div className="export-actions-grid" style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+          <button className="btn touch-target" onClick={onBack}>
             ← Back
           </button>
           <button 
-            className="btn btn-secondary"
+            className="btn btn-secondary touch-target"
             onClick={handleCopy}
             disabled={isSaving}
           >
             {isCopied ? '✅ Copied!' : '📋 Copy'}
           </button>
           <button 
-            className="btn btn-secondary"
+            className="btn btn-secondary touch-target"
             onClick={handleDownloadText}
           >
             📄 .txt
           </button>
           <button 
-            className="btn btn-secondary"
+            className="btn btn-secondary touch-target"
             onClick={handleDownloadDocx}
           >
             📝 .docx
           </button>
           <button 
-            className="btn btn-primary"
+            className="btn btn-primary touch-target"
             onClick={handlePrint}
           >
             🖨️ Print / PDF

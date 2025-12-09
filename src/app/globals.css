@@ -3211,4 +3211,301 @@ body.chili-mode .nav-link.active {
     padding: 0.5rem 1rem !important;
     font-size: 0.875rem !important;
   }
+
+  /* ============================================
+     MOBILE COMPONENT REDESIGNS
+     ============================================ */
+
+  /* === Staging/Editor Grid Collapse === */
+  .ingest-editor-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    gap: 1rem !important;
+  }
+
+  /* Hide batch sidebar by default on mobile */
+  .ingest-batch-list {
+    display: none !important;
+  }
+
+  /* Mobile batch indicator - floating pill */
+  .mobile-batch-indicator {
+    position: fixed;
+    bottom: 80px;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    background: var(--color-primary);
+    color: white;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(232, 149, 111, 0.4);
+    z-index: 45;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* Mobile batch sheet when open */
+  .ingest-batch-list.mobile-visible {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 70px !important;
+    left: 0.5rem !important;
+    right: 0.5rem !important;
+    max-height: 40vh !important;
+    z-index: 50 !important;
+    border-radius: 1rem !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15) !important;
+    overflow-y: auto !important;
+  }
+
+  /* Source card hidden by default on mobile */
+  .source-card {
+    display: none !important;
+  }
+
+  .source-card.mobile-visible {
+    display: block !important;
+    max-height: 30vh;
+    overflow-y: auto;
+  }
+
+  /* === Recipe Detail Mobile === */
+  .recipe-hero {
+    grid-template-columns: 1fr !important;
+    padding: 1rem !important;
+    gap: 1rem !important;
+  }
+
+  .recipe-hero-title {
+    font-size: 1.5rem !important;
+  }
+
+  .recipe-hero-panel {
+    align-items: stretch !important;
+  }
+
+  .recipe-body {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .recipe-meta-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+  }
+
+  .meta-card {
+    padding: 0.75rem !important;
+  }
+
+  .meta-value {
+    font-size: 1.1rem !important;
+  }
+
+  /* === Event Layout Mobile === */
+  .event-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .event-panel {
+    padding: 0.75rem !important;
+  }
+
+  /* === Selection Grid Mobile === */
+  .selection-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+  }
+
+  .selection-card {
+    padding: 0.75rem !important;
+  }
+
+  .selection-head {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+  }
+
+  .selection-actions {
+    width: 100%;
+  }
+
+  .selection-actions .btn {
+    flex: 1;
+  }
+
+  /* === Bottom Action Bar Pattern === */
+  .mobile-action-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem 1rem;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 40;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .mobile-action-bar .btn {
+    flex: 1;
+    padding: 0.875rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* Add bottom padding to main content when action bar present */
+  .has-mobile-action-bar {
+    padding-bottom: 80px !important;
+  }
+
+  /* === Collapsible Section Pattern === */
+  .mobile-collapsible-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: var(--color-surface-hover);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+  }
+
+  .mobile-collapsible-header h2,
+  .mobile-collapsible-header h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .mobile-collapsible-toggle {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: var(--color-text-muted);
+  }
+
+  .mobile-collapsible-content {
+    display: none;
+  }
+
+  .mobile-collapsible-content.expanded {
+    display: block;
+  }
+
+  /* === Ingredient/Step Items Touch Optimization === */
+  .ingredient-item {
+    padding: 1rem !important;
+    min-height: 60px;
+  }
+
+  .step-item {
+    gap: 0.5rem !important;
+  }
+
+  .step-content {
+    padding: 0.75rem !important;
+  }
+
+  /* === Form Touch Targets === */
+  .input-field {
+    min-height: 44px !important;
+  }
+
+  textarea.input-field {
+    min-height: 88px !important;
+  }
+
+  /* === Export Actions Grid === */
+  .export-actions-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+
+  .export-actions-grid .btn {
+    padding: 0.75rem 0.5rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* === Scale Controls Mobile === */
+  .scale-controls {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+
+  .scale-input-group {
+    width: 100% !important;
+  }
+
+  /* === Tab Navigation for Events === */
+  .mobile-tab-bar {
+    display: flex;
+    gap: 0;
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    padding: 0.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .mobile-tab {
+    flex: 1;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .mobile-tab.active {
+    background: var(--color-primary);
+    color: white;
+    box-shadow: 0 2px 8px rgba(232, 149, 111, 0.3);
+  }
+
+  .mobile-tab-panel {
+    display: none;
+  }
+
+  .mobile-tab-panel.active {
+    display: block;
+  }
+}
+
+/* Phone-specific refinements */
+@media (max-width: 480px) {
+  .recipe-meta-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hero-actions {
+    flex-direction: column !important;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+  }
+
+  .mobile-batch-indicator {
+    bottom: 75px;
+    right: 0.75rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
 }

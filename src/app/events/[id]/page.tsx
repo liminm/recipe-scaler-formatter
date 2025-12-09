@@ -47,6 +47,7 @@ export default function EventDetailPage() {
   const [libraryRecipes, setLibraryRecipes] = useState<Recipe[]>([]);
   const [selectedMenuId, setSelectedMenuId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [mobileActiveTab, setMobileActiveTab] = useState<'menu' | 'recipe' | 'shopping'>('menu');
 
   useEffect(() => {
     async function loadEventAndRecipes() {
@@ -247,8 +248,30 @@ export default function EventDetailPage() {
         isSaving={false}
       />
 
+      {/* Mobile Tab Navigation */}
+      <div className="mobile-tab-bar mobile-show">
+        <button 
+          className={`mobile-tab ${mobileActiveTab === 'menu' ? 'active' : ''}`}
+          onClick={() => setMobileActiveTab('menu')}
+        >
+          📝 Menu
+        </button>
+        <button 
+          className={`mobile-tab ${mobileActiveTab === 'recipe' ? 'active' : ''}`}
+          onClick={() => setMobileActiveTab('recipe')}
+        >
+          🍳 Recipe
+        </button>
+        <button 
+          className={`mobile-tab ${mobileActiveTab === 'shopping' ? 'active' : ''}`}
+          onClick={() => setMobileActiveTab('shopping')}
+        >
+          🛒 Shopping
+        </button>
+      </div>
+
       <div className="event-layout">
-        <div className="event-panel">
+        <div className={`event-panel mobile-tab-panel ${mobileActiveTab === 'menu' ? 'active' : ''}`}>
           <div className="ingest-section-head">
             <div>
               <p className="eyebrow">Menu</p>
@@ -290,7 +313,7 @@ export default function EventDetailPage() {
           </div>
         </div>
 
-        <div className="event-panel recipe-panel">
+        <div className={`event-panel recipe-panel mobile-tab-panel ${mobileActiveTab === 'recipe' ? 'active' : ''}`}>
           {selectedItem ? (
             <>
               <div className="recipe-header">
@@ -433,7 +456,9 @@ export default function EventDetailPage() {
           )}
         </div>
 
-        <ShoppingList ingredients={aggregatedIngredients} />
+        <div className={`mobile-tab-panel ${mobileActiveTab === 'shopping' ? 'active' : ''}`}>
+          <ShoppingList ingredients={aggregatedIngredients} />
+        </div>
       </div>
     </div>
   );

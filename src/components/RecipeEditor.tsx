@@ -401,15 +401,15 @@ export default function RecipeEditor({
   };
 
   return (
-    <div className="card">
+    <div className="card has-mobile-action-bar">
       {/* ... (confirmation dialog) ... */}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <div style={{ flex: 1, marginRight: '2rem' }}>
+      <div className="mobile-stack mobile-gap-md" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <div style={{ flex: 1, marginRight: '2rem' }} className="mobile-full-width">
           {/* ... (title input) ... */}
           
           {/* Metadata Fields */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div className="mobile-cols-1 mobile-gap-sm" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <div>
               <label className="text-muted" style={{ display: 'block', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Total Weight</label>
               <div className="input-field" style={{ background: '#f5f5f5', color: '#666' }}>
@@ -536,7 +536,7 @@ export default function RecipeEditor({
                   ingredients: [...recipe.ingredients, newIngredient]
                 });
               }}
-              className="btn btn-secondary w-full"
+              className="btn btn-secondary w-full touch-target"
               style={{ borderStyle: 'dashed' }}
             >
               + Add Ingredient
@@ -585,7 +585,7 @@ export default function RecipeEditor({
               </div>
             ))}
             <button 
-              className="btn" 
+              className="btn touch-target" 
               style={{ borderStyle: 'dashed' }}
               onClick={() => {
                 setRecipe({
@@ -654,10 +654,11 @@ export default function RecipeEditor({
         </div>
       </div>
       
-      <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+      {/* Desktop Footer Actions */}
+      <div className="mobile-hide" style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
           <div>
             <button 
-              className="btn btn-secondary" 
+              className="btn btn-secondary touch-target" 
               onClick={handleCopyText}
               title="Copy formatted recipe to clipboard"
             >
@@ -666,11 +667,11 @@ export default function RecipeEditor({
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             {onCancel && (
-              <button className="btn" onClick={onCancel}>Cancel</button>
+              <button className="btn touch-target" onClick={onCancel}>Cancel</button>
             )}
             {onScaleExport && (
               <button 
-                className="btn btn-secondary" 
+                className="btn btn-secondary touch-target" 
                 onClick={onScaleExport}
                 disabled={isSaving || isCalculatingYield}
               >
@@ -678,13 +679,40 @@ export default function RecipeEditor({
               </button>
             )}
             <button 
-              className="btn btn-primary" 
+              className="btn btn-primary touch-target" 
               onClick={() => onSave(recipe)}
               disabled={isSaving || isCalculatingYield}
             >
               {isSaving ? 'Saving...' : isCalculatingYield ? 'Calculating yield...' : saveLabel}
             </button>
           </div>
+      </div>
+
+      {/* Mobile Action Bar */}
+      <div className="mobile-action-bar mobile-show">
+        <button 
+          className="btn btn-secondary touch-target" 
+          onClick={handleCopyText}
+        >
+          {isCopied ? '✅' : '📋'}
+        </button>
+        {onScaleExport && (
+          <button 
+            className="btn btn-secondary touch-target" 
+            onClick={onScaleExport}
+            disabled={isSaving || isCalculatingYield}
+          >
+            ⚖️
+          </button>
+        )}
+        <button 
+          className="btn btn-primary touch-target" 
+          onClick={() => onSave(recipe)}
+          disabled={isSaving || isCalculatingYield}
+          style={{ flex: 2 }}
+        >
+          {isSaving ? 'Saving...' : saveLabel}
+        </button>
       </div>
     </div>
   );

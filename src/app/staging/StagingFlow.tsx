@@ -31,6 +31,7 @@ export default function StagingFlow() {
   // Source text visibility toggle
   const [isSourceTextVisible, setIsSourceTextVisible] = useState(true);
   const [shouldAutoSubmit, setShouldAutoSubmit] = useState(false);
+  const [mobileBatchOpen, setMobileBatchOpen] = useState(false);
 
   const [loadingStage, setLoadingStage] = useState('Initializing...');
 
@@ -491,20 +492,40 @@ Mash avocados...
           }}
         >
           
+          {/* Mobile Batch Indicator */}
+          {batchItems.length > 1 && (
+            <button 
+              className="mobile-batch-indicator mobile-show"
+              onClick={() => setMobileBatchOpen(!mobileBatchOpen)}
+            >
+              {activeBatchIndex + 1} / {batchItems.length}
+            </button>
+          )}
+
           {/* Batch Navigation Sidebar */}
           {batchItems.length > 1 && (
-            <div className="card ingest-batch-list">
+            <div className={`card ingest-batch-list ${mobileBatchOpen ? 'mobile-visible' : ''}`}>
               <div className="ingest-section-head">
                 <div>
                   <p className="eyebrow">Batch ({activeBatchIndex + 1}/{batchItems.length})</p>
                   <h3 style={{ marginBottom: 0 }}>Recipes</h3>
                 </div>
+                <button 
+                  className="mobile-show btn btn-secondary"
+                  onClick={() => setMobileBatchOpen(false)}
+                  style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
+                >
+                  Close
+                </button>
               </div>
               <div className="ingest-batch-items">
                 {batchItems.map((item, idx) => (
                   <button 
                     key={idx}
-                    onClick={() => loadBatchItem(idx)}
+                    onClick={() => {
+                      loadBatchItem(idx);
+                      setMobileBatchOpen(false);
+                    }}
                     className={`ingest-batch-item ${idx === activeBatchIndex ? 'active' : ''} ${item.status}`}
                   >
                     <div className="ingest-batch-title">
