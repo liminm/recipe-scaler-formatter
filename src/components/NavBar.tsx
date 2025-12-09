@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useChili } from '@/context/ChiliContext';
 
 const links = [
-  { href: '/events', label: 'Events' },
-  { href: '/recipes', label: 'Recipes' },
+  { href: '/', label: 'Home', icon: '🏠' },
+  { href: '/events', label: 'Events', icon: '📅' },
+  { href: '/recipes', label: 'Recipes', icon: '📖' },
 ];
 
 export default function NavBar() {
@@ -21,8 +22,25 @@ export default function NavBar() {
 
   const lastAnimationRef = useRef<string>('');
 
+  // Close drawer on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Prevent body scroll when drawer is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
+
   const triggerRandomAnimation = () => {
-    if (animationClass) return; // Don't interrupt existing animation
+    if (animationClass) return;
     
     let animations;
     if (isChiliMode) {
@@ -51,7 +69,7 @@ export default function NavBar() {
   };
 
   const handleLogoClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent ALL navigation by default
+    e.preventDefault();
     triggerRandomAnimation();
 
     if (resetTimerRef.current) {
@@ -71,7 +89,7 @@ export default function NavBar() {
           router.push('/');
         }
         setClickCount(0);
-      }, 400); // 400ms delay to detect multi-clicks
+      }, 400);
     }
   };
 
@@ -84,158 +102,110 @@ export default function NavBar() {
     setIsMobileMenuOpen(false);
   };
 
+  const logoSrc = isChiliMode ? '/chili.png' : '/dumpling-logo.png';
+  const logoAlt = isChiliMode ? 'Chili Dumpling Maker' : 'Dumpling Maker';
+
   return (
-    <nav className={`topbar ${isChiliMode ? 'chili-nav' : ''}`}>
-      <div className="container topbar-content">
-        <Link 
-          href="/" 
-          className="brand" 
-          onClick={handleLogoClick}
-          onMouseEnter={triggerRandomAnimation}
-        >
-          {isChiliMode ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <img 
-                src="/chili.png" 
-                alt="Chili Dumpling Maker" 
-                className={animationClass}
-                onAnimationEnd={() => setAnimationClass('')}
-                style={{ width: '48px', height: '48px', objectFit: 'contain' }} 
-              />
-              <div style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                justifyContent: 'center',
-                lineHeight: 0.9,
-                fontFamily: 'var(--font-nunito)', 
-                fontWeight: 800, 
-                color: '#c0392b' // Using a chili red color for the text in chili mode
-              }}>
-                <span style={{ fontSize: '1.25rem', letterSpacing: '-0.02em' }}>Chili Dumpling</span>
-                <span style={{ fontSize: '1.25rem', letterSpacing: '-0.02em' }}>Maker 🌶️</span>
-              </div>
+    <>
+      <nav className={`topbar mobile-topbar-compact ${isChiliMode ? 'chili-nav' : ''}`}>
+        <div className="container topbar-content">
+          {/* Logo - compact on mobile */}
+          <Link 
+            href="/" 
+            className="brand" 
+            onClick={handleLogoClick}
+            onMouseEnter={triggerRandomAnimation}
+          >
+            <img 
+              src={logoSrc}
+              alt={logoAlt}
+              className={`brand-logo ${animationClass}`}
+              onAnimationEnd={() => setAnimationClass('')}
+            />
+            {/* Brand text - hidden on mobile */}
+            <div className="brand-text-container mobile-hide">
+              {isChiliMode ? (
+                <div className="brand-text brand-text-chili">
+                  <span>Chili Dumpling</span>
+                  <span>Maker 🌶️</span>
+                </div>
+              ) : (
+                <div className="brand-text">
+                  <span>Dumpling</span>
+                  <span>Maker</span>
+                </div>
+              )}
             </div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <img 
-                src="/dumpling-logo.png" 
-                alt="Dumpling Maker" 
-                className={animationClass}
-                onAnimationEnd={() => setAnimationClass('')}
-                style={{ width: '48px', height: '48px', objectFit: 'contain' }} 
-              />
-              <div style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                justifyContent: 'center',
-                lineHeight: 0.9,
-                fontFamily: 'var(--font-nunito)', 
-                fontWeight: 800, 
-                color: '#4a3728' 
-              }}>
-                <span style={{ fontSize: '1.25rem', letterSpacing: '-0.02em' }}>Dumpling</span>
-                <span style={{ fontSize: '1.25rem', letterSpacing: '-0.02em' }}>Maker</span>
-              </div>
-            </div>
-          )}
-        </Link>
+          </Link>
 
-        {/* Desktop Navigation */}
-        <div className="nav-links mobile-hide">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`nav-link ${isActive(link.href) ? 'active' : ''}`}
-              aria-current={isActive(link.href) ? 'page' : undefined}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {/* Desktop Navigation */}
+          <div className="nav-links mobile-hide">
+            {links.filter(l => l.href !== '/').map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`nav-link ${isActive(link.href) ? 'active' : ''}`}
+                aria-current={isActive(link.href) ? 'page' : undefined}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Mobile Hamburger Button - integrated in header */}
+          <button 
+            className="mobile-menu-toggle mobile-show mobile-show-flex"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
+            aria-expanded={isMobileMenuOpen}
+          >
+            <span className={`hamburger-line ${isMobileMenuOpen ? 'open' : ''}`} />
+            <span className={`hamburger-line ${isMobileMenuOpen ? 'open' : ''}`} />
+            <span className={`hamburger-line ${isMobileMenuOpen ? 'open' : ''}`} />
+          </button>
         </div>
+      </nav>
 
-        {/* Mobile Hamburger Button */}
-        <button 
-          className="mobile-show mobile-show-flex mobile-menu-btn touch-target"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Toggle menu"
-          aria-expanded={isMobileMenuOpen}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '0.5rem',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '4px',
-          }}
-        >
-          <span style={{ 
-            display: 'block', 
-            width: '24px', 
-            height: '3px', 
-            backgroundColor: 'var(--color-text)',
-            borderRadius: '2px',
-            transition: 'transform 0.2s, opacity 0.2s',
-            transform: isMobileMenuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none'
-          }} />
-          <span style={{ 
-            display: 'block', 
-            width: '24px', 
-            height: '3px', 
-            backgroundColor: 'var(--color-text)',
-            borderRadius: '2px',
-            transition: 'opacity 0.2s',
-            opacity: isMobileMenuOpen ? 0 : 1
-          }} />
-          <span style={{ 
-            display: 'block', 
-            width: '24px', 
-            height: '3px', 
-            backgroundColor: 'var(--color-text)',
-            borderRadius: '2px',
-            transition: 'transform 0.2s, opacity 0.2s',
-            transform: isMobileMenuOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none'
-          }} />
-        </button>
-      </div>
+      {/* Mobile Drawer Overlay */}
+      <div 
+        className={`mobile-nav-overlay ${isMobileMenuOpen ? 'open' : ''}`}
+        onClick={() => setIsMobileMenuOpen(false)}
+        aria-hidden="true"
+      />
 
-      {/* Mobile Dropdown Menu */}
-      {isMobileMenuOpen && (
-        <div 
-          className="mobile-show mobile-show-block mobile-nav-dropdown"
-          style={{
-            position: 'absolute',
-            top: '100%',
-            left: 0,
-            right: 0,
-            backgroundColor: 'var(--color-surface)',
-            borderBottom: '1px solid var(--color-border)',
-            boxShadow: 'var(--shadow-md)',
-            zIndex: 100,
-          }}
-        >
+      {/* Mobile Slide-in Drawer */}
+      <aside className={`mobile-nav-drawer ${isMobileMenuOpen ? 'open' : ''}`}>
+        <div className="mobile-nav-drawer-header">
+          <div className="mobile-nav-drawer-brand">
+            <img src={logoSrc} alt={logoAlt} className="mobile-nav-drawer-logo" />
+            <span className="mobile-nav-drawer-title">
+              {isChiliMode ? 'Chili Maker' : 'Dumpling Maker'}
+            </span>
+          </div>
+          <button 
+            className="mobile-nav-close"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            ✕
+          </button>
+        </div>
+        
+        <nav className="mobile-nav-drawer-links">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={handleMobileNavClick}
-              className={`nav-link ${isActive(link.href) ? 'active' : ''}`}
-              style={{
-                display: 'block',
-                padding: '1rem 1.5rem',
-                borderBottom: '1px solid var(--color-border)',
-                fontSize: '1rem',
-              }}
+              className={`mobile-nav-drawer-link ${isActive(link.href) ? 'active' : ''}`}
               aria-current={isActive(link.href) ? 'page' : undefined}
             >
-              {link.label}
+              <span className="mobile-nav-drawer-icon">{link.icon}</span>
+              <span>{link.label}</span>
             </Link>
           ))}
-        </div>
-      )}
-    </nav>
+        </nav>
+      </aside>
+    </>
   );
 }

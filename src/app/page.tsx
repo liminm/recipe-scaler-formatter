@@ -6,6 +6,7 @@ const highlights = [
     icon: '📅',
     title: 'Events',
     desc: 'Create cooking sessions with headcount and target mass. Build menus and scale recipes automatically.',
+    mobileDesc: 'Plan group cooking sessions',
     actions: [
       { label: 'View All', href: '/events', variant: 'secondary' },
       { label: 'New Event', href: '/events/new', variant: 'primary' },
@@ -13,8 +14,9 @@ const highlights = [
   },
   {
     icon: '📖',
-    title: 'Recipe Library',
+    title: 'Recipes',
     desc: 'Browse and manage your collection of recipes. All quantities stored in metric for consistent scaling.',
+    mobileDesc: 'Browse your recipe collection',
     actions: [
       { label: 'Browse', href: '/recipes', variant: 'secondary' },
       { label: 'Ingest New', href: '/staging', variant: 'primary' },
@@ -25,23 +27,26 @@ const highlights = [
 export default function Home() {
   return (
     <div className="home">
-      <section className="home-hero">
-        <div className="hero-shell mobile-px-sm">
+      <section className="home-hero mobile-hero-compact">
+        <div className="hero-shell">
 
-          <h1 className="hero-title mobile-heading-sm" style={{ textAlign: 'center' }}>What are we cooking today?</h1>
-          <p className="hero-subtitle mobile-text-sm" style={{ textAlign: 'center' }}>
+          <h1 className="hero-title">
+            <span className="mobile-hide">What are we cooking today?</span>
+            <span className="mobile-show mobile-show-inline">Let&apos;s cook!</span>
+          </h1>
+          <p className="hero-subtitle mobile-hide">
             Scale recipes, build menus, and feed the crowd.
           </p>
 
-          <form action="/staging" method="GET" className="hero-search mobile-stack mobile-gap-sm">
+          <form action="/staging" method="GET" className="hero-search">
             <input
               type="text"
               name="q"
               placeholder="Paste recipe URL or text..."
-              className="input-field hero-input mobile-full-width"
+              className="input-field hero-input"
               autoFocus
             />
-            <button type="submit" className="btn btn-primary hero-submit mobile-full-width touch-target">
+            <button type="submit" className="btn btn-primary hero-submit touch-target">
               Analyze
             </button>
           </form>
@@ -55,22 +60,23 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="home-grid mobile-cols-1 mobile-gap-md mobile-px-sm">
+      <section className="home-grid">
         {highlights.map((card) => (
-          <div key={card.title} className="home-card mobile-card-compact">
-            <div className="home-card-top mobile-stack mobile-gap-sm">
-              <span className="icon-badge">{card.icon}</span>
-              <div>
-                <h2 className="mobile-heading-sm">{card.title}</h2>
-                <p className="text-muted mobile-text-sm">{card.desc}</p>
-              </div>
+          <div key={card.title} className="home-card mobile-card-inline">
+            <span className="icon-badge">{card.icon}</span>
+            <div className="card-body">
+              <h2>{card.title}</h2>
+              {/* Desktop: full description */}
+              <p className="text-muted card-desc mobile-hide">{card.desc}</p>
+              {/* Mobile: short description */}
+              <p className="text-muted card-desc mobile-show mobile-show-block">{card.mobileDesc}</p>
             </div>
-            <div className="home-card-actions mobile-stack mobile-gap-sm">
+            <div className="home-card-actions">
               {card.actions.map((action) => (
                 <Link
                   key={action.label}
                   href={action.href}
-                  className={`btn ${action.variant === 'primary' ? 'btn-primary' : 'btn-secondary'} w-full touch-target`}
+                  className={`btn ${action.variant === 'primary' ? 'btn-primary' : 'btn-secondary'} touch-target`}
                 >
                   {action.label}
                 </Link>
