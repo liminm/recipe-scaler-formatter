@@ -133,3 +133,44 @@ export async function PUT(
         );
     }
 }
+
+export async function DELETE(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params;
+
+        // Delete ingredients first (foreign key constraint)
+        const { error: ingDeleteError } = await supabase
+            .from('ingredients')
+            .delete()
+            .eq('recipe_id', id);
+
+        if (ingDeleteError) throw ingDeleteError;
+
+        // Delete steps
+        const { error: stepDeleteError } = await supabase
+            .from('steps')
+            .delete()
+            .eq('recipe_id', id);
+
+        if (stepDeleteError) throw stepDeleteError;
+
+        // Delete the recipe itself
+        const { error: recipeDeleteError } = await supabase
+            .from('recipes')
+            .delete()
+            .eq('id', id);
+
+        if (recipeDeleteError) throw recipeDeleteError;
+
+        return NextResponse.json({ success: true });
+    } catch (error: any) {
+        console.error('DELETE recipe error:', error);
+        return NextResponse.json(
+            { error: error.message || 'Failed to delete recipe' },
+            { status: 500 }
+        );
+    }
+}

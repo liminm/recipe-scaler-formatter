@@ -105,12 +105,9 @@ export default function RecipesPage() {
 
   return (
     <div className="library-layout">
-      {/* Mobile: Compact inline hero */}
-      <div className="library-hero-inline mobile-show">
-        <div className="hero-left">
-          <h1>Recipes</h1>
-          <span className="hero-count">{stats.total}</span>
-        </div>
+      {/* Mobile: iOS-style large title */}
+      <div className="ios-title-section mobile-show">
+        <h1 className="ios-large-title">Recipes</h1>
         <Link href="/staging" className="btn btn-primary btn-sm">
           + New
         </Link>
@@ -150,14 +147,47 @@ export default function RecipesPage() {
         </div>
       </div>
 
-      <div className="library-controls-row">
+      {/* iOS-style search bar with sort - MOBILE ONLY */}
+      <div className="ios-search-section mobile-show">
+        <div className="ios-controls-row">
+          <div className="ios-search-bar">
+            <span className="search-icon">🔍</span>
+            <input
+              id="recipe-search"
+              className="ios-search-input"
+              placeholder={`Search ${stats.total} recipes`}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+          <div className="ios-segment-control">
+            <button
+              type="button"
+              className={`segment ${sortOrder === 'newest' ? 'active' : ''}`}
+              onClick={() => setSortOrder('newest')}
+            >
+              Newest
+            </button>
+            <button
+              type="button"
+              className={`segment ${sortOrder === 'oldest' ? 'active' : ''}`}
+              onClick={() => setSortOrder('oldest')}
+            >
+              Oldest
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop controls - HIDDEN ON MOBILE */}
+      <div className="library-controls-row mobile-hide">
         <div className="search-wrap">
-          <label htmlFor="recipe-search" className="sr-only">
+          <label htmlFor="recipe-search-desktop" className="sr-only">
             Search recipes
           </label>
           <span className="search-icon">🔍</span>
           <input
-            id="recipe-search"
+            id="recipe-search-desktop"
             className="input-field search-input"
             placeholder="Search..."
             value={query}
@@ -196,26 +226,49 @@ export default function RecipesPage() {
           </div>
         </div>
       ) : (
-        <div className="recipe-grid mobile-cols-1">
-          {filteredRecipes.map((recipe) => {
+        <div className="ios-grouped-list mobile-show">
+          {filteredRecipes.map((recipe, idx) => {
             const domain = getDomain(recipe.source_url);
+            const isLast = idx === filteredRecipes.length - 1;
             return (
-              <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="recipe-card">
-                <div className="card-header">
-                  <h3 className="recipe-card-title">{recipe.title}</h3>
-                  <span className="card-date">{formatDate(recipe.created_at)}</span>
-                </div>
-                {recipe.summary && <p className="recipe-card-summary">{recipe.summary}</p>}
-                {domain && (
-                  <div className="card-footer">
-                    <span className="source-badge">{domain} ↗</span>
+              <Link key={recipe.id} href={`/recipes/${recipe.id}`} className={`ios-list-cell ${isLast ? 'last' : ''}`}>
+                <div className="cell-content">
+                  <div className="cell-main">
+                    <h3 className="cell-title">{recipe.title}</h3>
+                    {recipe.summary && <p className="cell-subtitle">{recipe.summary}</p>}
+                    {domain && <span className="cell-badge">{domain}</span>}
                   </div>
-                )}
+                  <div className="cell-accessory">
+                    <span className="cell-date">{formatDate(recipe.created_at)}</span>
+                    <span className="chevron">›</span>
+                  </div>
+                </div>
               </Link>
             );
           })}
         </div>
       )}
+
+      {/* Desktop grid - keep existing */}
+      <div className="recipe-grid mobile-hide">
+        {filteredRecipes.map((recipe) => {
+          const domain = getDomain(recipe.source_url);
+          return (
+            <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="recipe-card">
+              <div className="card-header">
+                <h3 className="recipe-card-title">{recipe.title}</h3>
+                <span className="card-date">{formatDate(recipe.created_at)}</span>
+              </div>
+              {recipe.summary && <p className="recipe-card-summary">{recipe.summary}</p>}
+              {domain && (
+                <div className="card-footer">
+                  <span className="source-badge">{domain} ↗</span>
+                </div>
+              )}
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }
