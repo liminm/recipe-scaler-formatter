@@ -107,16 +107,18 @@ export default function RecipesPage() {
     <div className="library-layout">
       <div className="library-hero">
         <div>
-          <p className="eyebrow">Global library</p>
+          <p className="eyebrow mobile-hide">Global library</p>
           <div className="hero-heading">
             <h1>Recipe Library</h1>
-            <span className="badge subtle">Fresh every ingest</span>
+            <span className="badge subtle mobile-hide">Fresh every ingest</span>
           </div>
-          <p className="text-muted">
+          <p className="text-muted library-desc mobile-hide">
             Discover, browse, and reuse every recipe captured across events. All recipes stay in metric with consistent
             ingredient parsing.
           </p>
-          <div className="hero-stats mobile-cols-2 mobile-gap-sm">
+          
+          {/* Desktop: Stats grid */}
+          <div className="hero-stats mobile-hide">
             <div className="stat-card">
               <p className="text-muted">Total recipes</p>
               <strong>{stats.total}</strong>
@@ -130,9 +132,16 @@ export default function RecipesPage() {
               <strong>{stats.domains}</strong>
             </div>
           </div>
+          
+          {/* Mobile: Inline stats */}
+          <p className="mobile-stats mobile-show">
+            <strong>{stats.total}</strong> recipes
+            {stats.withSource > 0 && <> · <strong>{stats.withSource}</strong> with source</>}
+            {stats.domains > 0 && <> · <strong>{stats.domains}</strong> sources</>}
+          </p>
         </div>
         <div className="hero-actions">
-          <Link href="/staging" className="btn btn-primary">
+          <Link href="/staging" className="btn btn-primary btn-ingest">
             + Ingest New
           </Link>
         </div>
@@ -151,7 +160,7 @@ export default function RecipesPage() {
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
-        <div className="controls-row mobile-stack mobile-gap-sm">
+        <div className="controls-row">
           <div className="filter-chips">
             <button
               type="button"
@@ -199,15 +208,13 @@ export default function RecipesPage() {
                   <span className="badge">{domain || 'Manual entry'}</span>
                   <span className="pill">{formatDate(recipe.created_at)}</span>
                 </div>
-                <h3 className="mb-2">{recipe.title}</h3>
-                {recipe.summary && <p className="text-muted line-clamp-2">{recipe.summary}</p>}
-                <div className="card-footer">
-                  {recipe.source_url ? (
+                <h3 className="recipe-card-title">{recipe.title}</h3>
+                {recipe.summary && <p className="text-muted recipe-card-summary">{recipe.summary}</p>}
+                {recipe.source_url && (
+                  <div className="card-footer">
                     <span className="text-primary meta">View source ↗</span>
-                  ) : (
-                    <span className="text-dim meta">No source link</span>
-                  )}
-                </div>
+                  </div>
+                )}
               </Link>
             );
           })}
