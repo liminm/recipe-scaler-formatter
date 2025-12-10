@@ -3099,6 +3099,21 @@ body.chili-mode .nav-link.active {
     height: 32px !important;
   }
 
+  /* Mobile brand text - smaller and inline */
+  .mobile-topbar-compact .brand-text-container {
+    display: flex !important;
+  }
+
+  .mobile-topbar-compact .brand-text {
+    flex-direction: row !important;
+    gap: 0.25rem !important;
+    line-height: 1 !important;
+  }
+
+  .mobile-topbar-compact .brand-text span {
+    font-size: 0.9rem !important;
+  }
+
   /* Ensure hamburger stays in header row */
   .mobile-topbar-compact .mobile-menu-toggle {
     flex-shrink: 0 !important;
