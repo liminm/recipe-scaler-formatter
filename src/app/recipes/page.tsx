@@ -150,7 +150,7 @@ export default function RecipesPage() {
         </div>
       </div>
 
-      <div className="library-controls">
+      <div className="library-controls-row">
         <div className="search-wrap">
           <label htmlFor="recipe-search" className="sr-only">
             Search recipes
@@ -159,35 +159,28 @@ export default function RecipesPage() {
           <input
             id="recipe-search"
             className="input-field search-input"
-            placeholder={`Search ${stats.total} recipes...`}
+            placeholder="Search..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
-        <div className="controls-row">
-          <div className="filter-chips">
-            <button
-              type="button"
-              className={`chip ${withSourceOnly ? 'chip-active' : ''}`}
-              onClick={() => setWithSourceOnly((v) => !v)}
-            >
-              With source ({stats.withSource})
-            </button>
-          </div>
-          <div className="sort-control">
-            <label htmlFor="sort-order" className="text-muted">
-              Sort
-            </label>
-            <select
-              id="sort-order"
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-              className="input-field sort-select"
-            >
-              <option value="newest">Newest first</option>
-              <option value="oldest">Oldest first</option>
-            </select>
-          </div>
+        <div className="filter-group">
+          <button
+            type="button"
+            className={`chip chip-sm ${withSourceOnly ? 'chip-active' : ''}`}
+            onClick={() => setWithSourceOnly((v) => !v)}
+          >
+            Source
+          </button>
+          <select
+            id="sort-order"
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+            className="input-field sort-select-sm"
+          >
+            <option value="newest">New</option>
+            <option value="oldest">Old</option>
+          </select>
         </div>
       </div>
 
@@ -208,15 +201,14 @@ export default function RecipesPage() {
             const domain = getDomain(recipe.source_url);
             return (
               <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="recipe-card">
-                <div className="card-top">
-                  {domain && <span className="badge">{domain}</span>}
+                <div className="card-header">
+                  <h3 className="recipe-card-title">{recipe.title}</h3>
                   <span className="card-date">{formatDate(recipe.created_at)}</span>
                 </div>
-                <h3 className="recipe-card-title">{recipe.title}</h3>
                 {recipe.summary && <p className="recipe-card-summary">{recipe.summary}</p>}
-                {recipe.source_url && (
+                {domain && (
                   <div className="card-footer">
-                    <span className="text-primary meta">View source ↗</span>
+                    <span className="source-badge">{domain} ↗</span>
                   </div>
                 )}
               </Link>
