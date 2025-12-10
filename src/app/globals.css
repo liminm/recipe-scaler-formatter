@@ -3647,6 +3647,7 @@ body.chili-mode .nav-link.active {
     display: flex !important;
     flex-direction: column !important;
     gap: 0 !important;
+    width: 100% !important;
   }
 
   /* ============================================
@@ -3657,6 +3658,8 @@ body.chili-mode .nav-link.active {
     border-left: none !important;
     border-right: none !important;
     padding: 0.75rem 1rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .ingredients-card .section-head {
@@ -3685,32 +3688,40 @@ body.chili-mode .nav-link.active {
   .ingredient-item {
     display: flex !important;
     flex-direction: row !important;
-    align-items: baseline !important;
+    align-items: center !important;
     justify-content: space-between !important;
-    padding: 0.4rem 0 !important;
-    border-bottom: 1px dotted var(--color-border-light, #e8e4de) !important;
-    gap: 0.5rem !important;
+    padding: 0.6rem 0.75rem !important;
+    gap: 0.75rem !important;
+    /* Reset card-like styles */
+    background: transparent !important;
+    border-radius: 0 !important;
+    border: none !important;
+    min-height: auto !important;
+    box-shadow: none !important;
   }
 
-  .ingredient-item:last-child {
-    border-bottom: none !important;
+  /* Zebra striping for easier scanning */
+  .ingredient-item:nth-child(odd) {
+    background: rgba(139, 90, 43, 0.04) !important;
   }
 
   .ingredient-main {
     display: flex !important;
     flex-direction: row !important;
-    align-items: baseline !important;
-    gap: 0.35rem !important;
-    flex: 1 !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    flex: 1 1 auto !important;
     min-width: 0 !important;
   }
 
   .ingredient-name {
-    font-size: 0.9rem !important;
+    font-size: 0.95rem !important;
     font-weight: 500 !important;
+    color: var(--color-text) !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    display: block !important;
   }
 
   /* Hide state/role tags on mobile */
@@ -3718,14 +3729,20 @@ body.chili-mode .nav-link.active {
     display: none !important;
   }
 
+  /* Quantity as subtle pill */
   .ingredient-qty {
     font-size: 0.85rem !important;
     font-weight: 600 !important;
     color: var(--color-brown) !important;
     white-space: nowrap !important;
-    background: none !important;
+    background: rgba(139, 90, 43, 0.08) !important;
     border: none !important;
-    padding: 0 !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+    min-height: auto !important;
+    width: auto !important;
+    text-align: right !important;
   }
 
   /* ============================================
@@ -3767,27 +3784,34 @@ body.chili-mode .nav-link.active {
     display: flex !important;
     flex-direction: row !important;
     align-items: flex-start !important;
-    gap: 0.5rem !important;
-    padding: 0 !important;
-    background: none !important;
+    gap: 0.75rem !important;
+    padding: 0.75rem !important;
+    background: var(--color-surface-hover) !important;
     border: none !important;
+    border-radius: 8px !important;
+    margin-bottom: 0.5rem !important;
   }
 
   .step-number {
-    width: auto !important;
-    height: auto !important;
-    min-width: 1.5rem !important;
-    background: none !important;
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+    min-width: 1.75rem !important;
+    background: var(--color-brown) !important;
     border: none !important;
     box-shadow: none !important;
-    font-size: 0.85rem !important;
+    font-size: 0.8rem !important;
     font-weight: 700 !important;
-    color: var(--color-brown) !important;
+    color: white !important;
     padding: 0 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
   }
 
   .step-number::after {
-    content: "." !important;
+    content: "" !important;
   }
 
   .step-content {
@@ -3797,7 +3821,7 @@ body.chili-mode .nav-link.active {
 
   .step-text {
     font-size: 0.9rem !important;
-    line-height: 1.5 !important;
+    line-height: 1.55 !important;
     margin: 0 !important;
   }
 
@@ -4084,18 +4108,9 @@ body.chili-mode .nav-link.active {
     display: block;
   }
 
-  /* === Ingredient/Step Items Touch Optimization === */
-  .ingredient-item {
-    padding: 1rem !important;
-    min-height: 60px;
-  }
-
+  /* Step items touch optimization - but NOT ingredient items (handled above) */
   .step-item {
     gap: 0.5rem !important;
-  }
-
-  .step-content {
-    padding: 0.75rem !important;
   }
 
   /* === Form Touch Targets === */
