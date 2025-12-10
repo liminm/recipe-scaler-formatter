@@ -48,6 +48,7 @@ export default function RecipeDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showActionSheet, setShowActionSheet] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -265,25 +266,67 @@ export default function RecipeDetailPage() {
           </div>
         </div>
 
-        {/* Mobile-visible action buttons */}
-        <div className="mobile-actions mobile-show">
-          <button 
-            className="btn btn-secondary touch-target"
-            onClick={handleCopyText}
-          >
-            {isCopied ? '✅ Copied!' : '📋 Copy'}
-          </button>
-          <Link href={`/recipes/${recipe.id}/edit`} className="btn btn-primary touch-target">
-            ✏️ Edit
+        {/* Mobile iOS-style nav header */}
+        <div className="ios-page-header mobile-show">
+          <Link href="/recipes" className="ios-back-btn">
+            ‹ Recipes
           </Link>
-          <button
-            className="btn btn-danger touch-target"
-            onClick={handleDelete}
-            disabled={isDeleting}
-          >
-            {isDeleting ? '...' : '🗑️'}
-          </button>
+          <div className="ios-header-actions">
+            <button
+              className="ios-header-btn"
+              onClick={() => setShowActionSheet(true)}
+              aria-label="More actions"
+            >
+              •••
+            </button>
+            <Link href={`/recipes/${recipe.id}/edit`} className="ios-header-btn ios-header-edit">
+              Edit
+            </Link>
+          </div>
         </div>
+
+        {/* iOS Action Sheet */}
+        {showActionSheet && (
+          <>
+            <div 
+              className="ios-action-sheet-overlay"
+              onClick={() => setShowActionSheet(false)}
+            />
+            <div className="ios-action-sheet">
+              <div className="ios-action-sheet-group">
+                <button
+                  className="ios-action-sheet-btn"
+                  onClick={() => {
+                    handleCopyText();
+                    setShowActionSheet(false);
+                  }}
+                >
+                  {isCopied ? '✅ Copied!' : '📋 Copy as Text'}
+                </button>
+              </div>
+              <div className="ios-action-sheet-group">
+                <button
+                  className="ios-action-sheet-btn ios-action-destructive"
+                  onClick={() => {
+                    setShowActionSheet(false);
+                    handleDelete();
+                  }}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? 'Deleting...' : '🗑️ Delete Recipe'}
+                </button>
+              </div>
+              <div className="ios-action-sheet-group">
+                <button
+                  className="ios-action-sheet-btn ios-action-cancel"
+                  onClick={() => setShowActionSheet(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {isChiliMode && (

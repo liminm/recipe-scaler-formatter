@@ -3980,27 +3980,123 @@ body.chili-mode .nav-link.active {
     display: none !important;
   }
 
-  /* Mobile action buttons row */
-  .mobile-actions {
+  /* iOS Page Header - replaces mobile-actions */
+  .ios-page-header {
     display: flex !important;
-    gap: 0.5rem !important;
-    padding: 0.75rem 1rem !important;
-    margin: 0 -1.5rem !important;
-    width: calc(100% + 3rem) !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0.5rem 0.75rem !important;
+    margin: 0 !important;
+    background: transparent !important;
+  }
+
+  .ios-back-btn {
+    font-size: 1rem !important;
+    color: var(--color-brown) !important;
+    text-decoration: none !important;
+    font-weight: 400 !important;
+    padding: 0.5rem !important;
+    margin-left: -0.5rem !important;
+  }
+
+  .ios-header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+  }
+
+  .ios-header-btn {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 1rem !important;
+    color: var(--color-brown) !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    font-weight: 400 !important;
+  }
+
+  .ios-header-edit {
+    font-weight: 500 !important;
+  }
+
+  /* iOS Action Sheet */
+  .ios-action-sheet-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    z-index: 999 !important;
+    animation: fadeIn 0.2s ease !important;
+  }
+
+  .ios-action-sheet {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0.5rem !important;
+    right: 0.5rem !important;
+    z-index: 1000 !important;
+    animation: slideUp 0.3s ease !important;
+    padding-bottom: env(safe-area-inset-bottom, 1rem) !important;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .ios-action-sheet-group {
     background: white !important;
-    border-bottom: 1px solid var(--color-border-light) !important;
+    border-radius: 14px !important;
+    margin-bottom: 0.5rem !important;
+    overflow: hidden !important;
   }
 
-  .mobile-actions .btn {
-    flex: 1 !important;
-    padding: 0.6rem 0.5rem !important;
-    font-size: 0.85rem !important;
-    justify-content: center !important;
+  .ios-action-sheet-btn {
+    display: block !important;
+    width: 100% !important;
+    padding: 1rem !important;
+    font-size: 1.1rem !important;
+    font-weight: 400 !important;
+    color: var(--color-brown) !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    text-align: center !important;
   }
 
-  .mobile-actions .btn-danger {
-    flex: 0 0 auto !important;
-    padding: 0.6rem 1rem !important;
+  .ios-action-sheet-btn:active {
+    background: rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .ios-action-destructive {
+    color: #dc3545 !important;
+  }
+
+  .ios-action-cancel {
+    font-weight: 600 !important;
+  }
+
+  /* Hide old mobile-actions */
+  .mobile-actions {
+    display: none !important;
   }
 
   /* ============================================
@@ -4021,19 +4117,25 @@ body.chili-mode .nav-link.active {
   }
 
   /* ============================================
-     INGREDIENTS - SINGLE LINE LAYOUT
+     INGREDIENTS - iOS GROUPED INSET STYLE
      ============================================ */
   .ingredients-card {
-    border-radius: 0 !important;
-    border-left: none !important;
-    border-right: none !important;
-    padding: 0.75rem 1rem !important;
-    width: 100% !important;
-    max-width: 100% !important;
+    background: white !important;
+    border-radius: 12px !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 0.75rem 1rem 0.75rem !important;
+    width: calc(100% - 1.5rem) !important;
+    max-width: calc(100% - 1.5rem) !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
   }
 
+  /* iOS-style section header - outside card look */
   .ingredients-card .section-head {
-    margin-bottom: 0.5rem !important;
+    padding: 0.75rem 1rem 0.5rem 1rem !important;
+    margin-bottom: 0 !important;
+    border-bottom: 1px solid var(--color-border-light) !important;
   }
 
   .ingredients-card .section-head .eyebrow {
@@ -4041,8 +4143,11 @@ body.chili-mode .nav-link.active {
   }
 
   .ingredients-card .section-head h2 {
-    font-size: 1rem !important;
-    font-weight: 700 !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    color: var(--color-text-muted) !important;
   }
 
   .ingredients-card .section-meta {
@@ -4060,19 +4165,18 @@ body.chili-mode .nav-link.active {
     flex-direction: row !important;
     align-items: center !important;
     justify-content: space-between !important;
-    padding: 0.6rem 0.75rem !important;
+    padding: 0.85rem 1rem !important;
     gap: 0.75rem !important;
-    /* Reset card-like styles */
-    background: transparent !important;
+    background: white !important;
     border-radius: 0 !important;
     border: none !important;
+    border-bottom: 1px solid var(--color-border-light) !important;
     min-height: auto !important;
     box-shadow: none !important;
   }
 
-  /* Zebra striping for easier scanning */
-  .ingredient-item:nth-child(odd) {
-    background: rgba(139, 90, 43, 0.04) !important;
+  .ingredient-item:last-child {
+    border-bottom: none !important;
   }
 
   .ingredient-main {
@@ -4086,12 +4190,13 @@ body.chili-mode .nav-link.active {
 
   .ingredient-name {
     font-size: 0.95rem !important;
-    font-weight: 500 !important;
+    font-weight: 400 !important;
     color: var(--color-text) !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
     display: block !important;
+    line-height: 1.3 !important;
   }
 
   /* Hide state/role tags on mobile */
@@ -4099,34 +4204,41 @@ body.chili-mode .nav-link.active {
     display: none !important;
   }
 
-  /* Quantity as subtle pill */
+  /* Quantity as clean text - no badge */
   .ingredient-qty {
-    font-size: 0.85rem !important;
-    font-weight: 600 !important;
-    color: var(--color-brown) !important;
+    font-size: 0.9rem !important;
+    font-weight: 400 !important;
+    color: var(--color-text-muted) !important;
     white-space: nowrap !important;
-    background: rgba(139, 90, 43, 0.08) !important;
+    background: transparent !important;
     border: none !important;
-    padding: 0.25rem 0.5rem !important;
-    border-radius: 6px !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
     min-height: auto !important;
-    width: auto !important;
+    min-width: 60px !important;
     text-align: right !important;
   }
 
   /* ============================================
-     INSTRUCTIONS - TIGHT LAYOUT
+     INSTRUCTIONS - iOS GROUPED INSET STYLE
      ============================================ */
   .steps-card {
-    border-radius: 0 !important;
-    border-left: none !important;
-    border-right: none !important;
-    padding: 0.75rem 1rem !important;
+    background: white !important;
+    border-radius: 12px !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 0.75rem 1rem 0.75rem !important;
+    width: calc(100% - 1.5rem) !important;
+    max-width: calc(100% - 1.5rem) !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
   }
 
   .steps-card .section-head {
-    margin-bottom: 0.5rem !important;
+    padding: 0.75rem 1rem 0.5rem 1rem !important;
+    margin-bottom: 0 !important;
+    border-bottom: 1px solid var(--color-border-light) !important;
   }
 
   .steps-card .section-head .eyebrow {
@@ -4134,8 +4246,11 @@ body.chili-mode .nav-link.active {
   }
 
   .steps-card .section-head h2 {
-    font-size: 1rem !important;
-    font-weight: 700 !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    color: var(--color-text-muted) !important;
   }
 
   .steps-card .section-meta {
@@ -4145,39 +4260,46 @@ body.chili-mode .nav-link.active {
   .step-list {
     display: flex !important;
     flex-direction: column !important;
-    gap: 0.75rem !important;
+    gap: 0 !important;
     padding-left: 0 !important;
     list-style: none !important;
+    margin: 0 !important;
   }
 
   .step-item {
     display: flex !important;
     flex-direction: row !important;
     align-items: flex-start !important;
-    gap: 0.75rem !important;
-    padding: 0.75rem !important;
-    background: var(--color-surface-hover) !important;
+    gap: 0.5rem !important;
+    padding: 1rem !important;
+    background: white !important;
     border: none !important;
-    border-radius: 8px !important;
-    margin-bottom: 0.5rem !important;
+    border-bottom: 1px solid var(--color-border-light) !important;
+    border-radius: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .step-item:last-child {
+    border-bottom: none !important;
   }
 
   .step-number {
-    width: 1.75rem !important;
-    height: 1.75rem !important;
-    min-width: 1.75rem !important;
+    display: flex !important;
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    min-width: 1.5rem !important;
     background: var(--color-brown) !important;
     border: none !important;
     box-shadow: none !important;
-    font-size: 0.8rem !important;
-    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
     color: white !important;
     padding: 0 !important;
     border-radius: 50% !important;
-    display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     flex-shrink: 0 !important;
+    margin-top: 0.1rem !important;
   }
 
   .step-number::after {
@@ -4190,41 +4312,46 @@ body.chili-mode .nav-link.active {
   }
 
   .step-text {
-    font-size: 0.9rem !important;
-    line-height: 1.55 !important;
+    font-size: 1rem !important;
+    line-height: 1.6 !important;
     margin: 0 !important;
+    color: var(--color-text) !important;
   }
 
-  /* Constraint tags - compact or hidden */
   .step-tags {
-    margin-top: 0.25rem !important;
+    margin-top: 0.5rem !important;
     display: flex !important;
     flex-wrap: wrap !important;
-    gap: 0.25rem !important;
+    gap: 0.35rem !important;
   }
 
   .constraint-pill {
     font-size: 0.65rem !important;
-    padding: 0.15rem 0.35rem !important;
+    padding: 0.2rem 0.4rem !important;
     background: var(--color-warning-subtle, #fff8e6) !important;
     border: none !important;
     border-radius: 4px !important;
   }
 
   /* ============================================
-     CHEF'S NOTES - COLLAPSIBLE STYLE
+     CHEF'S NOTES - iOS GROUPED INSET STYLE
      ============================================ */
   .notes-card {
-    border-radius: 0 !important;
-    border-left: none !important;
-    border-right: none !important;
-    padding: 0.75rem 1rem !important;
-    background: var(--color-surface-hover) !important;
+    background: white !important;
+    border-radius: 12px !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 0.75rem 1rem 0.75rem !important;
+    width: calc(100% - 1.5rem) !important;
+    max-width: calc(100% - 1.5rem) !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
   }
 
   .notes-card .section-head {
-    margin-bottom: 0.5rem !important;
-    cursor: pointer !important;
+    padding: 0.75rem 1rem 0.5rem 1rem !important;
+    margin-bottom: 0 !important;
+    border-bottom: 1px solid var(--color-border-light) !important;
   }
 
   .notes-card .section-head .eyebrow {
@@ -4232,24 +4359,33 @@ body.chili-mode .nav-link.active {
   }
 
   .notes-card .section-head h3 {
-    font-size: 0.9rem !important;
+    font-size: 0.7rem !important;
     font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    color: var(--color-text-muted) !important;
   }
 
   .notes-list {
     display: flex !important;
     flex-direction: column !important;
-    gap: 0.35rem !important;
+    gap: 0 !important;
     padding-left: 0 !important;
     list-style: none !important;
+    margin: 0 !important;
   }
 
   .note-line {
-    font-size: 0.85rem !important;
-    line-height: 1.4 !important;
-    padding: 0.25rem 0 0.25rem 1rem !important;
-    border-left: 2px solid var(--color-primary) !important;
-    background: var(--color-surface) !important;
+    font-size: 0.9rem !important;
+    line-height: 1.5 !important;
+    padding: 0.85rem 1rem !important;
+    border-left: none !important;
+    border-bottom: 1px solid var(--color-border-light) !important;
+    background: white !important;
+  }
+
+  .note-line:last-child {
+    border-bottom: none !important;
   }
 
   /* ============================================
