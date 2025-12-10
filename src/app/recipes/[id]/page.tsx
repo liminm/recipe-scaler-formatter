@@ -354,6 +354,19 @@ export default function RecipeDetailPage() {
           </ul>
         </div>
       )}
+
+      {/* Sticky Action Footer for Mobile */}
+      <div className="recipe-actions-sticky mobile-show">
+        <button 
+          className="btn btn-secondary"
+          onClick={handleCopyText}
+        >
+          {isCopied ? '✅ Copied' : '📋 Copy'}
+        </button>
+        <Link href={`/recipes/${recipe.id}/edit`} className="btn btn-primary">
+          ✏️ Edit
+        </Link>
+      </div>
     </div>
   );
 }

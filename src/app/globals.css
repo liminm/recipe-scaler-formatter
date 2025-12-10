@@ -3304,9 +3304,11 @@ body.chili-mode .nav-link.active {
     display: inline !important;
   }
 
-  /* === Hero Section - Compact === */
+  /* === Hero Section - Full Width Edge-to-Edge === */
   .mobile-hero-compact {
-    padding: 1.25rem 0.75rem !important;
+    padding: 1rem 1rem !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
   }
 
   .mobile-hero-compact .hero-shell {
@@ -3352,10 +3354,10 @@ body.chili-mode .nav-link.active {
     margin-top: 0.5rem !important;
   }
 
-  /* === Home Cards - Inline Layout === */
+  /* === Home Cards - Full Width Edge-to-Edge === */
   .home-grid {
-    gap: 0.75rem !important;
-    padding: 0 0.75rem !important;
+    gap: 0.5rem !important;
+    padding: 0 !important;
   }
 
   /* Mobile inline card layout */
@@ -3412,9 +3414,12 @@ body.chili-mode .nav-link.active {
     justify-content: center;
   }
 
-  /* Fallback for regular home-card */
+  /* Full-width cards with no side border-radius */
   .home-card {
-    padding: 0.75rem !important;
+    padding: 0.875rem 1rem !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
   }
 
   .home-card-top {
@@ -3451,11 +3456,14 @@ body.chili-mode .nav-link.active {
     font-size: 0.85rem !important;
   }
 
-  /* === Kitchen Wisdom on Mobile - Compact === */
+  /* === Kitchen Wisdom on Mobile - Full Width === */
   .kitchen-wisdom-card {
     display: block !important;
-    padding: 0.75rem !important;
+    padding: 0.875rem 1rem !important;
     font-size: 0.85rem !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
   }
 
   /* === General Compact Styles === */
@@ -3463,8 +3471,12 @@ body.chili-mode .nav-link.active {
     padding: 0.75rem !important;
   }
 
+  /* Library hero - full width edge-to-edge */
   .library-hero {
     padding: 1rem !important;
+    margin: 0 -1.5rem !important;
+    border-radius: 0 !important;
+    width: calc(100% + 3rem) !important;
   }
 
   .library-hero h1 {
@@ -3475,26 +3487,59 @@ body.chili-mode .nav-link.active {
     font-size: 0.875rem !important;
   }
 
+  /* Hero actions stack on mobile */
+  .library-hero .hero-actions {
+    margin-top: 0.75rem !important;
+  }
+
+  .library-hero .hero-actions .btn {
+    width: 100% !important;
+  }
+
   /* Compact stats on recipes page */
   .hero-stats {
     gap: 0.5rem !important;
+    flex-wrap: wrap !important;
   }
 
   .stat-card {
     padding: 0.5rem !important;
+    flex: 1 1 45% !important;
+    min-width: 0 !important;
   }
 
   .stat-card strong {
     font-size: 1.25rem !important;
   }
 
-  /* Recipe/Event cards compact */
+  /* Recipe/Event cards - full width edge-to-edge */
+  .recipe-grid {
+    margin: 0 -1.5rem !important;
+    width: calc(100% + 3rem) !important;
+    gap: 0 !important;
+  }
+
   .recipe-card {
-    padding: 0.75rem !important;
+    padding: 0.875rem 1rem !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--color-border) !important;
+  }
+
+  .recipe-card:last-child {
+    border-bottom: none !important;
   }
 
   .recipe-card h3 {
     font-size: 1rem !important;
+  }
+
+  /* Library controls - full width */
+  .library-controls {
+    margin: 0.5rem -1.5rem !important;
+    padding: 0.75rem 1rem !important;
+    width: calc(100% + 3rem) !important;
   }
 
   /* Form controls compact */
@@ -3507,6 +3552,345 @@ body.chili-mode .nav-link.active {
   .btn {
     padding: 0.5rem 1rem !important;
     font-size: 0.875rem !important;
+  }
+
+  /* ============================================
+     RECIPE DETAIL PAGE - MOBILE OPTIMIZED
+     ============================================ */
+
+  .recipe-page {
+    gap: 0 !important;
+    margin: 0 -1.5rem !important;
+    width: calc(100% + 3rem) !important;
+    padding-bottom: 70px !important;
+    /* Space for sticky footer */
+  }
+
+  /* ============================================
+     RECIPE HERO - MINIMAL
+     ============================================ */
+  .recipe-hero {
+    display: block !important;
+    padding: 1rem !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    background: var(--color-surface) !important;
+    border-bottom: 1px solid var(--color-border) !important;
+  }
+
+  .recipe-hero .eyebrow {
+    display: none !important;
+  }
+
+  .recipe-hero-title {
+    font-size: 1.35rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Hide summary on mobile - too much space */
+  .recipe-hero-summary {
+    display: none !important;
+  }
+
+  /* Inline meta as text with separators */
+  .recipe-hero-meta {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  .recipe-hero-meta .pill-soft,
+  .recipe-hero-meta .pill-ghost {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    color: var(--color-text-muted) !important;
+  }
+
+  .recipe-hero-meta .pill-soft::after {
+    content: " · " !important;
+    color: var(--color-text-dim) !important;
+  }
+
+  .recipe-hero-meta .pill-soft:last-of-type::after,
+  .recipe-hero-meta .pill-ghost::after {
+    content: "" !important;
+  }
+
+  .recipe-hero-meta .pill-ghost {
+    color: var(--color-primary) !important;
+    text-decoration: underline !important;
+    margin-left: 0.5rem !important;
+  }
+
+  /* Hide the hero panel (estimate box) on mobile */
+  .recipe-hero-panel {
+    display: none !important;
+  }
+
+  /* ============================================
+     META GRID - COMPLETELY HIDDEN
+     ============================================ */
+  .recipe-meta-grid {
+    display: none !important;
+  }
+
+  /* ============================================
+     RECIPE BODY - STACKED SECTIONS
+     ============================================ */
+  .recipe-body {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+
+  /* ============================================
+     INGREDIENTS - SINGLE LINE LAYOUT
+     ============================================ */
+  .ingredients-card {
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    padding: 0.75rem 1rem !important;
+  }
+
+  .ingredients-card .section-head {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .ingredients-card .section-head .eyebrow {
+    display: none !important;
+  }
+
+  .ingredients-card .section-head h2 {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+  }
+
+  .ingredients-card .section-meta {
+    display: none !important;
+  }
+
+  .ingredient-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+
+  .ingredient-item {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: baseline !important;
+    justify-content: space-between !important;
+    padding: 0.4rem 0 !important;
+    border-bottom: 1px dotted var(--color-border-light, #e8e4de) !important;
+    gap: 0.5rem !important;
+  }
+
+  .ingredient-item:last-child {
+    border-bottom: none !important;
+  }
+
+  .ingredient-main {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: baseline !important;
+    gap: 0.35rem !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .ingredient-name {
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* Hide state/role tags on mobile */
+  .ingredient-meta {
+    display: none !important;
+  }
+
+  .ingredient-qty {
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    color: var(--color-brown) !important;
+    white-space: nowrap !important;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  /* ============================================
+     INSTRUCTIONS - TIGHT LAYOUT
+     ============================================ */
+  .steps-card {
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    padding: 0.75rem 1rem !important;
+  }
+
+  .steps-card .section-head {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .steps-card .section-head .eyebrow {
+    display: none !important;
+  }
+
+  .steps-card .section-head h2 {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+  }
+
+  .steps-card .section-meta {
+    display: none !important;
+  }
+
+  .step-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    padding-left: 0 !important;
+    list-style: none !important;
+  }
+
+  .step-item {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+  }
+
+  .step-number {
+    width: auto !important;
+    height: auto !important;
+    min-width: 1.5rem !important;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    color: var(--color-brown) !important;
+    padding: 0 !important;
+  }
+
+  .step-number::after {
+    content: "." !important;
+  }
+
+  .step-content {
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .step-text {
+    font-size: 0.9rem !important;
+    line-height: 1.5 !important;
+    margin: 0 !important;
+  }
+
+  /* Constraint tags - compact or hidden */
+  .step-tags {
+    margin-top: 0.25rem !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.25rem !important;
+  }
+
+  .constraint-pill {
+    font-size: 0.65rem !important;
+    padding: 0.15rem 0.35rem !important;
+    background: var(--color-warning-subtle, #fff8e6) !important;
+    border: none !important;
+    border-radius: 4px !important;
+  }
+
+  /* ============================================
+     CHEF'S NOTES - COLLAPSIBLE STYLE
+     ============================================ */
+  .notes-card {
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    padding: 0.75rem 1rem !important;
+    background: var(--color-surface-hover) !important;
+  }
+
+  .notes-card .section-head {
+    margin-bottom: 0.5rem !important;
+    cursor: pointer !important;
+  }
+
+  .notes-card .section-head .eyebrow {
+    display: none !important;
+  }
+
+  .notes-card .section-head h3 {
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+  }
+
+  .notes-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.35rem !important;
+    padding-left: 0 !important;
+    list-style: none !important;
+  }
+
+  .note-line {
+    font-size: 0.85rem !important;
+    line-height: 1.4 !important;
+    padding: 0.25rem 0 0.25rem 1rem !important;
+    border-left: 2px solid var(--color-primary) !important;
+    background: var(--color-surface) !important;
+  }
+
+  /* ============================================
+     MODEL DEBUG - HIDDEN ON MOBILE
+     ============================================ */
+  .model-card {
+    display: none !important;
+  }
+
+  /* ============================================
+     STICKY ACTION FOOTER
+     ============================================ */
+  .recipe-actions-sticky {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 0 !important;
+    background: var(--color-surface) !important;
+    border-top: 1px solid var(--color-border) !important;
+    padding: 0.5rem 1rem !important;
+    z-index: 80 !important;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .recipe-actions-sticky .btn {
+    flex: 1 !important;
+    justify-content: center !important;
+    border-radius: var(--radius-md) !important;
+  }
+
+  .recipe-actions-sticky .btn:first-child {
+    margin-right: 0.5rem !important;
   }
 
   /* ============================================
