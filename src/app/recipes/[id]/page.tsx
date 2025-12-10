@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useChili } from '@/context/ChiliContext';
 import LoadingDumpling from '@/components/LoadingDumpling';
 
@@ -47,6 +47,8 @@ export default function RecipeDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchRecipe() {
@@ -174,6 +176,32 @@ export default function RecipeDetailPage() {
     }
   };
 
+  const handleDelete = async () => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${recipe?.title}"?\n\nThis action cannot be undone.`
+    );
+    
+    if (!confirmed) return;
+    
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/recipes/${recipeId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete recipe');
+      }
+      
+      router.push('/recipes');
+    } catch (err: any) {
+      console.error('Delete error:', err);
+      alert('Failed to delete recipe: ' + err.message);
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="recipe-page">
       <div className="recipe-hero">
@@ -227,7 +255,34 @@ export default function RecipeDetailPage() {
             <Link href={`/recipes/${recipe.id}/edit`} className="btn btn-primary touch-target">
               Edit recipe
             </Link>
+            <button
+              className="btn btn-danger touch-target"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? 'Deleting...' : '🗑️ Delete'}
+            </button>
           </div>
+        </div>
+
+        {/* Mobile-visible action buttons */}
+        <div className="mobile-actions mobile-show">
+          <button 
+            className="btn btn-secondary touch-target"
+            onClick={handleCopyText}
+          >
+            {isCopied ? '✅ Copied!' : '📋 Copy'}
+          </button>
+          <Link href={`/recipes/${recipe.id}/edit`} className="btn btn-primary touch-target">
+            ✏️ Edit
+          </Link>
+          <button
+            className="btn btn-danger touch-target"
+            onClick={handleDelete}
+            disabled={isDeleting}
+          >
+            {isDeleting ? '...' : '🗑️'}
+          </button>
         </div>
       </div>
 

@@ -122,8 +122,8 @@ export default function NavBar() {
               className={`brand-logo ${animationClass}`}
               onAnimationEnd={() => setAnimationClass('')}
             />
-            {/* Brand text - hidden on mobile */}
-            <div className="brand-text-container mobile-hide">
+            {/* Brand text - now visible on mobile too */}
+            <div className="brand-text-container">
               {isChiliMode ? (
                 <div className="brand-text brand-text-chili">
                   <span>Chili Dumpling</span>

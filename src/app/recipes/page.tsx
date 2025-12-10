@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 interface Recipe {
   id: string;
@@ -36,6 +37,9 @@ export default function RecipesPage() {
   const [query, setQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
   const [withSourceOnly, setWithSourceOnly] = useState(false);
+  const [swipedId, setSwipedId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchRecipes() {
@@ -82,6 +86,23 @@ export default function RecipesPage() {
       return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
     });
   }, [recipes, query, sortOrder, withSourceOnly]);
+
+  const handleDelete = async (id: string, title: string) => {
+    const confirmed = window.confirm(`Delete "${title}"?\n\nThis cannot be undone.`);
+    if (!confirmed) return;
+    
+    setDeletingId(id);
+    try {
+      const response = await fetch(`/api/recipes/${id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('Failed to delete');
+      setRecipes(prev => prev.filter(r => r.id !== id));
+      setSwipedId(null);
+    } catch (err) {
+      alert('Failed to delete recipe');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -230,20 +251,60 @@ export default function RecipesPage() {
           {filteredRecipes.map((recipe, idx) => {
             const domain = getDomain(recipe.source_url);
             const isLast = idx === filteredRecipes.length - 1;
+            const isSwiped = swipedId === recipe.id;
+            const isDeleting = deletingId === recipe.id;
+            
             return (
-              <Link key={recipe.id} href={`/recipes/${recipe.id}`} className={`ios-list-cell ${isLast ? 'last' : ''}`}>
-                <div className="cell-content">
-                  <div className="cell-main">
-                    <h3 className="cell-title">{recipe.title}</h3>
-                    {recipe.summary && <p className="cell-subtitle">{recipe.summary}</p>}
-                    {domain && <span className="cell-badge">{domain}</span>}
+              <div 
+                key={recipe.id} 
+                className={`ios-swipe-container ${isSwiped ? 'swiped' : ''} ${isLast ? 'last' : ''}`}
+                onClick={() => isSwiped && setSwipedId(null)}
+              >
+                <Link 
+                  href={`/recipes/${recipe.id}`} 
+                  className="ios-list-cell"
+                  onClick={(e) => {
+                    if (isSwiped) {
+                      e.preventDefault();
+                      setSwipedId(null);
+                    }
+                  }}
+                  onTouchStart={(e) => {
+                    const touch = e.touches[0];
+                    (e.currentTarget as any)._startX = touch.clientX;
+                  }}
+                  onTouchEnd={(e) => {
+                    const startX = (e.currentTarget as any)._startX;
+                    const endX = e.changedTouches[0].clientX;
+                    const diff = startX - endX;
+                    if (diff > 50) {
+                      e.preventDefault();
+                      setSwipedId(recipe.id);
+                    } else if (diff < -30 && isSwiped) {
+                      setSwipedId(null);
+                    }
+                  }}
+                >
+                  <div className="cell-content">
+                    <div className="cell-main">
+                      <h3 className="cell-title">{recipe.title}</h3>
+                      {recipe.summary && <p className="cell-subtitle">{recipe.summary}</p>}
+                      {domain && <span className="cell-badge">{domain}</span>}
+                    </div>
+                    <div className="cell-accessory">
+                      <span className="cell-date">{formatDate(recipe.created_at)}</span>
+                      <span className="chevron">›</span>
+                    </div>
                   </div>
-                  <div className="cell-accessory">
-                    <span className="cell-date">{formatDate(recipe.created_at)}</span>
-                    <span className="chevron">›</span>
-                  </div>
-                </div>
-              </Link>
+                </Link>
+                <button 
+                  className="swipe-delete-btn"
+                  onClick={() => handleDelete(recipe.id, recipe.title)}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? '...' : 'Delete'}
+                </button>
+              </div>
             );
           })}
         </div>
