@@ -105,20 +105,30 @@ export default function RecipesPage() {
 
   return (
     <div className="library-layout">
-      <div className="library-hero">
+      {/* Mobile: Compact inline hero */}
+      <div className="library-hero-inline mobile-show">
+        <div className="hero-left">
+          <h1>Recipes</h1>
+          <span className="hero-count">{stats.total}</span>
+        </div>
+        <Link href="/staging" className="btn btn-primary btn-sm">
+          + New
+        </Link>
+      </div>
+
+      {/* Desktop: Full hero */}
+      <div className="library-hero mobile-hide">
         <div>
-          <p className="eyebrow mobile-hide">Global library</p>
+          <p className="eyebrow">Global library</p>
           <div className="hero-heading">
             <h1>Recipe Library</h1>
-            <span className="badge subtle mobile-hide">Fresh every ingest</span>
+            <span className="badge subtle">Fresh every ingest</span>
           </div>
-          <p className="text-muted library-desc mobile-hide">
+          <p className="text-muted library-desc">
             Discover, browse, and reuse every recipe captured across events. All recipes stay in metric with consistent
             ingredient parsing.
           </p>
-          
-          {/* Desktop: Stats grid */}
-          <div className="hero-stats mobile-hide">
+          <div className="hero-stats">
             <div className="stat-card">
               <p className="text-muted">Total recipes</p>
               <strong>{stats.total}</strong>
@@ -132,16 +142,9 @@ export default function RecipesPage() {
               <strong>{stats.domains}</strong>
             </div>
           </div>
-          
-          {/* Mobile: Inline stats */}
-          <p className="mobile-stats mobile-show">
-            <strong>{stats.total}</strong> recipes
-            {stats.withSource > 0 && <> · <strong>{stats.withSource}</strong> with source</>}
-            {stats.domains > 0 && <> · <strong>{stats.domains}</strong> sources</>}
-          </p>
         </div>
         <div className="hero-actions">
-          <Link href="/staging" className="btn btn-primary btn-ingest">
+          <Link href="/staging" className="btn btn-primary">
             + Ingest New
           </Link>
         </div>
@@ -152,10 +155,11 @@ export default function RecipesPage() {
           <label htmlFor="recipe-search" className="sr-only">
             Search recipes
           </label>
+          <span className="search-icon">🔍</span>
           <input
             id="recipe-search"
-            className="input-field"
-            placeholder="Search titles or notes..."
+            className="input-field search-input"
+            placeholder={`Search ${stats.total} recipes...`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -167,7 +171,7 @@ export default function RecipesPage() {
               className={`chip ${withSourceOnly ? 'chip-active' : ''}`}
               onClick={() => setWithSourceOnly((v) => !v)}
             >
-              Has source link
+              With source ({stats.withSource})
             </button>
           </div>
           <div className="sort-control">
@@ -205,11 +209,11 @@ export default function RecipesPage() {
             return (
               <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="recipe-card">
                 <div className="card-top">
-                  <span className="badge">{domain || 'Manual entry'}</span>
-                  <span className="pill">{formatDate(recipe.created_at)}</span>
+                  {domain && <span className="badge">{domain}</span>}
+                  <span className="card-date">{formatDate(recipe.created_at)}</span>
                 </div>
                 <h3 className="recipe-card-title">{recipe.title}</h3>
-                {recipe.summary && <p className="text-muted recipe-card-summary">{recipe.summary}</p>}
+                {recipe.summary && <p className="recipe-card-summary">{recipe.summary}</p>}
                 {recipe.source_url && (
                   <div className="card-footer">
                     <span className="text-primary meta">View source ↗</span>
