@@ -3694,12 +3694,110 @@ body.chili-mode .nav-link.active {
   .ios-step-row .step-preview {
     flex: 1 !important;
     font-size: 0.95rem !important;
-    line-height: 1.4 !important;
+    line-height: 1.5 !important;
     color: var(--color-text) !important;
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
+  }
+
+  /* ============================================
+     iOS RECIPE DETAIL VIEW
+     ============================================ */
+  .ios-recipe-detail {
+    padding: 0 !important;
+    background: var(--color-background) !important;
+  }
+
+  .ios-recipe-title-section {
+    padding: 1rem !important;
+    text-align: center !important;
+  }
+
+  .ios-recipe-title {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    margin: 0 0 0.5rem 0 !important;
+    color: var(--color-text) !important;
+  }
+
+  .ios-recipe-summary {
+    font-size: 0.9rem !important;
+    color: var(--color-text-muted) !important;
+    margin: 0 0 0.75rem 0 !important;
+    line-height: 1.4 !important;
+  }
+
+  .ios-recipe-pills {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+  }
+
+  .ios-meta-pill {
+    font-size: 0.75rem !important;
+    background: rgba(139, 90, 43, 0.1) !important;
+    color: var(--color-brown) !important;
+    padding: 0.25rem 0.6rem !important;
+    border-radius: 12px !important;
+  }
+
+  /* iOS Detail Row (for read-only ingredient list) */
+  .ios-detail-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.85rem 1rem !important;
+    border-bottom: 1px solid var(--color-border-light) !important;
+  }
+
+  .ios-detail-row.last {
+    border-bottom: none !important;
+  }
+
+  .ios-detail-row .detail-name {
+    flex: 1 !important;
+    font-size: 1rem !important;
+    color: var(--color-text) !important;
+  }
+
+  .ios-detail-row .detail-qty {
+    font-size: 0.9rem !important;
+    color: var(--color-text-muted) !important;
+    font-weight: 500 !important;
+  }
+
+  /* Step content view (for read-only steps) */
+  .ios-step-row .step-content-view {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.35rem !important;
+  }
+
+  .ios-step-row .step-tags-view {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.35rem !important;
+  }
+
+  .ios-constraint-tag {
+    font-size: 0.7rem !important;
+    background: rgba(234, 179, 8, 0.15) !important;
+    color: #92400e !important;
+    padding: 0.2rem 0.5rem !important;
+    border-radius: 6px !important;
+  }
+
+  /* iOS Note Row */
+  .ios-note-row {
+    padding: 0.85rem 1rem !important;
+    border-bottom: 1px solid var(--color-border-light) !important;
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+    color: var(--color-text) !important;
+  }
+
+  .ios-note-row.last {
+    border-bottom: none !important;
   }
 
   /* Step Edit Sheet */
@@ -4674,6 +4772,18 @@ body.chili-mode .nav-link.active {
     flex-direction: column !important;
     gap: 0 !important;
     width: 100% !important;
+  }
+
+  .recipe-body.mobile-hide {
+    display: none !important;
+  }
+
+  .recipe-meta-grid.mobile-hide {
+    display: none !important;
+  }
+
+  .notes-card.mobile-hide {
+    display: none !important;
   }
 
   /* ============================================

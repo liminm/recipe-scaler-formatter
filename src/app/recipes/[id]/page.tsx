@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useChili } from '@/context/ChiliContext';
 import LoadingDumpling from '@/components/LoadingDumpling';
+import RecipeEditor from '@/components/RecipeEditor';
+import { StagingRecipe, StagingIngredient, StagingStep } from '@/types/staging';
 
 interface Recipe {
   id: string;
@@ -24,9 +26,16 @@ interface Recipe {
 interface Ingredient {
   id: string;
   name_normalized: string;
+  name_raw?: string;
   base_quantity_g: number;
   role: string;
   state: string | null;
+  yield_factor?: number;
+  is_discrete?: boolean;
+  dependency_role?: string;
+  density_confidence?: string;
+  needs_review?: boolean;
+  is_to_taste?: boolean;
 }
 
 interface Step {
@@ -48,6 +57,7 @@ export default function RecipeDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [showActionSheet, setShowActionSheet] = useState(false);
   const router = useRouter();
 
@@ -110,6 +120,108 @@ export default function RecipeDetailPage() {
   const confidenceLabel = recipe?.yield_confidence
     ? `${recipe.yield_confidence.charAt(0).toUpperCase()}${recipe.yield_confidence.slice(1)} confidence`
     : 'Confidence unknown';
+
+  // Convert DB data to StagingRecipe format for RecipeEditor
+  const convertToStagingRecipe = (): StagingRecipe | null => {
+    if (!recipe) return null;
+    return {
+      id: recipe.id,
+      title: recipe.title,
+      summary: recipe.summary || undefined,
+      source_url: recipe.source_url || undefined,
+      ingredients: ingredients.map(ing => ({
+        id: ing.id,
+        name_raw: ing.name_raw || ing.name_normalized,
+        name_normalized: ing.name_normalized,
+        base_quantity_g: ing.base_quantity_g || 0,
+        role: (ing.role as 'CONSUMABLE' | 'PROCESS_ONLY' | 'REDUCTION') || 'CONSUMABLE',
+        yield_factor: ing.yield_factor || 1,
+        is_discrete: ing.is_discrete || false,
+        dependency_role: (ing.dependency_role as 'DRIVER' | 'PASSENGER') || 'PASSENGER',
+        density_confidence: (ing.density_confidence as 'high' | 'low') || 'high',
+        needs_review: ing.needs_review || false,
+        is_to_taste: ing.is_to_taste || false,
+      })),
+      steps: steps.map(step => ({
+        id: step.id,
+        order: step.order,
+        instruction_raw: step.instruction_raw,
+        constraint_tags: step.constraint_tags || [],
+      })),
+      chefs_notes: recipe.chefs_notes || [],
+      estimated_final_weight_g: recipe.estimated_final_weight_g || undefined,
+      yield_confidence: recipe.yield_confidence || undefined,
+    };
+  };
+
+  // Save handler for RecipeEditor
+  const handleSaveRecipe = async (updatedRecipe: StagingRecipe) => {
+    setIsSaving(true);
+    try {
+      // Update recipe
+      const { error: recipeError } = await supabase
+        .from('recipes')
+        .update({
+          title: updatedRecipe.title,
+          summary: updatedRecipe.summary || null,
+          source_url: updatedRecipe.source_url || null,
+          chefs_notes: updatedRecipe.chefs_notes || [],
+          estimated_final_weight_g: updatedRecipe.estimated_final_weight_g || null,
+        })
+        .eq('id', recipeId);
+      
+      if (recipeError) throw recipeError;
+
+      // Delete existing ingredients and insert new ones
+      await supabase.from('ingredients').delete().eq('recipe_id', recipeId);
+      if (updatedRecipe.ingredients.length > 0) {
+        const ingredientsToInsert = updatedRecipe.ingredients.map(ing => ({
+          id: ing.id,
+          recipe_id: recipeId,
+          name_raw: ing.name_raw,
+          name_normalized: ing.name_normalized,
+          base_quantity_g: ing.base_quantity_g || 0,
+          role: ing.role,
+          yield_factor: ing.yield_factor,
+          is_discrete: ing.is_discrete,
+          dependency_role: ing.dependency_role,
+          density_confidence: ing.density_confidence,
+          needs_review: ing.needs_review,
+          is_to_taste: ing.is_to_taste,
+        }));
+        const { error: ingError } = await supabase.from('ingredients').insert(ingredientsToInsert);
+        if (ingError) throw ingError;
+      }
+
+      // Delete existing steps and insert new ones
+      await supabase.from('steps').delete().eq('recipe_id', recipeId);
+      if (updatedRecipe.steps.length > 0) {
+        const stepsToInsert = updatedRecipe.steps.map((step, idx) => ({
+          id: step.id,
+          recipe_id: recipeId,
+          order: idx + 1,
+          instruction_raw: step.instruction_raw,
+          constraint_tags: step.constraint_tags || [],
+        }));
+        const { error: stepError } = await supabase.from('steps').insert(stepsToInsert);
+        if (stepError) throw stepError;
+      }
+
+      // Refresh data
+      setRecipe(prev => prev ? { ...prev, title: updatedRecipe.title, summary: updatedRecipe.summary || null, source_url: updatedRecipe.source_url || null, chefs_notes: updatedRecipe.chefs_notes || [] } : null);
+      setIngredients(updatedRecipe.ingredients as any);
+      setSteps(updatedRecipe.steps as any);
+      
+      alert('Recipe saved successfully!');
+    } catch (err: any) {
+      console.error('Save error:', err);
+      alert('Failed to save recipe: ' + err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const stagingRecipe = convertToStagingRecipe();
 
   if (isLoading) {
     return (
@@ -206,7 +318,7 @@ export default function RecipeDetailPage() {
   return (
     <div className="recipe-page">
       <div className="recipe-hero">
-        <div>
+        <div className="mobile-hide">
           <div className="eyebrow">Recipe</div>
           <h1 className="recipe-hero-title">{recipe.title}</h1>
           {recipe.summary && <p className="recipe-hero-summary">{recipe.summary}</p>}
@@ -229,7 +341,7 @@ export default function RecipeDetailPage() {
           </div>
         </div>
 
-        <div className="recipe-hero-panel">
+        <div className="recipe-hero-panel mobile-hide">
           <div className="hero-stat">
             <span className="stat-label">Estimated Final Weight</span>
             <div className="stat-value">
@@ -345,7 +457,20 @@ export default function RecipeDetailPage() {
         </div>
       )}
 
-      <div className="recipe-meta-grid">
+      {/* ========== UNIFIED RECIPE EDITOR (Mobile) ========== */}
+      {stagingRecipe && (
+        <div className="mobile-show">
+          <RecipeEditor 
+            recipe={stagingRecipe}
+            onSave={handleSaveRecipe}
+            isSaving={isSaving}
+            saveLabel="Save Changes"
+          />
+        </div>
+      )}
+
+      {/* ========== DESKTOP CONTENT (hidden on mobile) ========== */}
+      <div className="recipe-meta-grid mobile-hide">
         <div className="meta-card">
           <span className="meta-label">Ingredients</span>
           <span className="meta-value">{ingredients.length}</span>
@@ -363,7 +488,7 @@ export default function RecipeDetailPage() {
         </div>
       </div>
 
-      <div className="recipe-body">
+      <div className="recipe-body mobile-hide">
         {/* Left Column: Ingredients */}
         <div className="card ingredients-card">
           <div className="section-head">
@@ -436,7 +561,7 @@ export default function RecipeDetailPage() {
 
       {/* Chef's Notes */}
       {recipe.chefs_notes && recipe.chefs_notes.length > 0 && (
-        <div className="card notes-card">
+        <div className="card notes-card mobile-hide">
           <div className="section-head">
             <div>
               <div className="eyebrow">Chef's notes</div>
