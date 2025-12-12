@@ -3688,18 +3688,45 @@ body.chili-mode .nav-link.active {
     justify-content: center !important;
     font-size: 0.7rem !important;
     font-weight: 600 !important;
-    margin-top: 0.35rem !important;
+    flex-shrink: 0 !important;
   }
 
-  .ios-step-row .step-textarea {
+  .ios-step-row .step-preview {
     flex: 1 !important;
-    border: none !important;
-    background: transparent !important;
     font-size: 0.95rem !important;
-    line-height: 1.5 !important;
-    resize: none !important;
-    padding: 0 !important;
+    line-height: 1.4 !important;
     color: var(--color-text) !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+
+  /* Step Edit Sheet */
+  .ios-step-sheet {
+    min-height: 50vh !important;
+  }
+
+  .ios-step-textarea-wrapper {
+    padding: 0.75rem !important;
+  }
+
+  .ios-step-edit-textarea {
+    width: 100% !important;
+    min-height: 200px !important;
+    padding: 1rem !important;
+    font-size: 1rem !important;
+    line-height: 1.6 !important;
+    border: none !important;
+    border-radius: 12px !important;
+    background: white !important;
+    color: var(--color-text) !important;
+    resize: none !important;
+    outline: none !important;
+  }
+
+  .ios-step-edit-textarea::placeholder {
+    color: var(--color-text-muted) !important;
   }
 
   .ios-empty-cell {

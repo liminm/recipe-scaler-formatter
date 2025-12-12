@@ -43,6 +43,12 @@ export default function RecipeEditor({
     ingredient: StagingIngredient;
   } | null>(null);
 
+  // Mobile: editing step sheet state
+  const [editingStep, setEditingStep] = useState<{
+    index: number;
+    text: string;
+  } | null>(null);
+
   // Weight for display only (no scaling in editor anymore)
 
   // Helper: Extract searchable terms from ingredient name
@@ -521,18 +527,19 @@ export default function RecipeEditor({
         </div>
         <div className="ios-grouped-list ios-editor-list">
           {recipe.steps.map((step, idx) => (
-            <div key={step.id || idx} className={`ios-step-row ${idx === recipe.steps.length - 1 ? 'last' : ''}`}>
+            <div 
+              key={step.id || idx} 
+              className={`ios-step-row ${idx === recipe.steps.length - 1 ? 'last' : ''}`}
+              onClick={() => setEditingStep({ index: idx, text: step.instruction_raw })}
+            >
               <span className="step-number">{idx + 1}</span>
-              <textarea
-                value={step.instruction_raw}
-                onChange={(e) => handleStepTextChange(idx, e.target.value)}
-                className="step-textarea"
-                placeholder="Step instructions..."
-                rows={2}
-              />
+              <span className="step-preview">
+                {step.instruction_raw || 'Tap to add instructions...'}
+              </span>
               <button 
                 className="ios-delete-btn"
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   const newSteps = recipe.steps.filter((_, i) => i !== idx);
                   setRecipe({ ...recipe, steps: newSteps });
                 }}
@@ -646,6 +653,49 @@ export default function RecipeEditor({
                     className="ios-toggle"
                   />
                 </label>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Step Edit Sheet */}
+        {editingStep && (
+          <>
+            <div 
+              className="ios-sheet-overlay"
+              onClick={() => setEditingStep(null)}
+            />
+            <div className="ios-sheet ios-step-sheet">
+              <div className="ios-sheet-handle" />
+              <div className="ios-sheet-header">
+                <span>Edit Step {editingStep.index + 1}</span>
+                <button 
+                  className="ios-sheet-done"
+                  onClick={() => {
+                    const newSteps = [...recipe.steps];
+                    newSteps[editingStep.index] = { 
+                      ...newSteps[editingStep.index], 
+                      instruction_raw: editingStep.text 
+                    };
+                    setRecipe({ ...recipe, steps: newSteps });
+                    setEditingStep(null);
+                  }}
+                >
+                  Done
+                </button>
+              </div>
+              
+              <div className="ios-step-textarea-wrapper">
+                <textarea
+                  value={editingStep.text}
+                  onChange={(e) => setEditingStep({
+                    ...editingStep,
+                    text: e.target.value
+                  })}
+                  className="ios-step-edit-textarea"
+                  placeholder="Enter step instructions..."
+                  autoFocus
+                />
               </div>
             </div>
           </>
