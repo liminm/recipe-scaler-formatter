@@ -7,6 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useChili } from '@/context/ChiliContext';
 import LoadingDumpling from '@/components/LoadingDumpling';
 import RecipeEditor from '@/components/RecipeEditor';
+import ScaleView from '@/components/ScaleView';
 import { StagingRecipe, StagingIngredient, StagingStep } from '@/types/staging';
 
 interface Recipe {
@@ -59,6 +60,7 @@ export default function RecipeDetailPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showActionSheet, setShowActionSheet] = useState(false);
+  const [showScaleView, setShowScaleView] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -415,6 +417,15 @@ export default function RecipeDetailPage() {
                 >
                   {isCopied ? '✅ Copied!' : '📋 Copy as Text'}
                 </button>
+                <button
+                  className="ios-action-sheet-btn"
+                  onClick={() => {
+                    setShowScaleView(true);
+                    setShowActionSheet(false);
+                  }}
+                >
+                  ⚖️ Scale & Export
+                </button>
               </div>
               <div className="ios-action-sheet-group">
                 <button
@@ -457,15 +468,24 @@ export default function RecipeDetailPage() {
         </div>
       )}
 
-      {/* ========== UNIFIED RECIPE EDITOR (Mobile) ========== */}
+      {/* ========== UNIFIED MOBILE VIEW ========== */}
       {stagingRecipe && (
         <div className="mobile-show">
-          <RecipeEditor 
-            recipe={stagingRecipe}
-            onSave={handleSaveRecipe}
-            isSaving={isSaving}
-            saveLabel="Save Changes"
-          />
+          {showScaleView ? (
+            <ScaleView 
+              recipe={stagingRecipe}
+              onBack={() => setShowScaleView(false)}
+              onSave={handleSaveRecipe}
+            />
+          ) : (
+            <RecipeEditor 
+              recipe={stagingRecipe}
+              onSave={handleSaveRecipe}
+              onScaleExport={() => setShowScaleView(true)}
+              isSaving={isSaving}
+              saveLabel="Save Changes"
+            />
+          )}
         </div>
       )}
 
