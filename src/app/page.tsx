@@ -27,14 +27,55 @@ const highlights = [
 export default function Home() {
   return (
     <div className="home">
-      <section className="home-hero mobile-hero-compact">
-        <div className="hero-shell">
+      {/* ========== MOBILE iOS LAYOUT ========== */}
+      <div className="ios-home mobile-show">
+        {/* Hero Section */}
+        <section className="ios-home-hero">
+          <h1 className="ios-home-title">What's for dinner?</h1>
+          
+          <form action="/staging" method="GET" className="ios-home-form">
+            <input
+              type="text"
+              name="q"
+              placeholder="🔗 Paste a recipe URL..."
+              className="ios-home-input"
+            />
+            <button type="submit" className="ios-home-submit">
+              Analyze Recipe
+            </button>
+          </form>
+          
+          <Link href="/staging?mode=manual" className="ios-home-secondary">
+            📝 Or write manually
+          </Link>
+        </section>
 
-          <h1 className="hero-title">
-            <span className="mobile-hide">What are we cooking today?</span>
-            <span className="mobile-show mobile-show-inline">Let&apos;s cook!</span>
-          </h1>
-          <p className="hero-subtitle mobile-hide">
+        {/* Library Section */}
+        <div className="ios-section-header">Library</div>
+        <div className="ios-grouped-list ios-home-list">
+          <Link href="/recipes" className="ios-list-cell">
+            <span className="cell-icon">📖</span>
+            <span className="cell-label">Recipes</span>
+            <span className="chevron">›</span>
+          </Link>
+          <Link href="/events" className="ios-list-cell last">
+            <span className="cell-icon">📅</span>
+            <span className="cell-label">Events</span>
+            <span className="chevron">›</span>
+          </Link>
+        </div>
+
+        {/* Compact Kitchen Wisdom */}
+        <div className="ios-kitchen-wisdom">
+          <KitchenWisdom />
+        </div>
+      </div>
+
+      {/* ========== DESKTOP LAYOUT (preserved) ========== */}
+      <section className="home-hero mobile-hide">
+        <div className="hero-shell">
+          <h1 className="hero-title">What are we cooking today?</h1>
+          <p className="hero-subtitle">
             Scale recipes, build menus, and feed the crowd.
           </p>
 
@@ -60,16 +101,13 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="home-grid">
+      <section className="home-grid mobile-hide">
         {highlights.map((card) => (
-          <div key={card.title} className="home-card mobile-card-inline">
+          <div key={card.title} className="home-card">
             <span className="icon-badge">{card.icon}</span>
             <div className="card-body">
               <h2>{card.title}</h2>
-              {/* Desktop: full description */}
-              <p className="text-muted card-desc mobile-hide">{card.desc}</p>
-              {/* Mobile: short description */}
-              <p className="text-muted card-desc mobile-show mobile-show-block">{card.mobileDesc}</p>
+              <p className="text-muted card-desc">{card.desc}</p>
             </div>
             <div className="home-card-actions">
               {card.actions.map((action) => (

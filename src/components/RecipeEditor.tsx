@@ -37,6 +37,12 @@ export default function RecipeEditor({
     alternativeText?: string;
   } | null>(null);
 
+  // Mobile: editing ingredient sheet state
+  const [editingIngredient, setEditingIngredient] = useState<{
+    index: number;
+    ingredient: StagingIngredient;
+  } | null>(null);
+
   // Weight for display only (no scaling in editor anymore)
 
   // Helper: Extract searchable terms from ingredient name
@@ -402,6 +408,252 @@ export default function RecipeEditor({
 
   return (
     <div className="card has-mobile-action-bar">
+      {/* ========== iOS MOBILE EDITOR ========== */}
+      <div className="ios-editor mobile-show">
+        {/* Title Input */}
+        <div className="ios-editor-title-section">
+          <input
+            type="text"
+            value={recipe.title}
+            onChange={(e) => setRecipe({ ...recipe, title: e.target.value })}
+            className="ios-editor-title-input"
+            placeholder="Recipe Title"
+          />
+        </div>
+
+        {/* Recipe Info Section */}
+        <div className="ios-section-header">Recipe Info</div>
+        <div className="ios-grouped-list ios-editor-list">
+          <div className="ios-form-cell">
+            <span className="cell-label">Total Weight</span>
+            <span className="cell-value">
+              {recipe.estimated_final_weight_g 
+                ? `${(recipe.estimated_final_weight_g / 1000).toFixed(2)} kg`
+                : 'Calculating...'
+              }
+            </span>
+          </div>
+          <div className="ios-form-cell last">
+            <span className="cell-label">Source URL</span>
+            <input
+              type="url"
+              value={recipe.source_url || ''}
+              onChange={(e) => setRecipe({ ...recipe, source_url: e.target.value })}
+              className="cell-input"
+              placeholder="https://..."
+            />
+          </div>
+        </div>
+
+        {/* Ingredients Section */}
+        <div className="ios-section-header">
+          <span>Ingredients ({recipe.ingredients.length})</span>
+          <button
+            className="ios-section-add-btn"
+            onClick={() => {
+              const newIngredient: StagingIngredient = {
+                id: crypto.randomUUID(),
+                name_raw: '',
+                name_normalized: '',
+                base_quantity_g: 0,
+                role: 'CONSUMABLE',
+                yield_factor: 1,
+                is_discrete: false,
+                dependency_role: 'PASSENGER',
+                density_confidence: 'high',
+                needs_review: false,
+                is_to_taste: false
+              };
+              setRecipe({
+                ...recipe,
+                ingredients: [...recipe.ingredients, newIngredient]
+              });
+            }}
+          >
+            + Add
+          </button>
+        </div>
+        <div className="ios-grouped-list ios-editor-list">
+          {recipe.ingredients.map((ing, idx) => (
+            <div 
+              key={ing.id || idx} 
+              className={`ios-ingredient-row ${idx === recipe.ingredients.length - 1 ? 'last' : ''}`}
+              onClick={() => setEditingIngredient({ index: idx, ingredient: { ...ing } })}
+            >
+              <div className="ingredient-info">
+                <span className="ingredient-name">{ing.name_normalized || 'Untitled ingredient'}</span>
+                <span className="ingredient-meta">
+                  {ing.is_to_taste ? 'To taste' : `${ing.base_quantity_g || 0} g`} · {ing.role || 'Consumable'}
+                </span>
+              </div>
+              <button 
+                className="ios-delete-btn"
+                onClick={(e) => { e.stopPropagation(); handleRemoveIngredient(idx); }}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          {recipe.ingredients.length === 0 && (
+            <div className="ios-empty-cell">No ingredients yet</div>
+          )}
+        </div>
+
+        {/* Instructions Section */}
+        <div className="ios-section-header">
+          <span>Instructions ({recipe.steps.length})</span>
+          <button
+            className="ios-section-add-btn"
+            onClick={() => {
+              setRecipe({
+                ...recipe,
+                steps: [...recipe.steps, {
+                  id: crypto.randomUUID(),
+                  order: recipe.steps.length + 1,
+                  instruction_raw: '',
+                  constraint_tags: []
+                }]
+              });
+            }}
+          >
+            + Add
+          </button>
+        </div>
+        <div className="ios-grouped-list ios-editor-list">
+          {recipe.steps.map((step, idx) => (
+            <div key={step.id || idx} className={`ios-step-row ${idx === recipe.steps.length - 1 ? 'last' : ''}`}>
+              <span className="step-number">{idx + 1}</span>
+              <textarea
+                value={step.instruction_raw}
+                onChange={(e) => handleStepTextChange(idx, e.target.value)}
+                className="step-textarea"
+                placeholder="Step instructions..."
+                rows={2}
+              />
+              <button 
+                className="ios-delete-btn"
+                onClick={() => {
+                  const newSteps = recipe.steps.filter((_, i) => i !== idx);
+                  setRecipe({ ...recipe, steps: newSteps });
+                }}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          {recipe.steps.length === 0 && (
+            <div className="ios-empty-cell">No instructions yet</div>
+          )}
+        </div>
+
+        {/* Sticky Save Button */}
+        <div className="ios-editor-footer">
+          <button 
+            className="ios-save-btn"
+            onClick={() => onSave(recipe)}
+            disabled={isSaving || isCalculatingYield}
+          >
+            {isSaving ? 'Saving...' : isCalculatingYield ? 'Calculating...' : saveLabel}
+          </button>
+        </div>
+
+        {/* Ingredient Edit Sheet */}
+        {editingIngredient && (
+          <>
+            <div 
+              className="ios-sheet-overlay"
+              onClick={() => setEditingIngredient(null)}
+            />
+            <div className="ios-sheet">
+              <div className="ios-sheet-handle" />
+              <div className="ios-sheet-header">
+                <span>Edit Ingredient</span>
+                <button 
+                  className="ios-sheet-done"
+                  onClick={() => {
+                    const newIngredients = [...recipe.ingredients];
+                    newIngredients[editingIngredient.index] = editingIngredient.ingredient;
+                    setRecipe({ ...recipe, ingredients: newIngredients });
+                    setEditingIngredient(null);
+                  }}
+                >
+                  Done
+                </button>
+              </div>
+              
+              <div className="ios-section-header">Name</div>
+              <div className="ios-grouped-list ios-editor-list">
+                <div className="ios-form-cell last">
+                  <input
+                    type="text"
+                    value={editingIngredient.ingredient.name_normalized || ''}
+                    onChange={(e) => setEditingIngredient({
+                      ...editingIngredient,
+                      ingredient: { ...editingIngredient.ingredient, name_normalized: e.target.value }
+                    })}
+                    className="cell-input-full"
+                    placeholder="Ingredient name"
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              <div className="ios-section-header">Quantity</div>
+              <div className="ios-grouped-list ios-editor-list">
+                <div className="ios-form-cell last">
+                  <input
+                    type="number"
+                    value={editingIngredient.ingredient.base_quantity_g || 0}
+                    onChange={(e) => setEditingIngredient({
+                      ...editingIngredient,
+                      ingredient: { ...editingIngredient.ingredient, base_quantity_g: Number(e.target.value) }
+                    })}
+                    className="cell-input"
+                    disabled={editingIngredient.ingredient.is_to_taste}
+                  />
+                  <span className="cell-unit">g</span>
+                </div>
+              </div>
+
+              <div className="ios-section-header">Role</div>
+              <div className="ios-grouped-list ios-editor-list">
+                <div className="ios-form-cell last">
+                  <select
+                    value={editingIngredient.ingredient.role || 'CONSUMABLE'}
+                    onChange={(e) => setEditingIngredient({
+                      ...editingIngredient,
+                      ingredient: { ...editingIngredient.ingredient, role: e.target.value as any }
+                    })}
+                    className="cell-select"
+                  >
+                    <option value="CONSUMABLE">Consumable</option>
+                    <option value="PROCESS_ONLY">Process Only</option>
+                    <option value="REDUCTION">Reduction</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="ios-grouped-list ios-editor-list" style={{ marginTop: '1rem' }}>
+                <label className="ios-toggle-cell last">
+                  <span>To taste (no specific quantity)</span>
+                  <input
+                    type="checkbox"
+                    checked={editingIngredient.ingredient.is_to_taste || false}
+                    onChange={(e) => setEditingIngredient({
+                      ...editingIngredient,
+                      ingredient: { ...editingIngredient.ingredient, is_to_taste: e.target.checked }
+                    })}
+                    className="ios-toggle"
+                  />
+                </label>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* ========== DESKTOP EDITOR (preserved) ========== */}
+      <div className="desktop-editor mobile-hide">
       {/* ... (confirmation dialog) ... */}
 
       <div className="mobile-stack mobile-gap-md" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -714,6 +966,9 @@ export default function RecipeEditor({
           {isSaving ? 'Saving...' : saveLabel}
         </button>
       </div>
+
+      {/* Mobile Action Bar - now hidden since iOS editor has own footer */}
+      </div>  {/* End desktop-editor */}
     </div>
   );
 }

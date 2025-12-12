@@ -3391,6 +3391,538 @@ body.chili-mode .nav-link.active {
     margin-top: 0.5rem !important;
   }
 
+  /* ============================================
+     iOS HOME SCREEN LAYOUT
+     ============================================ */
+  .ios-home {
+    padding: 0 !important;
+    background: var(--color-background) !important;
+  }
+
+  /* Hero Section */
+  .ios-home-hero {
+    text-align: center !important;
+    padding: 1.5rem 1rem 1rem 1rem !important;
+  }
+
+  .ios-home-title {
+    font-size: 1.75rem !important;
+    font-weight: 700 !important;
+    color: var(--color-text) !important;
+    margin: 0 0 1.25rem 0 !important;
+  }
+
+  .ios-home-form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+
+  .ios-home-input {
+    width: 100% !important;
+    padding: 0.85rem 1rem !important;
+    border-radius: 12px !important;
+    border: 1px solid var(--color-border) !important;
+    font-size: 1rem !important;
+    background: white !important;
+    color: var(--color-text) !important;
+  }
+
+  .ios-home-input::placeholder {
+    color: var(--color-text-muted) !important;
+  }
+
+  .ios-home-submit {
+    width: 100% !important;
+    padding: 0.9rem 1rem !important;
+    border-radius: 12px !important;
+    border: none !important;
+    background: var(--color-brown) !important;
+    color: white !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+  }
+
+  .ios-home-secondary {
+    display: block !important;
+    margin-top: 1rem !important;
+    color: var(--color-brown) !important;
+    font-size: 0.95rem !important;
+    text-decoration: none !important;
+  }
+
+  /* iOS Section Header */
+  .ios-section-header {
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    color: var(--color-text-muted) !important;
+    padding: 1.5rem 1rem 0.5rem 1rem !important;
+  }
+
+  /* iOS Home List - reuse grouped list */
+  .ios-home-list {
+    margin: 0 0.75rem !important;
+    width: calc(100% - 1.5rem) !important;
+  }
+
+  .ios-home-list .ios-list-cell {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.9rem 1rem !important;
+    background: white !important;
+    text-decoration: none !important;
+    color: inherit !important;
+    border-bottom: 1px solid var(--color-border-light) !important;
+  }
+
+  .ios-home-list .ios-list-cell:first-child {
+    border-radius: 12px 12px 0 0 !important;
+  }
+
+  .ios-home-list .ios-list-cell.last {
+    border-radius: 0 0 12px 12px !important;
+    border-bottom: none !important;
+  }
+
+  .ios-home-list .cell-icon {
+    font-size: 1.25rem !important;
+    margin-right: 0.75rem !important;
+  }
+
+  .ios-home-list .cell-label {
+    flex: 1 !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    color: var(--color-text) !important;
+  }
+
+  .ios-home-list .chevron {
+    color: var(--color-text-muted) !important;
+    font-size: 1.25rem !important;
+    font-weight: 300 !important;
+  }
+
+  /* Compact Kitchen Wisdom */
+  .ios-kitchen-wisdom {
+    padding: 1.5rem 1rem 2rem 1rem !important;
+    text-align: center !important;
+  }
+
+  /* ============================================
+     iOS RECIPE EDITOR
+     ============================================ */
+  .ios-editor {
+    padding: 0 !important;
+    background: var(--color-background) !important;
+  }
+
+  .ios-editor-title-section {
+    padding: 1rem !important;
+  }
+
+  .ios-editor-title-input {
+    width: 100% !important;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0.5rem 0 !important;
+    color: var(--color-text) !important;
+  }
+
+  .ios-editor-title-input::placeholder {
+    color: var(--color-text-muted) !important;
+  }
+
+  .ios-editor-list {
+    margin: 0 0.75rem !important;
+    width: calc(100% - 1.5rem) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    background: white !important;
+  }
+
+  /* iOS Form Cell */
+  .ios-form-cell {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.85rem 1rem !important;
+    border-bottom: 1px solid var(--color-border-light) !important;
+  }
+
+  .ios-form-cell.last {
+    border-bottom: none !important;
+  }
+
+  .ios-form-cell .cell-label {
+    font-size: 1rem !important;
+    color: var(--color-text) !important;
+  }
+
+  .ios-form-cell .cell-value {
+    font-size: 1rem !important;
+    color: var(--color-text-muted) !important;
+  }
+
+  .ios-form-cell .cell-input {
+    text-align: right !important;
+    border: none !important;
+    background: transparent !important;
+    font-size: 1rem !important;
+    color: var(--color-text-muted) !important;
+    padding: 0 !important;
+    width: 60% !important;
+  }
+
+  .ios-form-cell .cell-input-full {
+    border: none !important;
+    background: transparent !important;
+    font-size: 1rem !important;
+    color: var(--color-text) !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .ios-form-cell .cell-unit {
+    color: var(--color-text-muted) !important;
+    margin-left: 0.25rem !important;
+  }
+
+  .ios-form-cell .cell-select {
+    text-align: right !important;
+    border: none !important;
+    background: transparent !important;
+    font-size: 1rem !important;
+    color: var(--color-text-muted) !important;
+    padding: 0 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: 100% !important;
+    text-align-last: right !important;
+  }
+
+  /* iOS Section Header with Add Button */
+  .ios-section-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+
+  .ios-section-add-btn {
+    font-size: 0.8rem !important;
+    color: var(--color-brown) !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    font-weight: 500 !important;
+  }
+
+  /* iOS Ingredient Row */
+  .ios-ingredient-row {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.85rem 1rem !important;
+    border-bottom: 1px solid var(--color-border-light) !important;
+    cursor: pointer !important;
+  }
+
+  .ios-ingredient-row.last {
+    border-bottom: none !important;
+  }
+
+  .ios-ingredient-row .ingredient-info {
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .ios-ingredient-row .ingredient-name {
+    display: block !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    color: var(--color-text) !important;
+    margin-bottom: 0.15rem !important;
+  }
+
+  .ios-ingredient-row .ingredient-meta {
+    display: block !important;
+    font-size: 0.85rem !important;
+    color: var(--color-text-muted) !important;
+  }
+
+  .ios-delete-btn {
+    background: transparent !important;
+    border: none !important;
+    font-size: 1.25rem !important;
+    color: #dc3545 !important;
+    padding: 0.5rem !important;
+    cursor: pointer !important;
+    line-height: 1 !important;
+  }
+
+  /* iOS Step Row */
+  .ios-step-row {
+    display: flex !important;
+    align-items: flex-start !important;
+    padding: 0.85rem 1rem !important;
+    border-bottom: 1px solid var(--color-border-light) !important;
+    gap: 0.5rem !important;
+  }
+
+  .ios-step-row.last {
+    border-bottom: none !important;
+  }
+
+  .ios-step-row .step-number {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    min-width: 1.25rem !important;
+    background: var(--color-brown) !important;
+    color: white !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    margin-top: 0.35rem !important;
+  }
+
+  .ios-step-row .step-textarea {
+    flex: 1 !important;
+    border: none !important;
+    background: transparent !important;
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+    resize: none !important;
+    padding: 0 !important;
+    color: var(--color-text) !important;
+  }
+
+  .ios-empty-cell {
+    padding: 1rem !important;
+    text-align: center !important;
+    color: var(--color-text-muted) !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* iOS Editor Footer */
+  .ios-editor-footer {
+    position: sticky !important;
+    bottom: 0 !important;
+    padding: 1rem !important;
+    background: var(--color-background) !important;
+    border-top: 1px solid var(--color-border-light) !important;
+  }
+
+  .ios-save-btn {
+    width: 100% !important;
+    padding: 0.9rem !important;
+    border-radius: 12px !important;
+    border: none !important;
+    background: var(--color-brown) !important;
+    color: white !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+  }
+
+  .ios-save-btn:disabled {
+    opacity: 0.6 !important;
+  }
+
+  /* iOS Sheet Modal */
+  .ios-sheet-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    z-index: 9999 !important;
+  }
+
+  .ios-sheet {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: #f2f2f7 !important;
+    border-radius: 16px 16px 0 0 !important;
+    padding: 0.5rem 0 !important;
+    padding-bottom: calc(env(safe-area-inset-bottom, 1rem) + 1rem) !important;
+    z-index: 10000 !important;
+    animation: slideUp 0.3s ease !important;
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .ios-sheet-handle {
+    width: 36px !important;
+    height: 5px !important;
+    background: var(--color-border) !important;
+    border-radius: 3px !important;
+    margin: 0.5rem auto 1rem auto !important;
+  }
+
+  .ios-sheet-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0 1rem 0.75rem 1rem !important;
+    border-bottom: 1px solid var(--color-border-light) !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .ios-sheet-header span {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+  }
+
+  .ios-sheet-done {
+    font-size: 1rem !important;
+    color: var(--color-brown) !important;
+    background: transparent !important;
+    border: none !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+  }
+
+  /* Sheet Section Headers */
+  .ios-sheet .ios-section-header {
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    color: var(--color-text-muted) !important;
+    padding: 1rem 1rem 0.5rem 1rem !important;
+    display: block !important;
+  }
+
+  /* Sheet Form Lists - White Cards */
+  .ios-sheet .ios-grouped-list {
+    margin: 0 0.75rem !important;
+    width: calc(100% - 1.5rem) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    background: white !important;
+  }
+
+  .ios-sheet .ios-form-cell {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.9rem 1rem !important;
+    background: white !important;
+    border-bottom: 1px solid var(--color-border-light) !important;
+  }
+
+  .ios-sheet .ios-form-cell.last {
+    border-bottom: none !important;
+  }
+
+  .ios-sheet .ios-form-cell .cell-input-full {
+    border: none !important;
+    background: transparent !important;
+    font-size: 1rem !important;
+    color: var(--color-text) !important;
+    padding: 0 !important;
+    width: 100% !important;
+    outline: none !important;
+  }
+
+  .ios-sheet .ios-form-cell .cell-input {
+    text-align: center !important;
+    border: none !important;
+    background: transparent !important;
+    font-size: 1.25rem !important;
+    font-weight: 500 !important;
+    color: var(--color-text) !important;
+    padding: 0 !important;
+    flex: 1 !important;
+    outline: none !important;
+  }
+
+  .ios-sheet .ios-form-cell .cell-unit {
+    color: var(--color-text-muted) !important;
+    font-size: 1rem !important;
+    margin-left: 0.5rem !important;
+  }
+
+  .ios-sheet .ios-form-cell .cell-select {
+    text-align: right !important;
+    border: none !important;
+    background: transparent !important;
+    font-size: 1rem !important;
+    color: var(--color-brown) !important;
+    padding: 0 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: 100% !important;
+    text-align-last: right !important;
+    font-weight: 500 !important;
+    outline: none !important;
+  }
+
+  /* Sheet Toggle Cell */
+  .ios-sheet .ios-toggle-cell {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.9rem 1rem !important;
+    cursor: pointer !important;
+    background: white !important;
+  }
+
+  .ios-toggle-cell {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.85rem 1rem !important;
+    cursor: pointer !important;
+  }
+
+  .ios-toggle-cell.last {
+    border-bottom: none !important;
+  }
+
+  .ios-toggle {
+    width: 50px !important;
+    height: 30px !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background: #e5e5e5 !important;
+    border-radius: 15px !important;
+    position: relative !important;
+    cursor: pointer !important;
+    transition: background 0.2s !important;
+  }
+
+  .ios-toggle:checked {
+    background: var(--color-brown) !important;
+  }
+
+  .ios-toggle::before {
+    content: '' !important;
+    position: absolute !important;
+    width: 26px !important;
+    height: 26px !important;
+    background: white !important;
+    border-radius: 50% !important;
+    top: 2px !important;
+    left: 2px !important;
+    transition: transform 0.2s !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  .ios-toggle:checked::before {
+    transform: translateX(20px) !important;
+  }
+
   /* === Home Cards - Full Width Edge-to-Edge === */
   .home-grid {
     gap: 0.5rem !important;
@@ -3540,9 +4072,10 @@ body.chili-mode .nav-link.active {
     top: 48px !important;
     z-index: 50 !important;
     padding: 0.5rem 1rem 0.75rem 1rem !important;
-    background: var(--color-background) !important;
+    background: #faf8f5 !important;
     margin: 0 -1.5rem !important;
     width: calc(100% + 3rem) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
   }
 
   .ios-search-bar {
